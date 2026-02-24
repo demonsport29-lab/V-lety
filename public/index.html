@@ -61,7 +61,7 @@
         .btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-sm); }
         .btn-primary { background: var(--primary); color: white; }
         .btn-outline { background: transparent; border: 2px solid var(--border); color: var(--fg); }
-        .btn-premium { background: linear-gradient(135deg, #F59E0B, #D97706); color: white; border: none;}
+        .btn-premium { background: linear-gradient(135deg, #F59E0B, #D97706); color: white; border: none; box-shadow: 0 10px 20px -5px rgba(245, 158, 11, 0.4);}
         
         input[type="text"], input[type="time"], input[type="number"], select, textarea { width: 100%; padding: 16px 20px; border-radius: 16px; border: 2px solid transparent; background: var(--bg); color: var(--fg); margin-bottom: 15px; box-sizing: border-box; font-size: 1rem; font-family: inherit; }
         input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary); background: var(--glass); box-shadow: 0 0 0 4px var(--primary-soft); }
@@ -127,7 +127,7 @@
 
             /* 1. Zrušení CSS pasti (Vypnutí animace a filtru, aby tlačítka spadla dolů) */
             .nav-wrapper { animation: none !important; transform: none !important; position: static !important; padding: 10px !important; margin-bottom: 15px !important; }
-            .nav-bar { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; justify-content: space-between !important; padding: 10px 15px !important; }
+            .nav-bar { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; justify-content: space-between !important; padding: 10px 15px !important; flex-wrap: wrap; }
             
             .logo span { display: none; } 
             .btn { padding: 8px 12px !important; font-size: 0.85rem !important; }
@@ -161,7 +161,7 @@
             .modal-content { padding: 25px 20px !important; width: calc(100% - 30px) !important; }
 
             /* 4. Posunutí tlačítka kontakt nad nové spodní menu */
-            .contact-widget { bottom: 100px !important; right: 15px !important; }
+            .contact-widget { bottom: 90px !important; right: 15px !important; }
             .contact-btn { width: 55px !important; height: 55px !important; font-size: 1.4rem !important; }
         }
     </style>
@@ -193,17 +193,12 @@
         </div>
     </div>
 
-    <div id="premiumModal" class="modal" onclick="if(event.target === this) this.style.display='none'">
+    <div id="donateModal" class="modal" onclick="if(event.target === this) this.style.display='none'">
         <div class="modal-content" style="text-align: center; background: linear-gradient(135deg, var(--bg), var(--premium-soft)); border-color: var(--premium);">
-            <div style="font-size: 4rem; margin-bottom: 10px;">👑</div>
-            <h2 style="color: var(--premium);">VERONA Premium</h2>
-            <p style="font-size: 1.1rem; color: var(--muted); margin-bottom: 30px;">Odemkněte plný potenciál svých cest.</p>
-            <ul style="text-align: left; margin: 0 auto 30px auto; max-width: 300px; font-weight: 600; line-height: 2;">
-                <li>✨ Neomezené AI generování</li>
-                <li>📸 Neomezené nahrávání fotek</li>
-                <li>🗺️ Export tras do GPX</li>
-            </ul>
-            <button id="btnKoupit" class="btn btn-premium" style="width: 100%; padding: 20px; font-size: 1.2rem;" onclick="koupitPremium()">Pořídit za 99 Kč</button>
+            <div style="font-size: 4rem; margin-bottom: 10px;">☕</div>
+            <h2 style="color: var(--premium);">Podpořit projekt</h2>
+            <p style="font-size: 1.1rem; color: var(--muted); margin-bottom: 30px;">VERONU vyvíjím ve svém volném čase. Pokud vám aplikace dělá radost, budu moc vděčný za symbolický příspěvek na provoz umělé inteligence a serverů.</p>
+            <button id="btnKoupit" class="btn btn-premium" style="width: 100%; padding: 20px; font-size: 1.2rem;" onclick="poslatPrispevek()">❤️ Přispět 99 Kč</button>
         </div>
     </div>
 
@@ -241,7 +236,9 @@
                 <button class="tab-btn" onclick="prepniHlavniTab('planovac')" id="t-planovac">🗺️ Můj Plánovač</button>
             </div>
 
-            <div style="display: flex; gap: 10px; align-items: center;">
+            <div style="display: flex; gap: 8px; align-items: center;">
+                <button class="btn btn-outline" onclick="document.getElementById('donateModal').style.display='flex'" style="padding: 10px 12px; border-radius: var(--radius-btn); border-color: var(--premium); color: var(--premium);">☕ Podpořit</button>
+                
                 <button class="btn btn-outline" id="btnGoogle" onclick="location.href='/auth/google'" style="padding: 10px 16px; border-radius: var(--radius-btn);">Přihlásit</button>
                 <button class="btn btn-outline" id="btnProfil" onclick="document.getElementById('profileModal').style.display='flex'" style="padding: 10px 16px; border-radius: var(--radius-btn); display: none;">👤 Profil</button>
                 <button class="btn btn-outline" onclick="prepniRezim()" style="padding: 10px; border-radius: 50%; width: 44px; height: 44px;">🌓</button>
@@ -381,7 +378,7 @@
                 <span style="cursor:pointer;" onclick="document.getElementById('contactWin').style.display='none'">✕</span>
             </div>
             <div style="padding: 20px; display: flex; flex-direction: column; gap: 15px;">
-                <p style="margin: 0; color: var(--muted); font-size: 0.95rem;">Máte nápad na zlepšení, návrh na spolupráci, nebo jste našli chybu?</p>
+                <p style="margin: 0; color: var(--muted); font-size: 0.95rem;">Máte nápad na zlepšení, nebo jste našli chybu?</p>
                 <input type="text" id="kontaktPredmet" placeholder="Předmět zprávy" style="padding: 14px; margin-bottom: 0; border-radius: 12px; background: var(--bg);">
                 <textarea id="kontaktZprava" rows="5" placeholder="Vaše zpráva..." style="padding: 14px; border-radius: 12px; border: 1px solid var(--border); background: var(--bg); color: var(--fg); font-family: inherit; resize: none; margin-bottom: 0;"></textarea>
                 <button class="btn btn-primary" onclick="odeslatKontakt()" id="btnKontakt" style="width: 100%; padding: 14px; border-radius: 12px;">Odeslat e-mail</button>
@@ -420,15 +417,7 @@
                         document.getElementById('myMiniAvatar').innerText = avatarInit;
                     }
 
-                    if (data.profil.isAdmin) {
-                        btnGoogle.innerHTML = "⚙️ Admin <span class='admin-badge'>ROOT</span>";
-                        localStorage.setItem('veronaPremium', 'true');
-                    } else if (data.profil.isPremium) {
-                        btnGoogle.innerText = "👑 Premium";
-                        localStorage.setItem('veronaPremium', 'true');
-                    } else {
-                        btnGoogle.innerText = "✓ Propojeno";
-                    }
+                    btnGoogle.innerText = "✓ Přihlášen";
                     btnGoogle.onclick = (e) => e.preventDefault();
                 }
             } catch(e) {}
@@ -453,7 +442,7 @@
         function toggleAcc(id) { const c = document.getElementById(id); c.classList.toggle('open'); c.style.maxHeight = c.classList.contains('open') ? "450px" : "0px"; }
         function prepniRezim() { document.documentElement.setAttribute('data-theme', document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'); }
 
-        // --- PROFIL A PLATBY ---
+        // --- PROFIL A PŘÍSPĚVKY ---
         function zmenitAvatar() {
             const input = document.createElement('input'); input.type = 'file'; input.accept = 'image/*';
             input.onchange = (e) => {
@@ -474,7 +463,8 @@
             alert("Profil aktualizován!"); location.reload(); 
         }
 
-        async function koupitPremium() {
+        // ZMĚNA: Funkce pro odeslání dobrovolného příspěvku
+        async function poslatPrispevek() {
             try {
                 document.getElementById('btnKoupit').innerText = "Načítám pokladnu...";
                 const res = await fetch('/api/vytvorit-platbu', { method: 'POST' });
@@ -684,7 +674,7 @@
             }
         }
 
-        // --- FEED / KOMUNITA MAZÁNÍ/EDITACE ---
+        // --- FEED / KOMUNITA ---
         function nactiFotkyDoFeedu(input) {
             const preview = document.getElementById('feedPhotoPreview');
             preview.innerHTML = ""; pripraveneFotky = [];
@@ -777,10 +767,10 @@
             }
         }
 
-        // --- AI PLANNER A ZBYTEK ---
+        // --- AI PLANNER ---
         async function generovat() {
-            if (localStorage.getItem('veronaPremium') !== 'true') return document.getElementById('premiumModal').style.display = 'flex';
-            if(!prihlaseno) return alert("Prosím přihlaste se přes Google.");
+            // ZMĚNA: Tady jsem odstranil zámek na Premium, takže už tě to nepustí do starého erroru a normálně to generuje.
+            if(!prihlaseno) return alert("Pro ukládání výletů se prosím přihlaste přes Google.");
             const misto = document.getElementById('mistoIn').value.trim(); if(!misto) return alert("Zadej lokalitu.");
             const vybraneFiltry = Array.from(document.querySelectorAll('.ai-filter:checked')).map(cb => cb.value);
             const btn = document.getElementById('genBtn'); btn.innerHTML = "Sestavuji..."; btn.disabled = true;
