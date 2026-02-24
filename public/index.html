@@ -34,6 +34,7 @@
         .animate { animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         .hidden { display: none !important; }
 
+        /* Hlavní navigace počítač */
         .nav-wrapper { position: sticky; top: 15px; z-index: 1000; padding: 0 20px; display: flex; justify-content: center; margin-bottom: 30px;}
         .nav-bar { display: flex; justify-content: space-between; align-items: center; background: var(--glass); backdrop-filter: blur(20px); padding: 10px 20px; border-radius: 999px; border: 1px solid var(--border); box-shadow: var(--shadow); width: 100%; max-width: 1400px; gap: 20px;}
         .logo { font-weight: 900; font-size: 1.4rem; color: var(--fg); text-decoration: none; display: flex; align-items: center; gap: 8px;}
@@ -45,7 +46,6 @@
         .tab-btn:hover:not(.active) { color: var(--fg); }
 
         .app-layout { display: grid; grid-template-columns: 360px 1fr; gap: 30px; max-width: 1300px; margin: 0 auto; padding: 0 20px; align-items: start; }
-        @media (max-width: 950px) { .app-layout { grid-template-columns: 1fr; } }
         .feed-layout { max-width: 700px; margin: 0 auto; padding: 0 20px; }
 
         .card { background: var(--glass); backdrop-filter: blur(20px); border: 1px solid var(--border); border-radius: var(--radius-card); padding: 35px; box-shadow: var(--shadow); margin-bottom: 30px;}
@@ -53,7 +53,6 @@
 
         .feed-composer { background: var(--glass); border: 1px solid var(--border); border-radius: 24px; padding: 25px; margin-bottom: 30px; box-shadow: var(--shadow);}
         .feed-post { background: var(--glass); border: 1px solid var(--border); border-radius: 24px; padding: 25px; margin-bottom: 25px; box-shadow: var(--shadow-sm); transition: 0.3s;}
-        .feed-post:hover { border-color: var(--primary-soft); transform: translateY(-3px);}
         .feed-header { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
         .feed-text { line-height: 1.6; margin-bottom: 15px; white-space: pre-wrap; font-size: 1.05rem;}
         .feed-linked-trip { background: var(--bg); border: 1px dashed var(--primary); padding: 15px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;}
@@ -106,20 +105,22 @@
         .bento-card:hover { transform: translateY(-10px); box-shadow: var(--shadow); border-color: var(--primary-soft); }
         .bento-card.done::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 6px; background: #22c55e; }
 
+        /* Widget Kontakt */
+        .contact-widget { position: fixed; bottom: 30px; right: 30px; z-index: 2000; }
+        .contact-btn { width: 70px; height: 70px; border-radius: 35px; background: var(--primary); border: none; cursor: pointer; color: white; font-size: 1.8rem; box-shadow: 0 15px 30px rgba(220,38,38,0.4); transition: 0.3s; display: flex; justify-content: center; align-items: center;}
+        .contact-btn:hover { transform: scale(1.1) rotate(5deg); }
+        .contact-win { position: absolute; bottom: 90px; right: 0; width: 360px; background: var(--glass); backdrop-filter: blur(20px); border: 1px solid var(--border); border-radius: 24px; display: none; flex-direction: column; overflow: hidden; box-shadow: var(--shadow);}
+
         .custom-map-marker { background: var(--primary); width: 14px; height: 14px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 15px var(--primary); }
         .leaflet-popup-content-wrapper, .leaflet-popup-tip { background: #111827; color: #fff; border: 1px solid var(--primary); border-radius: 16px; }
         .marker-cluster-small div, .marker-cluster-medium div, .marker-cluster-large div { background-color: rgba(220, 38, 38, 0.9) !important; color: white !important; font-weight: 800; border-radius: 50%; }
         .admin-badge { background: linear-gradient(135deg, #FFD700, #F59E0B); color: black; font-weight: 900; padding: 2px 8px; border-radius: 8px; font-size: 0.7rem; margin-left: 10px; }
         .star-hover:hover { transform: scale(1.3); color: var(--premium) !important; cursor: pointer;}
-        
-        /* Akční tlačítka v komentářích */
         .action-btn { background: none; border: none; cursor: pointer; color: var(--muted); font-size: 0.9rem; transition: 0.2s; padding: 2px; }
         .action-btn:hover { transform: scale(1.2); color: var(--primary); }
+
         /* ==================================================== */
-        /* 📱 MOBILNÍ VERZE (Smartphony - iOS i Android)       */
-        /* ==================================================== */
-        /* ==================================================== */
-        /* 📱 MOBILNÍ VERZE (Smartphony - iOS i Android)       */
+        /* 📱 MOBILNÍ VERZE - OPRAVENÁ A SILNÁ                */
         /* ==================================================== */
         @media (max-width: 768px) {
             body { padding-bottom: 120px !important; } 
@@ -127,14 +128,14 @@
             /* 1. Horní lišta - uvolníme místo, aby se nic nepřekrývalo */
             .nav-wrapper { position: static !important; padding: 10px !important; margin-bottom: 15px !important; }
             .nav-bar { justify-content: space-between !important; padding: 10px 15px !important; }
-            .logo span { display: none; } /* Skryjeme tečku u loga pro víc místa */
+            .logo span { display: none; } 
             .btn { padding: 8px 12px !important; font-size: 0.85rem !important; }
 
-            /* 2. SPODNÍ NAVIGACE PŘESNĚ JAKO INSTAGRAM (Násilné přesunutí dolů) */
+            /* 2. SPODNÍ NAVIGACE (App-like dole) */
             .main-tabs { 
                 position: fixed !important; 
                 bottom: 20px !important; 
-                bottom: env(safe-area-inset-bottom, 20px) !important; /* Respektuje čárku na iPhonech */
+                bottom: env(safe-area-inset-bottom, 20px) !important; 
                 left: 50% !important; 
                 transform: translateX(-50%) !important; 
                 width: 90% !important; 
@@ -149,14 +150,17 @@
                 border: 1px solid var(--border) !important;
             }
             [data-theme="dark"] .main-tabs { background: rgba(15, 23, 42, 0.9) !important; }
-            
             .tab-btn { flex: 1 !important; padding: 12px 10px !important; font-size: 0.95rem !important; margin: 0 !important; }
 
-            /* 3. Zmenšení okrajů a mapy, aby se vše vešlo na displej */
+            /* 3. Zmenšení rozložení */
             .app-layout, .feed-layout { padding: 0 10px !important; grid-template-columns: 1fr !important; gap: 15px !important;}
             .card, .bento-card { padding: 20px !important; border-radius: 24px !important; }
             #globalMap { height: 320px !important; margin-bottom: 20px !important; }
             .modal-content { padding: 25px 20px !important; width: calc(100% - 30px) !important; }
+
+            /* 4. Posunutí tlačítka kontakt nad nové spodní menu */
+            .contact-widget { bottom: 100px !important; right: 15px !important; }
+            .contact-btn { width: 55px !important; height: 55px !important; font-size: 1.4rem !important; }
         }
     </style>
 </head>
@@ -367,6 +371,22 @@
         </main>
     </div>
 
+    <div class="contact-widget animate-up delay-2">
+        <button class="contact-btn" onclick="document.getElementById('contactWin').style.display = document.getElementById('contactWin').style.display === 'flex' ? 'none' : 'flex'">✉️</button>
+        <div class="contact-win" id="contactWin">
+            <div style="padding:20px; background:var(--primary); color:white; font-weight:800; display:flex; justify-content:space-between; font-size: 1.1rem;">
+                <span>Napište autorovi</span>
+                <span style="cursor:pointer;" onclick="document.getElementById('contactWin').style.display='none'">✕</span>
+            </div>
+            <div style="padding: 20px; display: flex; flex-direction: column; gap: 15px;">
+                <p style="margin: 0; color: var(--muted); font-size: 0.95rem;">Máte nápad na zlepšení, návrh na spolupráci, nebo jste našli chybu?</p>
+                <input type="text" id="kontaktPredmet" placeholder="Předmět zprávy" style="padding: 14px; margin-bottom: 0; border-radius: 12px; background: var(--bg);">
+                <textarea id="kontaktZprava" rows="5" placeholder="Vaše zpráva..." style="padding: 14px; border-radius: 12px; border: 1px solid var(--border); background: var(--bg); color: var(--fg); font-family: inherit; resize: none; margin-bottom: 0;"></textarea>
+                <button class="btn btn-primary" onclick="odeslatKontakt()" id="btnKontakt" style="width: 100%; padding: 14px; border-radius: 12px;">Odeslat e-mail</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         let curDraft = null, curOpenTripId = null, prihlaseno = false;
         let mainMap = null, markerCluster = null, mujProfil = null; 
@@ -431,7 +451,7 @@
         function toggleAcc(id) { const c = document.getElementById(id); c.classList.toggle('open'); c.style.maxHeight = c.classList.contains('open') ? "450px" : "0px"; }
         function prepniRezim() { document.documentElement.setAttribute('data-theme', document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'); }
 
-        // --- PROFIL ---
+        // --- PROFIL A PLATBY ---
         function zmenitAvatar() {
             const input = document.createElement('input'); input.type = 'file'; input.accept = 'image/*';
             input.onchange = (e) => {
@@ -450,6 +470,15 @@
             await fetch('/api/ulozit-profil', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(data) });
             document.getElementById('profileModal').style.display = 'none';
             alert("Profil aktualizován!"); location.reload(); 
+        }
+
+        async function koupitPremium() {
+            try {
+                document.getElementById('btnKoupit').innerText = "Načítám pokladnu...";
+                const res = await fetch('/api/vytvorit-platbu', { method: 'POST' });
+                const data = await res.json();
+                if (data.url) window.location.href = data.url;
+            } catch(e) { alert("Chyba při načítání platby."); document.getElementById('btnKoupit').innerText = "Zkusit znovu"; }
         }
 
         // --- MAPA ---
@@ -597,7 +626,6 @@
                 let avatarStyle = k.avatar ? `background-image:url(${k.avatar}); color:transparent;` : ``;
                 let iniciala = k.autor ? k.autor.charAt(0).toUpperCase() : 'U';
                 
-                // Může mazat/upravit, pokud je to on, nebo je admin
                 let isOwner = prihlaseno && mujProfil && (k.autorId === mujProfil._id || mujProfil.isAdmin);
                 let akceHtml = isOwner ? `
                     <div style="display:flex; gap:8px;">
@@ -707,7 +735,6 @@
                     </div>`;
                 }
 
-                // Akční tlačítka pro Feed
                 let isOwner = prihlaseno && mujProfil && (p.autorId === mujProfil._id || mujProfil.isAdmin);
                 let akceHtml = isOwner ? `
                     <div style="display:flex; gap:10px;">
@@ -799,7 +826,7 @@
         }
 
         function otevritGoogleMaps(id) { fetch('/api/ulozene-vylety').then(r => r.json()).then(v => { const vylet = v.find(x => x.id === id); if (!vylet || !vylet.etapy || vylet.etapy.length === 0 || !vylet.etapy[0].lat) return alert("Chybí GPS data."); const origin = `${vylet.etapy[0].lat},${vylet.etapy[0].lng}`; const destination = `${vylet.etapy[vylet.etapy.length-1].lat},${vylet.etapy[vylet.etapy.length-1].lng}`; let waypoints = ""; if (vylet.etapy.length > 2) { waypoints = "&waypoints=" + vylet.etapy.slice(1, -1).map(e => `${e.lat},${e.lng}`).join('|'); } window.open(`https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}${waypoints}&travelmode=walking`, '_blank'); }); }
-        function stahnoutGPX(id, lokace) { fetch('/api/ulozene-vylety').then(r => r.json()).then(v => { const vylet = v.find(x => x.id === id); let gpx = `<?xml version="1.0" encoding="UTF-8"?>\n<gpx version="1.1" creator="VERONA" xmlns="http://www.topografix.com/GPX/1/1">\n  <rte><name>${lokace}</name>\n`; vylet.etapy.forEach(bod => { gpx += `    <rtept lat="${bod.lat}" lon="${bod.lng}"><name>${bod.misto}</name></rtept>\n`; }); gpx += `  </rte>\n</gpx>`; const blob = new Blob([gpx], { type: 'application/gpx+xml' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `${lokace.replace(/\s+/g, '_')}.gpx`; document.body.appendChild(a); a.click(); }); }
+        function stahnoutGPX(id, lokace) { fetch('/api/ulozene-vylety').then(r => r.json()).then(v => { const vylet = v.find(x => x.id === id); if (!vylet || !vylet.etapy || vylet.etapy.length === 0 || !vylet.etapy[0].lat) return alert("Chybí GPS data."); let gpx = `<?xml version="1.0" encoding="UTF-8"?>\n<gpx version="1.1" creator="VERONA" xmlns="http://www.topografix.com/GPX/1/1">\n  <rte><name>${lokace}</name>\n`; vylet.etapy.forEach(bod => { gpx += `    <rtept lat="${bod.lat}" lon="${bod.lng}"><name>${bod.misto}</name></rtept>\n`; }); gpx += `  </rte>\n</gpx>`; const blob = new Blob([gpx], { type: 'application/gpx+xml' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `${lokace.replace(/\s+/g, '_')}.gpx`; document.body.appendChild(a); a.click(); }); }
         function openGallery(src) { document.getElementById('lightboxImg').src = src; document.getElementById('lightbox').style.display = 'flex'; }
         
         async function doKalendare() {
@@ -810,6 +837,18 @@
             }
             const r = await fetch('/api/kalendar', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ lokace: document.getElementById('resTitle').innerText, popis: "VERONA", datum, mapaLink }) });
             if((await r.json()).uspech) alert("Přidáno!");
+        }
+
+        async function odeslatKontakt() {
+            const predmet = document.getElementById('kontaktPredmet').value.trim();
+            const zprava = document.getElementById('kontaktZprava').value.trim();
+            if(!predmet || !zprava) return alert("Vyplňte prosím předmět i zprávu.");
+            document.getElementById('btnKontakt').innerText = "Odesílám...";
+            await fetch('/api/kontakt', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ predmet, zprava }) });
+            alert("Zpráva odeslána.");
+            document.getElementById('contactWin').style.display = 'none';
+            document.getElementById('kontaktPredmet').value = ""; document.getElementById('kontaktZprava').value = "";
+            document.getElementById('btnKontakt').innerText = "Odeslat e-mail";
         }
 
         window.onload = init;
