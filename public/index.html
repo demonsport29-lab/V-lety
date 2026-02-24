@@ -115,6 +115,56 @@
         /* Akční tlačítka v komentářích */
         .action-btn { background: none; border: none; cursor: pointer; color: var(--muted); font-size: 0.9rem; transition: 0.2s; padding: 2px; }
         .action-btn:hover { transform: scale(1.2); color: var(--primary); }
+        /* ==================================================== */
+        /* 📱 MOBILNÍ VERZE (Smartphony - iOS i Android)       */
+        /* ==================================================== */
+        @media (max-width: 768px) {
+            /* 1. Místo pro spodní menu, aby nepřekrývalo obsah */
+            body { padding-bottom: 100px; } 
+
+            /* 2. Zmenšení horní navigace */
+            .nav-bar { flex-wrap: wrap; padding: 12px 15px; border-radius: 20px; gap: 10px; justify-content: center;}
+            .logo { font-size: 1.2rem; }
+            
+            /* 3. Zmenšení tlačítek nahoře, aby se vešla vedle sebe */
+            .btn { padding: 10px 16px; font-size: 0.85rem; }
+            #btnGoogle, #btnProfil { font-size: 0.8rem; padding: 10px 12px; }
+
+            /* 4. SPODNÍ NAVIGACE (App-like feel pro palec) */
+            .main-tabs { 
+                position: fixed; 
+                bottom: env(safe-area-inset-bottom, 20px); /* Ochrana pro iPhony s čárkou dole */
+                left: 50%; 
+                transform: translateX(-50%); 
+                z-index: 9999; 
+                box-shadow: 0 -10px 40px rgba(0,0,0,0.15); 
+                background: var(--glass);
+                backdrop-filter: blur(20px);
+                padding: 8px;
+                width: 90%;
+                max-width: 400px;
+                justify-content: space-between;
+            }
+            [data-theme="dark"] .main-tabs { box-shadow: 0 -10px 40px rgba(0,0,0,0.6); }
+            .tab-btn { flex: 1; padding: 12px 10px; font-size: 0.9rem; text-align: center; }
+
+            /* 5. Zmenšení obřích prázdných okrajů (Padding) */
+            .app-layout { padding: 0 10px; gap: 20px; }
+            .feed-layout { padding: 0 10px; }
+            .card { padding: 20px; border-radius: 24px; margin-bottom: 20px;}
+            .bento-card { padding: 20px; }
+            
+            /* 6. Modaly (Vyskakovací okna) - aby nepřetékaly z obrazovky */
+            .modal-content { padding: 25px 20px; border-radius: 24px; margin: 10px; width: calc(100% - 20px); max-height: 85vh;}
+            
+            /* 7. Mapa - Zmenšení výšky, aby nezabrala celý displej mobilu */
+            #globalMap { height: 300px !important; margin-bottom: 25px;}
+
+            /* 8. Komunita Feed - Kompaktnější zobrazení */
+            .feed-composer { padding: 15px; }
+            .feed-post { padding: 15px; }
+            .photo-gallery .photo-item { width: 70px; height: 70px; }
+        }
     </style>
 </head>
 <body>
