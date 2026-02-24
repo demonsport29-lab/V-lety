@@ -120,18 +120,19 @@
         .action-btn:hover { transform: scale(1.2); color: var(--primary); }
 
         /* ==================================================== */
-        /* 📱 MOBILNÍ VERZE - OPRAVENÁ A SILNÁ                */
+        /* 📱 MOBILNÍ VERZE - FINÁLNÍ OPRAVA (ODBLOKOVÁNÍ PASTI)*/
         /* ==================================================== */
         @media (max-width: 768px) {
             body { padding-bottom: 120px !important; } 
 
-            /* 1. Horní lišta - uvolníme místo, aby se nic nepřekrývalo */
-            .nav-wrapper { position: static !important; padding: 10px !important; margin-bottom: 15px !important; }
-            .nav-bar { justify-content: space-between !important; padding: 10px 15px !important; }
+            /* 1. Zrušení CSS pasti (Vypnutí animace a filtru, aby tlačítka spadla dolů) */
+            .nav-wrapper { animation: none !important; transform: none !important; position: static !important; padding: 10px !important; margin-bottom: 15px !important; }
+            .nav-bar { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; justify-content: space-between !important; padding: 10px 15px !important; }
+            
             .logo span { display: none; } 
             .btn { padding: 8px 12px !important; font-size: 0.85rem !important; }
 
-            /* 2. SPODNÍ NAVIGACE (App-like dole) */
+            /* 2. SPODNÍ NAVIGACE (Konečně dole na obrazovce) */
             .main-tabs { 
                 position: fixed !important; 
                 bottom: 20px !important; 
@@ -142,6 +143,7 @@
                 max-width: 400px !important; 
                 background: var(--glass) !important; 
                 backdrop-filter: blur(25px) !important; 
+                -webkit-backdrop-filter: blur(25px) !important;
                 padding: 8px !important; 
                 border-radius: 999px !important; 
                 box-shadow: 0 10px 40px rgba(0,0,0,0.3) !important; 
