@@ -9,7 +9,7 @@ const path = require('path');
 const nodemailer = require('nodemailer');
 const app = express();
 const port = process.env.PORT || 3000;
-
+const nodemailer = require('nodemailer');
 app.use(express.json({ limit: '50mb' })); 
 app.use(express.static('public'));
 
@@ -212,5 +212,42 @@ app.post('/api/upravit-feed', async (req, res) => {
 app.post('/api/vytvorit-platbu', async (req, res) => {
     try { const session = await stripe.checkout.sessions.create({ payment_method_types: ['card'], line_items: [{ price_data: { currency: 'czk', product_data: { name: 'VERONA Premium' }, unit_amount: 9900 }, quantity: 1 }], mode: 'payment', success_url: `${req.headers.origin}/?platba=uspech`, cancel_url: `${req.headers.origin}/?platba=zrusena` }); res.json({ url: session.url }); } catch (e) { res.status(500).json({ chyba: e.message }); }
 });
+// Platby
+app.post('/api/vytvorit-platbu', async (req, res) => {
+    try { const session = await stripe.checkout.sessions.create({ payment_method_types: ['card'], line_items: [{ price_data: { currency: 'czk', product_data: { name: 'VERONA Premium' }, unit_amount: 9900 }, quantity: 1 }], mode: 'payment', success_url: `${req.headers.origin}/?platba=uspech`, cancel_url: `${req.headers.origin}/?platba=zrusena` }); res.json({ url: session.url }); } catch (e) { res.status(500).json({ chyba: e.message }); }
+});
 
+// ==========================================
+// 6. KONTAKTNÍ FORMULÁŘ (ODESÍLÁNÍ NA GMAIL)
+// ==========================================
+app.post('/api/kontakt', async (req, res) => {
+    const { predmet, zprava } = req.body;
+
+    // Nastavení "pošťáka" pro Gmail
+    const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: process.env.EMAIL_USER, // Tvůj Gmail
+            pass: process.env.EMAIL_PASS  // Tvé tajné 16místné heslo
+        }
+    });
+
+    const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: process.env.EMAIL_USER, // Pošle se to z tvého mailu tobě samotnému
+        subject: `VERONA Kontakt: ${predmet}`,
+        text: `Nová zpráva z webu VERONA!\n\nPředmět: ${predmet}\n\nZpráva:\n${zprava}`
+    };
+
+    try {
+        await transporter.sendMail(mailOptions);
+        res.json({ uspech: true });
+    } catch (error) {
+        console.error("Chyba při odesílání e-mailu:", error);
+        res.json({ uspech: false, chyba: error.message });
+    }
+});
+
+// TOTO JE ÚPLNĚ POSLEDNÍ ŘÁDEK SOUBORU
+app.listen(port, () => console.log(`🚀 VERONA běží na portu ${port}`));
 app.listen(port, () => console.log(`🚀 VERONA běží na portu ${port}`));
