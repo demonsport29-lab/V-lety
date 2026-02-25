@@ -113,13 +113,13 @@
 
         /* Widget Kontakt */
         .contact-widget { position: fixed; bottom: 30px; right: 30px; z-index: 2000; }
-        .contact-btn { width: 70px; height: 70px; border-radius: 35px; background: var(--primary); border: none; cursor: pointer; color: white; font-size: 1.8rem; box-shadow: 0 15px 30px rgba(220,38,38,0.4); transition: 0.3s; display: flex; justify-content: center; align-items: center;}
+        .contact-btn { width: 70px; height: 70px; border-radius: 35px; background: var(--primary); border: none; cursor: pointer; color: white; font-size: 1.8rem; box-shadow: 0 15px 30px rgba(0,86,179,0.4); transition: 0.3s; display: flex; justify-content: center; align-items: center;}
         .contact-btn:hover { transform: scale(1.1) rotate(5deg); }
         .contact-win { position: absolute; bottom: 90px; right: 0; width: 360px; background: var(--glass); backdrop-filter: blur(20px); border: 1px solid var(--border); border-radius: 24px; display: none; flex-direction: column; overflow: hidden; box-shadow: var(--shadow);}
 
         .custom-map-marker { background: var(--primary); width: 14px; height: 14px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 15px var(--primary); }
         .leaflet-popup-content-wrapper, .leaflet-popup-tip { background: #111827; color: #fff; border: 1px solid var(--primary); border-radius: 16px; }
-        .marker-cluster-small div, .marker-cluster-medium div, .marker-cluster-large div { background-color: rgba(220, 38, 38, 0.9) !important; color: white !important; font-weight: 800; border-radius: 50%; }
+        .marker-cluster-small div, .marker-cluster-medium div, .marker-cluster-large div { background-color: rgba(0, 86, 179, 0.9) !important; color: white !important; font-weight: 800; border-radius: 50%; }
         .admin-badge { background: linear-gradient(135deg, #FFD700, #F59E0B); color: black; font-weight: 900; padding: 2px 8px; border-radius: 8px; font-size: 0.7rem; margin-left: 10px; }
         .star-hover:hover { transform: scale(1.3); color: var(--premium) !important; cursor: pointer;}
         .action-btn { background: none; border: none; cursor: pointer; color: var(--muted); font-size: 0.9rem; transition: 0.2s; padding: 2px; }
@@ -527,6 +527,19 @@
                     ? `<button class="btn btn-outline" style="padding:10px; font-size:0.85rem;" onclick="event.stopPropagation(); upload('${x.id}')">📸</button>` 
                     : ``;
 
+                // NOVÁ ČÁST PRO PŘEPÍNAČ SOUKROMÍ (VLOŽENO BEZ CHYB)
+                let stavSoukromi = x.verejny ? '🌍 Veřejný výlet' : '🔒 Soukromý';
+                let barvaSoukromi = x.verejny ? 'var(--primary)' : 'var(--muted)';
+                
+                let publicToggleHTML = `
+                    <div style="display:flex; justify-content:space-between; align-items:center; background: var(--bg); padding: 8px 15px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 15px;">
+                        <span style="font-size:0.8rem; font-weight:800; color:${barvaSoukromi}; transition:0.3s;">${stavSoukromi}</span>
+                        <button class="btn btn-outline" style="padding:6px 12px; font-size:0.75rem;" onclick="event.stopPropagation(); prepnoutSoukromi('${x.id}', ${!x.verejny})">
+                            Změnit stav
+                        </button>
+                    </div>
+                `;
+
                 k.innerHTML = `
                     <div style="display:flex; justify-content:space-between; margin-bottom:15px; align-items:flex-start;">
                         <div>
@@ -535,6 +548,8 @@
                         </div>
                         <button onclick="event.stopPropagation(); smazat('${x.id}')" style="background:var(--bg); border:1px solid var(--border); border-radius:50%; width:36px; height:36px; cursor:pointer; color:var(--muted);">✕</button>
                     </div>
+                    
+                    ${publicToggleHTML}
                     
                     <div style="display:flex; justify-content:space-between; align-items: center; background: var(--bg); padding: 10px 15px; border-radius: 12px; border: 1px solid var(--border);">
                         <div><span style="font-size:0.7rem; text-transform:uppercase; font-weight:800; color:var(--muted); display:block;">Hodnocení</span>${miniStars}</div>
@@ -579,6 +594,17 @@
         }
 
         async function prepnoutStav(id, stav) { await fetch('/api/upravit-vylet', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({id, dokonceno: stav}) }); nactiDnik(); }
+        
+        // NOVÁ FUNKCE PRO ZMĚNU SOUKROMÍ
+        async function prepnoutSoukromi(id, stav) { 
+            await fetch('/api/upravit-vylet', { 
+                method:'POST', 
+                headers:{'Content-Type':'application/json'}, 
+                body: JSON.stringify({ id, verejny: stav }) 
+            }); 
+            nactiDnik(); 
+        }
+
         async function smazat(id) { if(confirm("Smazat výlet?")) { await fetch(`/api/smazat-vylet/${id}`, { method: 'DELETE' }); nactiDnik(); document.getElementById('resCard').style.display='none'; } }
 
         // --- DETAIL, HODNOCENÍ A MAZÁNÍ/EDITACE KOMENTÁŘŮ ---
@@ -775,7 +801,6 @@
 
         // --- AI PLANNER ---
         async function generovat() {
-            // ZMĚNA: Tady jsem odstranil zámek na Premium, takže už tě to nepustí do starého erroru a normálně to generuje.
             if(!prihlaseno) return alert("Pro ukládání výletů se prosím přihlaste přes Google.");
             const misto = document.getElementById('mistoIn').value.trim(); if(!misto) return alert("Zadej lokalitu.");
             const vybraneFiltry = Array.from(document.querySelectorAll('.ai-filter:checked')).map(cb => cb.value);

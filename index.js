@@ -35,6 +35,7 @@ const userSchema = new mongoose.Schema({
 const User = mongoose.model('User', userSchema);
 
 const vyletSchema = new mongoose.Schema({
+   verejny: { type: Boolean, default: false },
     vlastnikId: String, lokace: String, popis: String, obtiznost: Number, typ: String,
     etapy: Array, dokonceno: { type: Boolean, default: false }, fotky: [String], 
     hodnoceni: { type: Number, default: 0 }, 
@@ -131,7 +132,9 @@ app.post('/api/ulozit-vylet', async (req, res) => {
 });
 app.post('/api/upravit-vylet', async (req, res) => { await Vylet.findByIdAndUpdate(req.body.id, req.body); res.json({ uspech: true }); });
 app.delete('/api/smazat-vylet/:id', async (req, res) => { await Vylet.findByIdAndDelete(req.params.id); res.json({ uspech: true }); });
-
+if (req.body.verejny !== undefined) {
+        vylet.verejny = req.body.verejny;
+    }
 // Přidání komentáře
 app.post('/api/pridat-komentar', async (req, res) => {
     if (!req.session.userId) return res.json({ uspech: false });
