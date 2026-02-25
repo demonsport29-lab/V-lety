@@ -7,9 +7,10 @@ const mongoose = require('mongoose');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY); 
 const path = require('path');
 const nodemailer = require('nodemailer');
+
 const app = express();
 const port = process.env.PORT || 3000;
-const nodemailer = require('nodemailer');
+
 app.use(express.json({ limit: '50mb' })); 
 app.use(express.static('public'));
 
@@ -212,10 +213,6 @@ app.post('/api/upravit-feed', async (req, res) => {
 app.post('/api/vytvorit-platbu', async (req, res) => {
     try { const session = await stripe.checkout.sessions.create({ payment_method_types: ['card'], line_items: [{ price_data: { currency: 'czk', product_data: { name: 'VERONA Premium' }, unit_amount: 9900 }, quantity: 1 }], mode: 'payment', success_url: `${req.headers.origin}/?platba=uspech`, cancel_url: `${req.headers.origin}/?platba=zrusena` }); res.json({ url: session.url }); } catch (e) { res.status(500).json({ chyba: e.message }); }
 });
-// Platby
-app.post('/api/vytvorit-platbu', async (req, res) => {
-    try { const session = await stripe.checkout.sessions.create({ payment_method_types: ['card'], line_items: [{ price_data: { currency: 'czk', product_data: { name: 'VERONA Premium' }, unit_amount: 9900 }, quantity: 1 }], mode: 'payment', success_url: `${req.headers.origin}/?platba=uspech`, cancel_url: `${req.headers.origin}/?platba=zrusena` }); res.json({ url: session.url }); } catch (e) { res.status(500).json({ chyba: e.message }); }
-});
 
 // ==========================================
 // 6. KONTAKTNÍ FORMULÁŘ (ODESÍLÁNÍ NA GMAIL)
@@ -223,20 +220,26 @@ app.post('/api/vytvorit-platbu', async (req, res) => {
 app.post('/api/kontakt', async (req, res) => {
     const { predmet, zprava } = req.body;
 
-    // Nastavení "pošťáka" pro Gmail
+    // Pokud uživatel není přihlášený, pošleme jako "Anonym", jinak vezmeme jeho jméno
+    let odesilatel = "Neznámý uživatel";
+    if (req.session.userId) {
+        const user = await User.findById(req.session.userId);
+        if (user) odesilatel = user.prezdivka || user.email;
+    }
+
     const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
-            user: process.env.EMAIL_USER, // Tvůj Gmail
-            pass: process.env.EMAIL_PASS  // Tvé tajné 16místné heslo
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASS  
         }
     });
 
     const mailOptions = {
         from: process.env.EMAIL_USER,
-        to: process.env.EMAIL_USER, // Pošle se to z tvého mailu tobě samotnému
+        to: process.env.EMAIL_USER,
         subject: `VERONA Kontakt: ${predmet}`,
-        text: `Nová zpráva z webu VERONA!\n\nPředmět: ${predmet}\n\nZpráva:\n${zprava}`
+        text: `Nová zpráva z webu VERONA!\n\nOd: ${odesilatel}\nPředmět: ${predmet}\n\nZpráva:\n${zprava}`
     };
 
     try {
@@ -248,6 +251,4 @@ app.post('/api/kontakt', async (req, res) => {
     }
 });
 
-// TOTO JE ÚPLNĚ POSLEDNÍ ŘÁDEK SOUBORU
-app.listen(port, () => console.log(`🚀 VERONA běží na portu ${port}`));
 app.listen(port, () => console.log(`🚀 VERONA běží na portu ${port}`));
