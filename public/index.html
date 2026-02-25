@@ -800,15 +800,18 @@
         }
 
         // --- AI PLANNER ---
-        async function generovat() {
-            if(!prihlaseno) return alert("Pro ukládání výletů se prosím přihlaste přes Google.");
+       async function generovat() {
+            if(!prihlaseno) return alert("Pro generování výletů se prosím přihlaste přes Google.");
             const misto = document.getElementById('mistoIn').value.trim(); if(!misto) return alert("Zadej lokalitu.");
             const vybraneFiltry = Array.from(document.querySelectorAll('.ai-filter:checked')).map(cb => cb.value);
-            const btn = document.getElementById('genBtn'); btn.innerHTML = "Sestavuji..."; btn.disabled = true;
+            const btn = document.getElementById('genBtn'); 
+            btn.innerHTML = "Sestavuji..."; 
+            btn.disabled = true;
 
             try {
                 const r = await fetch('/api/vylet', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ misto, specifikace: document.getElementById('specIn').value, vybraneFiltry }) });
                 const res = await r.json();
+                
                 if(res.uspech) {
                     curDraft = res.data; curOpenTripId = null; 
                     document.getElementById('resTitle').innerText = curDraft.lokace;
@@ -822,8 +825,13 @@
                     h += `<div class="animate-up" style="background:var(--primary-soft); padding:20px; border-radius:16px; color:var(--primary); font-weight:700; margin-top:25px;">💡 ${curDraft.doporuceni}</div>`;
                     document.getElementById('resBody').innerHTML = h; document.getElementById('resCard').style.display = 'block';
                     window.scrollTo({ top: document.getElementById('resCard').offsetTop - 100, behavior: 'smooth' });
+                } else {
+                    // TADY JE TA ZMĚNA: Aplikace už nebude mlčet!
+                    alert("Chyba při generování: " + (res.chyba || "Neznámý problém"));
                 }
-            } catch(e) {}
+            } catch(e) {
+                alert("Kritická chyba spojení se serverem: " + e.message);
+            }
             btn.innerText = "✨ Sestavit pomocí AI"; btn.disabled = false;
         }
 
