@@ -6,7 +6,7 @@ const { google } = require('googleapis');
 const mongoose = require('mongoose');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY); 
 const path = require('path');
-
+const nodemailer = require('nodemailer');
 const app = express();
 const port = process.env.PORT || 3000;
 
