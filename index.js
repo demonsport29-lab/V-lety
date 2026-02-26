@@ -7,6 +7,8 @@ const mongoose = require('mongoose');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY); 
 const path = require('path');
 
+// Fix pro fetch (aby to fungovalo i na starších verzích Node.js)
+const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -36,7 +38,7 @@ const userSchema = new mongoose.Schema({
 const User = mongoose.model('User', userSchema);
 
 const vyletSchema = new mongoose.Schema({
-   verejny: { type: Boolean, default: false },
+    verejny: { type: Boolean, default: false },
     vlastnikId: String, lokace: String, popis: String, obtiznost: Number, typ: String,
     etapy: Array, dokonceno: { type: Boolean, default: false }, fotky: [String], 
     hodnoceni: { type: Number, default: 0 }, 
@@ -90,6 +92,7 @@ app.get('/api/auth-status', async (req, res) => {
     const user = await User.findById(req.session.userId);
     res.json({ prihlaseno: true, profil: user });
 });
+
 app.post('/api/ulozit-profil', async (req, res) => {
     if (!req.session.userId) return res.json({ uspech: false });
     await User.findByIdAndUpdate(req.session.userId, req.body);
@@ -126,13 +129,22 @@ app.get('/api/ulozene-vylety', async (req, res) => {
         res.json(vylety.map(doc => ({ ...doc._doc, id: doc._id }))); 
     } catch(e) { res.json([]); }
 });
+
 app.post('/api/ulozit-vylet', async (req, res) => {
     if (!req.session.userId) return res.json({ uspech: false });
     await new Vylet({...req.body, vlastnikId: req.session.userId, datumUlozeni: new Date().toLocaleDateString('cs-CZ')}).save(); 
     res.json({ uspech: true });
 });
-app.post('/api/upravit-vylet', async (req, res) => { await Vylet.findByIdAndUpdate(req.body.id, req.body); res.json({ uspech: true }); });
-app.delete('/api/smazat-vylet/:id', async (req, res) => { await Vylet.findByIdAndDelete(req.params.id); res.json({ uspech: true }); });
+
+app.post('/api/upravit-vylet', async (req, res) => { 
+    await Vylet.findByIdAndUpdate(req.body.id, req.body); 
+    res.json({ uspech: true }); 
+});
+
+app.delete('/api/smazat-vylet/:id', async (req, res) => { 
+    await Vylet.findByIdAndDelete(req.params.id); 
+    res.json({ uspech: true }); 
+});
 
 app.post('/api/pridat-komentar', async (req, res) => {
     if (!req.session.userId) return res.json({ uspech: false });
@@ -145,34 +157,14 @@ app.post('/api/pridat-komentar', async (req, res) => {
     await Vylet.findByIdAndUpdate(req.body.idVyletu, { $push: { komentare: k } });
     res.json({ uspech: true });
 });
-app.post('/api/smazat-komentar', async (req, res) => {
-    if (!req.session.userId) return res.json({ uspech: false });
-    const user = await User.findById(req.session.userId);
-    const trip = await Vylet.findById(req.body.tripId);
-    const k = trip.komentare.find(x => x.id === req.body.commentId);
-    if (k && (k.autorId === user._id.toString() || user.isAdmin)) {
-        trip.komentare = trip.komentare.filter(x => x.id !== req.body.commentId);
-        await trip.save(); return res.json({ uspech: true });
-    }
-    res.json({ uspech: false });
-});
-app.post('/api/upravit-komentar', async (req, res) => {
-    if (!req.session.userId) return res.json({ uspech: false });
-    const user = await User.findById(req.session.userId);
-    const trip = await Vylet.findById(req.body.tripId);
-    const k = trip.komentare.find(x => x.id === req.body.commentId);
-    if (k && (k.autorId === user._id.toString() || user.isAdmin)) {
-        k.text = req.body.text; await trip.save(); return res.json({ uspech: true });
-    }
-    res.json({ uspech: false });
-});
 
 // ==========================================
-// 5. KOMUNITA (FEED) A MAZÁNÍ/ÚPRAVY
+// 5. KOMUNITA (FEED)
 // ==========================================
 app.get('/api/feed', async (req, res) => {
     try { res.json(await FeedPost.find().sort({ timestamp: -1 }).limit(50)); } catch(e) { res.json([]); }
 });
+
 app.post('/api/pridat-do-feedu', async (req, res) => {
     if (!req.session.userId) return res.json({ uspech: false });
     try {
@@ -184,24 +176,6 @@ app.post('/api/pridat-do-feedu', async (req, res) => {
         }).save();
         res.json({ uspech: true });
     } catch(e) { res.json({ uspech: false }); }
-});
-app.delete('/api/smazat-feed/:id', async (req, res) => {
-    if (!req.session.userId) return res.json({ uspech: false });
-    const user = await User.findById(req.session.userId);
-    const post = await FeedPost.findById(req.params.id);
-    if (post && (post.autorId === user._id.toString() || user.isAdmin)) {
-        await FeedPost.findByIdAndDelete(req.params.id); return res.json({ uspech: true });
-    }
-    res.json({ uspech: false });
-});
-app.post('/api/upravit-feed', async (req, res) => {
-    if (!req.session.userId) return res.json({ uspech: false });
-    const user = await User.findById(req.session.userId);
-    const post = await FeedPost.findById(req.body.postId);
-    if (post && (post.autorId === user._id.toString() || user.isAdmin)) {
-        post.text = req.body.text; await post.save(); return res.json({ uspech: true });
-    }
-    res.json({ uspech: false });
 });
 
 // Platby
@@ -215,7 +189,6 @@ app.post('/api/vytvorit-platbu', async (req, res) => {
 app.post('/api/kontakt', async (req, res) => {
     const { predmet, zprava } = req.body;
 
-    // Zjistíme jméno odesílatele, pokud je přihlášený
     let odesilatel = "Neznámý uživatel";
     if (req.session.userId) {
         const user = await User.findById(req.session.userId);
@@ -223,7 +196,6 @@ app.post('/api/kontakt', async (req, res) => {
     }
 
     try {
-        // Posíláme to jako normální webový požadavek (Port 443), který Render neblokuje
         const response = await fetch('https://api.web3forms.com/submit', {
             method: 'POST',
             headers: {
@@ -250,20 +222,5 @@ app.post('/api/kontakt', async (req, res) => {
     }
 });
 
-    const mailOptions = {
-        from: process.env.EMAIL_USER,
-        to: process.env.EMAIL_USER,
-        subject: `VERONA Kontakt: ${predmet}`,
-        text: `Nová zpráva z webu VERONA!\n\nOd: ${odesilatel}\nPředmět: ${predmet}\n\nZpráva:\n${zprava}`
-    };
-
-    try {
-        await transporter.sendMail(mailOptions);
-        res.json({ uspech: true });
-    } catch (error) {
-        console.error("Chyba při odesílání e-mailu:", error);
-        res.json({ uspech: false, chyba: error.message });
-    }
-});
-
+// START SERVERU
 app.listen(port, () => console.log(`🚀 VERONA běží na portu ${port}`));
