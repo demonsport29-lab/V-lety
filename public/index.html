@@ -871,16 +871,47 @@
         }
 
         async function odeslatKontakt() {
-            const predmet = document.getElementById('kontaktPredmet').value.trim();
-            const zprava = document.getElementById('kontaktZprava').value.trim();
-            if(!predmet || !zprava) return alert("Vyplňte prosím předmět i zprávu.");
-            document.getElementById('btnKontakt').innerText = "Odesílám...";
-            await fetch('/api/kontakt', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ predmet, zprava }) });
-            alert("Zpráva odeslána.");
-            document.getElementById('contactWin').style.display = 'none';
-            document.getElementById('kontaktPredmet').value = ""; document.getElementById('kontaktZprava').value = "";
-            document.getElementById('btnKontakt').innerText = "Odeslat e-mail";
+    const predmet = document.getElementById('kontaktPredmet').value;
+    const zprava = document.getElementById('kontaktZprava').value;
+    const btn = document.querySelector('#kontaktModal .btn-primary');
+
+    if (!predmet || !zprava) return alert('Vyplň prosím všechna pole.');
+
+    const puvodniText = btn.innerText;
+    btn.innerText = "🚀 Odesílám...";
+    btn.disabled = true;
+
+    try {
+        // Voláme Web3Forms PŘÍMO z prohlížeče, ne přes náš server
+        const response = await fetch('https://api.web3forms.com/submit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                access_key: 'Sc8ed8521-b2ea-4c17-ad1a-2379968a739e', // <--- TADY vlož svůj klíč
+                subject: `VERONA Kontakt: ${predmet}`,
+                from_name: "Uživatel aplikace VERONA",
+                message: zprava
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            alert('Zpráva byla úspěšně odeslána! Ozvu se ti co nejdříve.');
+            document.getElementById('kontaktModal').style.display = 'none';
+            document.getElementById('kontaktPredmet').value = '';
+            document.getElementById('kontaktZprava').value = '';
+        } else {
+            throw new Error('Chyba při odesílání.');
         }
+    } catch (error) {
+        alert('Omlouvám se, ale zprávu se nepodařilo odeslat. Zkus to prosím později.');
+        console.error(error);
+    } finally {
+        btn.innerText = puvodniText;
+        btn.disabled = false;
+    }
+}
 
         window.onload = init;
     </script>
