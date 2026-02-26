@@ -256,3 +256,5 @@ app.post('/api/kontakt', async (req, res) => {
         res.json({ uspech: false, chyba: error.message });
     }
 });
+
+app.listen(port, () => console.log(`🚀 VERONA běží na portu ${port}`));
