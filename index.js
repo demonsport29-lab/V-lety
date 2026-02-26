@@ -1,4 +1,6 @@
 require('dotenv').config();
+const dns = require('dns');
+dns.setDefaultResultOrder('ipv4first'); // TOTO ZAJISTÍ, ŽE SE NEBUDOU POUŠTĚT IPv6 DOTAZY, KTERÉ NĚKDY ZPOMALUJÍ PŘIPOJENÍ K DB NA RENDERU
 const express = require('express');
 const session = require('express-session');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
