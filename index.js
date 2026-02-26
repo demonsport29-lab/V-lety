@@ -228,10 +228,15 @@ app.post('/api/kontakt', async (req, res) => {
     }
 
     const transporter = nodemailer.createTransport({
-        service: 'gmail',
+        host: 'smtp.gmail.com',
+        port: 465,
+        secure: true, // Použije bezpečné SSL připojení
         auth: {
             user: process.env.EMAIL_USER,
             pass: process.env.EMAIL_PASS  
+        },
+        tls: {
+            rejectUnauthorized: false // Pojistka, aby to Render neblokoval kvůli svým certifikátům
         }
     });
 
