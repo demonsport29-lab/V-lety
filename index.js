@@ -229,8 +229,9 @@ app.post('/api/kontakt', async (req, res) => {
 
     const transporter = nodemailer.createTransport({
         host: 'smtp.gmail.com',
-        port: 465,
-        secure: true,
+        port: 587,
+        secure: false,
+        requireTLS: true,
         family: 4, // <-- TOTO JE TEN MAGICKÝ FIX, KTERÝ ZAKÁŽE IPv6
         auth: {
             user: process.env.EMAIL_USER,
