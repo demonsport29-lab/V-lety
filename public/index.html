@@ -387,7 +387,7 @@
                 <p style="margin: 0; color: var(--muted); font-size: 0.95rem;">Máte nápad na zlepšení, nebo jste našli chybu?</p>
                 <input type="text" id="kontaktPredmet" placeholder="Předmět zprávy" style="padding: 14px; margin-bottom: 0; border-radius: 12px; background: var(--bg);">
                 <textarea id="kontaktZprava" rows="5" placeholder="Vaše zpráva..." style="padding: 14px; border-radius: 12px; border: 1px solid var(--border); background: var(--bg); color: var(--fg); font-family: inherit; resize: none; margin-bottom: 0;"></textarea>
-                <button class="btn btn-primary" onclick="odeslatKontakt()" id="btnKontakt" style="width: 100%; padding: 14px; border-radius: 12px;">Odeslat e-mail</button>
+                <button class="btn btn-primary" onclick="odeslatKontaktV2()">Odeslat zprávu</button>
             </div>
         </div>
     </div>
@@ -870,24 +870,38 @@
             if((await r.json()).uspech) alert("Přidáno!");
         }
 
-        async function odeslatKontakt() {
-    const predmet = document.getElementById('kontaktPredmet').value;
-    const zprava = document.getElementById('kontaktZprava').value;
-    const btn = document.querySelector('#kontaktModal .btn-primary');
+        async function odeslatKontaktV2() {
+    console.log("Mačkám tlačítko odeslat..."); // Kontrola v konzoli (F12)
 
-    if (!predmet || !zprava) return alert('Vyplň prosím všechna pole.');
+    const predmetEl = document.getElementById('kontaktPredmet');
+    const zpravaEl = document.getElementById('kontaktZprava');
+    
+    // Kontrola, jestli ty prvky vůbec v HTML existují
+    if (!predmetEl || !zpravaEl) {
+        console.error("Chyba: Nenašel jsem v HTML pole pro předmět nebo zprávu!");
+        return;
+    }
 
+    const predmet = predmetEl.value;
+    const zprava = zpravaEl.value;
+
+    if (!predmet || !zprava) {
+        alert('Vyplň prosím všechna pole.');
+        return;
+    }
+
+    // Najdeme tlačítko, abychom na něm ukázali "Odesílám..."
+    const btn = event.target; 
     const puvodniText = btn.innerText;
     btn.innerText = "🚀 Odesílám...";
     btn.disabled = true;
 
     try {
-        // Voláme Web3Forms PŘÍMO z prohlížeče, ne přes náš server
         const response = await fetch('https://api.web3forms.com/submit', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                access_key: 'Sc8ed8521-b2ea-4c17-ad1a-2379968a739e', // <--- TADY vlož svůj klíč
+                access_key: 'TVŮJ_KLÍČ_Z_EMAILU_VLOŽ_SEM', 
                 subject: `VERONA Kontakt: ${predmet}`,
                 from_name: "Uživatel aplikace VERONA",
                 message: zprava
@@ -895,23 +909,27 @@
         });
 
         const result = await response.json();
+        console.log("Výsledek z Web3Forms:", result);
 
         if (result.success) {
-            alert('Zpráva byla úspěšně odeslána! Ozvu se ti co nejdříve.');
-            document.getElementById('kontaktModal').style.display = 'none';
-            document.getElementById('kontaktPredmet').value = '';
-            document.getElementById('kontaktZprava').value = '';
+            alert('Zpráva byla úspěšně odeslána!');
+            // Zavřít modal (pokud máš ID kontaktModal)
+            const modal = document.getElementById('kontaktModal');
+            if (modal) modal.style.display = 'none';
+            predmetEl.value = '';
+            zpravaEl.value = '';
         } else {
-            throw new Error('Chyba při odesílání.');
+            alert('Chyba: ' + result.message);
         }
     } catch (error) {
-        alert('Omlouvám se, ale zprávu se nepodařilo odeslat. Zkus to prosím později.');
-        console.error(error);
+        console.error("Chyba fetch:", error);
+        alert('Omlouvám se, spojení se nepodařilo.');
     } finally {
         btn.innerText = puvodniText;
         btn.disabled = false;
     }
 }
+
 
         window.onload = init;
     </script>
