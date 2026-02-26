@@ -230,13 +230,14 @@ app.post('/api/kontakt', async (req, res) => {
     const transporter = nodemailer.createTransport({
         host: 'smtp.gmail.com',
         port: 465,
-        secure: true, // Použije bezpečné SSL připojení
+        secure: true,
+        family: 4, // <-- TOTO JE TEN MAGICKÝ FIX, KTERÝ ZAKÁŽE IPv6
         auth: {
             user: process.env.EMAIL_USER,
             pass: process.env.EMAIL_PASS  
         },
         tls: {
-            rejectUnauthorized: false // Pojistka, aby to Render neblokoval kvůli svým certifikátům
+            rejectUnauthorized: false
         }
     });
 
@@ -255,5 +256,3 @@ app.post('/api/kontakt', async (req, res) => {
         res.json({ uspech: false, chyba: error.message });
     }
 });
-
-app.listen(port, () => console.log(`🚀 VERONA běží na portu ${port}`));
