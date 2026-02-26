@@ -1,6 +1,4 @@
 require('dotenv').config();
-const dns = require('dns');
-dns.setDefaultResultOrder('ipv4first'); // TOTO ZAJISTÍ, ŽE SE NEBUDOU POUŠTĚT IPv6 DOTAZY, KTERÉ NĚKDY ZPOMALUJÍ PŘIPOJENÍ K DB NA RENDERU
 const express = require('express');
 const session = require('express-session');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
@@ -136,7 +134,6 @@ app.post('/api/ulozit-vylet', async (req, res) => {
 app.post('/api/upravit-vylet', async (req, res) => { await Vylet.findByIdAndUpdate(req.body.id, req.body); res.json({ uspech: true }); });
 app.delete('/api/smazat-vylet/:id', async (req, res) => { await Vylet.findByIdAndDelete(req.params.id); res.json({ uspech: true }); });
 
-// Přidání komentáře
 app.post('/api/pridat-komentar', async (req, res) => {
     if (!req.session.userId) return res.json({ uspech: false });
     const user = await User.findById(req.session.userId);
@@ -148,7 +145,6 @@ app.post('/api/pridat-komentar', async (req, res) => {
     await Vylet.findByIdAndUpdate(req.body.idVyletu, { $push: { komentare: k } });
     res.json({ uspech: true });
 });
-// Smazání komentáře
 app.post('/api/smazat-komentar', async (req, res) => {
     if (!req.session.userId) return res.json({ uspech: false });
     const user = await User.findById(req.session.userId);
@@ -160,7 +156,6 @@ app.post('/api/smazat-komentar', async (req, res) => {
     }
     res.json({ uspech: false });
 });
-// Úprava komentáře
 app.post('/api/upravit-komentar', async (req, res) => {
     if (!req.session.userId) return res.json({ uspech: false });
     const user = await User.findById(req.session.userId);
@@ -190,7 +185,6 @@ app.post('/api/pridat-do-feedu', async (req, res) => {
         res.json({ uspech: true });
     } catch(e) { res.json({ uspech: false }); }
 });
-// Smazání z feedu
 app.delete('/api/smazat-feed/:id', async (req, res) => {
     if (!req.session.userId) return res.json({ uspech: false });
     const user = await User.findById(req.session.userId);
@@ -200,7 +194,6 @@ app.delete('/api/smazat-feed/:id', async (req, res) => {
     }
     res.json({ uspech: false });
 });
-// Úprava z feedu
 app.post('/api/upravit-feed', async (req, res) => {
     if (!req.session.userId) return res.json({ uspech: false });
     const user = await User.findById(req.session.userId);
@@ -222,17 +215,15 @@ app.post('/api/vytvorit-platbu', async (req, res) => {
 app.post('/api/kontakt', async (req, res) => {
     const { predmet, zprava } = req.body;
 
-    // Pokud uživatel není přihlášený, pošleme jako "Anonym", jinak vezmeme jeho jméno
     let odesilatel = "Neznámý uživatel";
     if (req.session.userId) {
         const user = await User.findById(req.session.userId);
         if (user) odesilatel = user.prezdivka || user.email;
     }
 
-    // FÍGL: Použijeme přímou IPv4 adresu Googlu. 
-    // Tím kompletně obejdeme Render a jeho rozbité IPv6 překládání.
+    // FÍGL: Přímá IP adresa Googlu
     const transporter = nodemailer.createTransport({
-        host: '142.250.102.108', // Přímá IP adresa pro smtp.gmail.com
+        host: '142.250.102.108',
         port: 465,
         secure: true,
         auth: {
@@ -240,26 +231,9 @@ app.post('/api/kontakt', async (req, res) => {
             pass: process.env.EMAIL_PASS  
         },
         tls: {
-            // Nutné, protože se připojujeme přes číselnou IP a ne přes textový název
-            rejectUnauthorized: false 
+            rejectUnauthorized: false
         }
     });
-
-    const mailOptions = {
-        from: process.env.EMAIL_USER,
-        to: process.env.EMAIL_USER,
-        subject: `VERONA Kontakt: ${predmet}`,
-        text: `Nová zpráva z webu VERONA!\n\nOd: ${odesilatel}\nPředmět: ${predmet}\n\nZpráva:\n${zprava}`
-    };
-
-    try {
-        await transporter.sendMail(mailOptions);
-        res.json({ uspech: true });
-    } catch (error) {
-        console.error("Chyba při odesílání e-mailu:", error);
-        res.json({ uspech: false, chyba: error.message });
-    }
-});
 
     const mailOptions = {
         from: process.env.EMAIL_USER,
