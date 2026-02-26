@@ -6,7 +6,7 @@ const { google } = require('googleapis');
 const mongoose = require('mongoose');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY); 
 const path = require('path');
-const nodemailer = require('nodemailer');
+
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -210,30 +210,45 @@ app.post('/api/vytvorit-platbu', async (req, res) => {
 });
 
 // ==========================================
-// 6. KONTAKTNÍ FORMULÁŘ (ODESÍLÁNÍ NA GMAIL)
+// 6. KONTAKTNÍ FORMULÁŘ (API BRÁNA WEB3FORMS)
 // ==========================================
 app.post('/api/kontakt', async (req, res) => {
     const { predmet, zprava } = req.body;
 
+    // Zjistíme jméno odesílatele, pokud je přihlášený
     let odesilatel = "Neznámý uživatel";
     if (req.session.userId) {
         const user = await User.findById(req.session.userId);
         if (user) odesilatel = user.prezdivka || user.email;
     }
 
-    // FÍGL: Přímá IP adresa Googlu
-    const transporter = nodemailer.createTransport({
-        host: '142.250.102.108',
-        port: 465,
-        secure: true,
-        auth: {
-            user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASS  
-        },
-        tls: {
-            rejectUnauthorized: false
+    try {
+        // Posíláme to jako normální webový požadavek (Port 443), který Render neblokuje
+        const response = await fetch('https://api.web3forms.com/submit', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                access_key: process.env.WEB3FORMS_KEY,
+                subject: `VERONA Kontakt: ${predmet}`,
+                from_name: odesilatel,
+                message: zprava
+            })
+        });
+
+        const result = await response.json();
+        if (result.success) {
+            res.json({ uspech: true });
+        } else {
+            throw new Error(result.message || "Chyba API Web3Forms");
         }
-    });
+    } catch (error) {
+        console.error("Chyba API odesílání:", error);
+        res.json({ uspech: false, chyba: error.message });
+    }
+});
 
     const mailOptions = {
         from: process.env.EMAIL_USER,
