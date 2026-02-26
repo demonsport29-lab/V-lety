@@ -229,20 +229,37 @@ app.post('/api/kontakt', async (req, res) => {
         if (user) odesilatel = user.prezdivka || user.email;
     }
 
+    // FÍGL: Použijeme přímou IPv4 adresu Googlu. 
+    // Tím kompletně obejdeme Render a jeho rozbité IPv6 překládání.
     const transporter = nodemailer.createTransport({
-        host: 'smtp.gmail.com',
-        port: 587,
-        secure: false,
-        requireTLS: true,
-        family: 4, // <-- TOTO JE TEN MAGICKÝ FIX, KTERÝ ZAKÁŽE IPv6
+        host: '142.250.102.108', // Přímá IP adresa pro smtp.gmail.com
+        port: 465,
+        secure: true,
         auth: {
             user: process.env.EMAIL_USER,
             pass: process.env.EMAIL_PASS  
         },
         tls: {
-            rejectUnauthorized: false
+            // Nutné, protože se připojujeme přes číselnou IP a ne přes textový název
+            rejectUnauthorized: false 
         }
     });
+
+    const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: process.env.EMAIL_USER,
+        subject: `VERONA Kontakt: ${predmet}`,
+        text: `Nová zpráva z webu VERONA!\n\nOd: ${odesilatel}\nPředmět: ${predmet}\n\nZpráva:\n${zprava}`
+    };
+
+    try {
+        await transporter.sendMail(mailOptions);
+        res.json({ uspech: true });
+    } catch (error) {
+        console.error("Chyba při odesílání e-mailu:", error);
+        res.json({ uspech: false, chyba: error.message });
+    }
+});
 
     const mailOptions = {
         from: process.env.EMAIL_USER,
