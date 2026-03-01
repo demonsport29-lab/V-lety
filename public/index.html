@@ -209,9 +209,11 @@
 
         /* CONTACT */
         .cf{position:fixed;bottom:26px;right:26px;left:auto;z-index:2000;display:flex;flex-direction:column;align-items:flex-end;}
-        .cb{width:52px;height:52px;border-radius:15px;background:linear-gradient(135deg,var(--a1),var(--a2));border:none;cursor:pointer;color:#fff;font-size:1.25rem;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 28px rgba(99,102,241,.45);transition:all .3s var(--ease);}
-        .cb:hover{transform:scale(1.08);box-shadow:0 12px 36px rgba(99,102,241,.6);}
+        .cb{width:52px;height:52px;border-radius:15px;background:var(--gb);backdrop-filter:blur(12px);border:1px solid var(--gbd2);color:var(--t1);cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;transition:all .3s var(--ease);}
+        .cb:hover{background:var(--gb2);transform:translateY(-2px);}
         .cp{position:absolute;bottom:66px;right:0;width:330px;background:var(--gb2);backdrop-filter:blur(32px) saturate(200%);-webkit-backdrop-filter:blur(32px) saturate(200%);border:1px solid var(--gbd2);border-radius:var(--rlg);overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,.5),0 0 0 1px rgba(99,102,241,.1);display:none;animation:fadeUp .3s var(--ease) both; transform-origin: bottom right;}
+        .cph{padding:16px 18px;background:linear-gradient(135deg,var(--a1),var(--a2));color:#fff;font-weight:800;font-size:.85rem;display:flex;justify-content:space-between;align-items:center;}
+        .cpb{padding:18px;display:flex;flex-direction:column;gap:10px;}
 
         /* SECTIONS */
         .ey{font-family:var(--fm);font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;color:var(--a1);margin-bottom:6px;}
@@ -271,19 +273,17 @@
     <div class="blob"></div><div class="blob"></div>
 </div>
 
-<!-- LIGHTBOX -->
 <div id="lightbox" class="lbx" onclick="this.style.display='none'">
     <div class="lbxx">✕</div>
     <img id="lightboxImg" src="" alt="">
 </div>
 
-<!-- PROFILE MODAL -->
 <div id="profileModal" class="overlay" onclick="if(event.target===this)this.style.display='none'">
     <div class="mb">
         <div class="mh"><h2 class="mt">Můj Profil</h2><button class="btnx" onclick="document.getElementById('profileModal').style.display='none'">✕</button></div>
         <div style="text-align:center;margin-bottom:22px;">
             <div class="pa2" id="profAvatar" onclick="zmenitAvatar()">V</div>
-            <p style="font-family:var(--fm);font-size:.62rem;color:var(--t2);">klikni pro změnu fotky</p>
+            <p style="font-family:var(--fm);font-size:.62rem;color:var(--t2);">Kliknutím upravíte fotografii</p>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
             <input type="text" id="profPrezdivka" class="f" placeholder="Přezdívka" style="margin:0;">
@@ -296,18 +296,15 @@
     </div>
 </div>
 
-<!-- DONATE MODAL -->
 <div id="donateModal" class="overlay" onclick="if(event.target===this)this.style.display='none'">
-    <div class="mb" style="text-align:center;background:linear-gradient(160deg,var(--gb2),rgba(245,158,11,.08));border-color:rgba(245,158,11,.25);">
+    <div class="mb" style="text-align:center;background:linear-gradient(160deg,var(--gb2),rgba(99,102,241,.05));">
         <button class="btnx" style="position:absolute;top:20px;right:20px;" onclick="document.getElementById('donateModal').style.display='none'">✕</button>
-        <div style="font-size:3.2rem;margin-bottom:10px;">☕</div>
-        <h2 style="font-size:1.7rem;color:#fcd34d;margin-bottom:10px;">Podpořit projekt</h2>
-        <p style="color:var(--t2);margin-bottom:28px;line-height:1.7;font-size:.92rem;">VERONU vyvíjím ve svém volném čase. Pokud vám aplikace dělá radost, budu moc vděčný za symbolický příspěvek.</p>
-        <button id="btnKoupit" class="btn ba bf blg" onclick="poslatPrispevek()">❤️ Přispět 99 Kč</button>
+        <h2 style="font-size:1.7rem;color:var(--a1);margin-bottom:10px;margin-top:10px;">Podpořit projekt</h2>
+        <p style="color:var(--t2);margin-bottom:28px;line-height:1.7;font-size:.92rem;">VERONU vyvíjíme pro usnadnění vašich cest. Pokud vám aplikace dělá radost, budeme vděční za symbolický příspěvek na provoz serverů.</p>
+        <button id="btnKoupit" class="btn bp bf blg" onclick="poslatPrispevek()">Přispět 99 Kč</button>
     </div>
 </div>
 
-<!-- MANUAL MODAL -->
 <div id="manualModal" class="overlay" onclick="if(event.target===this)this.style.display='none'">
     <div class="mb">
         <div class="mh"><h2 class="mt">Vlastní plán</h2><button class="btnx" onclick="document.getElementById('manualModal').style.display='none'">✕</button></div>
@@ -331,109 +328,134 @@
     </div>
 </div>
 
-<!-- NAV -->
 <nav class="nav au">
     <div class="nav-in">
         <a href="#" class="logo" onclick="location.reload()">
-            <div class="logo-gem">⛰</div>
+            <div class="logo-gem" style="font-family:var(--fm);font-size:1.1rem;font-weight:700;">V</div>
             <div><span class="logo-wm">Verona</span><span class="logo-tag">Trip Architect</span></div>
         </a>
-        <div class="tabs">
-            <button class="tab active" id="t-komunita" onclick="prepniTab('komunita')">🌍 Komunita</button>
-            <button class="tab" id="t-planovac" onclick="prepniTab('planovac')">🗺 Plánovač</button>
+        <div class="tabs" id="navTabsContainer" style="display:none;">
+            <button class="tab" id="t-komunita" onclick="prepniTab('komunita')">Komunita</button>
+            <button class="tab" id="t-planovac" onclick="prepniTab('planovac')">Plánovač</button>
         </div>
         <div class="nav-act">
-            <button class="btn bg" onclick="document.getElementById('donateModal').style.display='flex'" style="border-color:rgba(245,158,11,.3);color:#fcd34d;">☕ <span>Podpořit</span></button>
+            <button class="btn bg" onclick="document.getElementById('donateModal').style.display='flex'"><span>Podpořit</span></button>
             <button class="btn bgh" id="btnGoogle" onclick="location.href='/auth/google'">Přihlásit</button>
-            <button class="btn bg" id="btnProfil" onclick="document.getElementById('profileModal').style.display='flex'" style="display:none;">👤 <span>Profil</span></button>
-            <button class="btn bgh bi" onclick="prepniRezim()">🌓</button>
+            <button class="btn bg" id="btnProfil" onclick="document.getElementById('profileModal').style.display='flex'" style="display:none;"><span>Profil</span></button>
+            <button class="btn bgh bi" style="font-size: 0.75rem; letter-spacing: 0.05em; width: auto; padding: 0 12px;" onclick="prepniRezim()">Režim</button>
         </div>
     </div>
 </nav>
 
-<div class="mnav">
-    <button class="tab active" id="mt-komunita" onclick="prepniTab('komunita')">🌍 Komunita</button>
-    <button class="tab" id="mt-planovac" onclick="prepniTab('planovac')">🗺 Plánovač</button>
+<div class="mnav" id="mobileTabsContainer" style="display:none;">
+    <button class="tab" id="mt-komunita" onclick="prepniTab('komunita')">Komunita</button>
+    <button class="tab" id="mt-planovac" onclick="prepniTab('planovac')">Plánovač</button>
 </div>
 
-<!-- VIEW: KOMUNITA -->
-<div id="viewKomunita" class="wrap view au d1">
+<div id="viewLanding" class="wrap view au">
+    <div style="text-align:center; padding: 80px 20px; max-width: 860px; margin: 0 auto;">
+        <p class="ey" style="margin-bottom: 20px; font-size: 0.8rem; letter-spacing: 0.15em;">Premium Trip Architect</p>
+        <h1 style="font-size: 4rem; font-weight: 800; margin-bottom: 28px; letter-spacing: -0.03em; line-height: 1.1;">Inteligentní plánování vašich cest</h1>
+        <p style="font-size: 1.15rem; color: var(--t2); margin-bottom: 44px; line-height: 1.7; max-width: 700px; margin-left: auto; margin-right: auto;">Objevujte svět s osobním AI architektem. Generujte itineráře na míru, prozkoumávejte interaktivní mapy a sdílejte své zážitky s komunitou cestovatelů.</p>
+        <div style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
+            <button class="btn bp blg" onclick="location.href='/auth/google'">Přihlásit se a začít</button>
+        </div>
+    </div>
+    <div class="dg" style="margin-top: 60px;">
+        <div class="card" style="text-align: center;">
+            <div style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, var(--a1), var(--a2)); color: white; display: flex; align-items: center; justify-content: center; font-family: var(--fm); font-weight: 700; margin: 0 auto 20px;">AI</div>
+            <h3 style="margin-bottom: 12px; font-weight: 700;">AI Architekt</h3>
+            <p style="color: var(--t2); font-size: 0.9rem; line-height: 1.6;">Zadejte destinaci, vyberte své zájmy a nechte umělou inteligenci sestavit detailní plán cesty včetně časového harmonogramu.</p>
+        </div>
+        <div class="card" style="text-align: center;">
+            <div style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, var(--a3), var(--a1)); color: white; display: flex; align-items: center; justify-content: center; font-family: var(--fm); font-weight: 700; margin: 0 auto 20px;">GPX</div>
+            <h3 style="margin-bottom: 12px; font-weight: 700;">Interaktivní Mapy</h3>
+            <p style="color: var(--t2); font-size: 0.9rem; line-height: 1.6;">Všechny vaše výlety se automaticky propisují do interaktivní mapy. Sledujte svou stopu a exportujte trasy pro navigaci.</p>
+        </div>
+        <div class="card" style="text-align: center;">
+            <div style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, var(--a4), var(--a3)); color: white; display: flex; align-items: center; justify-content: center; font-family: var(--fm); font-weight: 700; margin: 0 auto 20px;">COM</div>
+            <h3 style="margin-bottom: 12px; font-weight: 700;">Aktivní Komunita</h3>
+            <p style="color: var(--t2); font-size: 0.9rem; line-height: 1.6;">Inspirujte se deníky ostatních. Sdílejte fotografie z cest, hodnoťte trasy a objevujte ta nejlepší místa od zkušených cestovatelů.</p>
+        </div>
+    </div>
+</div>
+
+<div id="viewKomunita" class="wrap view hidden">
     <div class="fc">
         <div class="composer">
             <p class="clabel">// Nový příspěvek</p>
-            <textarea id="feedText" class="f" rows="4" placeholder="Poděl se o zážitky, tipy nebo fotky z cest…"></textarea>
+            <textarea id="feedText" class="f" rows="4" placeholder="Podělte se o zážitky, tipy nebo fotografie z cest…"></textarea>
             <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
-                <button class="btn bg" onclick="document.getElementById('feedPhotoUpload').click()" style="font-size:.8rem;">📸 Fotky</button>
+                <button class="btn bg" onclick="document.getElementById('feedPhotoUpload').click()" style="font-size:.8rem;">Přidat fotky</button>
                 <input type="file" id="feedPhotoUpload" multiple accept="image/*" style="display:none;" onchange="nactiFotkyDoFeedu(this)">
-                <select id="feedTripSelect" class="f" style="margin:0;flex:1;min-width:160px;font-size:.8rem;"><option value="">Bez výletu</option></select>
+                <select id="feedTripSelect" class="f" style="margin:0;flex:1;min-width:160px;font-size:.8rem;"><option value="">Bez navázaného výletu</option></select>
             </div>
             <div id="feedPhotoPreview" style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px;"></div>
-            <button class="btn bp bf" onclick="odeslatDoFeedu()" id="btnOdeslatFeed">Odeslat do komunity</button>
+            <button class="btn bp bf" onclick="odeslatDoFeedu()" id="btnOdeslatFeed">Publikovat v komunitě</button>
         </div>
         <div id="feedStream">
             <div style="text-align:center;padding:48px;color:var(--t2);">
                 <div class="spin" style="margin:0 auto 12px;"></div>
-                <p style="font-family:var(--fm);font-size:.75rem;">načítám komunitu…</p>
+                <p style="font-family:var(--fm);font-size:.75rem;">Načítání komunitních příspěvků…</p>
             </div>
         </div>
     </div>
 </div>
 
-<!-- VIEW: PLÁNOVAČ -->
 <div id="viewPlanovac" class="wrap view hidden">
     <div class="pg">
         <aside class="sidebar">
             <div class="card au d1">
                 <p class="ey">AI Architekt</p>
                 <h2 style="font-size:1.3rem;font-weight:800;margin-bottom:18px;letter-spacing:-.02em;">Sestavit výlet</h2>
-                <input type="text" id="mistoIn" class="f" placeholder="Destinace (Šumava, Vídeň…)">
-                <input type="text" id="specIn" class="f" placeholder="Přání navíc (volitelné)">
+                <input type="text" id="mistoIn" class="f" placeholder="Destinace (např. Šumava, Vídeň)">
+                <input type="text" id="specIn" class="f" placeholder="Specifická přání (volitelné)">
 
                 <div class="acc" id="w-kdo">
                     <div class="ach" onclick="toggleAcc('w-kdo','b-kdo')">S kým cestuji <span class="aa">▾</span></div>
                     <div class="acb" id="b-kdo"><div class="aci">
-                        <label class="fr"><input type="checkbox" class="ai-filter" value="Sólový cestovatel"> 🚶 Solo</label>
-                        <label class="fr"><input type="checkbox" class="ai-filter" value="Romantický výlet ve dvou"> 🥂 Romantika</label>
-                        <label class="fr"><input type="checkbox" class="ai-filter" value="Vhodné pro kočárky a malé děti"> 👶 S dětmi</label>
-                        <label class="fr"><input type="checkbox" class="ai-filter" value="Pro starší děti a teenagery"> 🧑‍🤝‍🧑 Teenageři</label>
-                        <label class="fr"><input type="checkbox" class="ai-filter" value="Parta přátel"> 🍻 Parta</label>
-                        <label class="fr"><input type="checkbox" class="ai-filter" value="Pro seniory"> 🧓 Senioři</label>
-                        <label class="fr"><input type="checkbox" class="ai-filter" value="Bezbariérový přístup"> ♿ Bezbariérové</label>
-                        <label class="fr"><input type="checkbox" class="ai-filter" value="Cestuji se psem"> 🐕 Se psem</label>
+                        <label class="fr"><input type="checkbox" class="ai-filter" value="Sólový cestovatel"> Solo cestovatel</label>
+                        <label class="fr"><input type="checkbox" class="ai-filter" value="Romantický výlet ve dvou"> Romantický výlet</label>
+                        <label class="fr"><input type="checkbox" class="ai-filter" value="Vhodné pro kočárky a malé děti"> S malými dětmi</label>
+                        <label class="fr"><input type="checkbox" class="ai-filter" value="Pro starší děti a teenagery"> S teenagery</label>
+                        <label class="fr"><input type="checkbox" class="ai-filter" value="Parta přátel"> Parta přátel</label>
+                        <label class="fr"><input type="checkbox" class="ai-filter" value="Pro seniory"> Senioři</label>
+                        <label class="fr"><input type="checkbox" class="ai-filter" value="Bezbariérový přístup"> Bezbariérový přístup</label>
+                        <label class="fr"><input type="checkbox" class="ai-filter" value="Cestuji se psem"> Cestování se psem</label>
                     </div></div>
                 </div>
                 <div class="acc" id="w-sport">
                     <div class="ach" onclick="toggleAcc('w-sport','b-sport')">Aktivita a pohyb <span class="aa">▾</span></div>
                     <div class="acb" id="b-sport"><div class="aci">
-                        <label class="fr"><input type="checkbox" class="ai-filter" value="Lehká, odpočinková procházka"> 🚶 Lehká procházka</label>
-                        <label class="fr"><input type="checkbox" class="ai-filter" value="Náročná pěší turistika (převýšení)"> 🥾 Turistika</label>
-                        <label class="fr"><input type="checkbox" class="ai-filter" value="MTB Cyklistika (terén)"> 🚵 MTB</label>
-                        <label class="fr"><input type="checkbox" class="ai-filter" value="Silniční cyklistika (hladký asfalt)"> 🚲 Silniční kolo</label>
-                        <label class="fr"><input type="checkbox" class="ai-filter" value="In-line brusle"> 🛼 In-line</label>
-                        <label class="fr"><input type="checkbox" class="ai-filter" value="Trailový běh v přírodě"> 🏃 Trail run</label>
-                        <label class="fr"><input type="checkbox" class="ai-filter" value="Ferraty nebo horolezectví"> 🧗 Ferraty</label>
-                        <label class="fr"><input type="checkbox" class="ai-filter" value="Vodácký výlet"> 🛶 Vodáctví</label>
-                        <label class="fr"><input type="checkbox" class="ai-filter" value="Zimní běžky"> ⛷️ Běžky</label>
+                        <label class="fr"><input type="checkbox" class="ai-filter" value="Lehká, odpočinková procházka"> Lehká procházka</label>
+                        <label class="fr"><input type="checkbox" class="ai-filter" value="Náročná pěší turistika (převýšení)"> Horská turistika</label>
+                        <label class="fr"><input type="checkbox" class="ai-filter" value="MTB Cyklistika (terén)"> MTB Cyklistika</label>
+                        <label class="fr"><input type="checkbox" class="ai-filter" value="Silniční cyklistika (hladký asfalt)"> Silniční cyklistika</label>
+                        <label class="fr"><input type="checkbox" class="ai-filter" value="In-line brusle"> In-line brusle</label>
+                        <label class="fr"><input type="checkbox" class="ai-filter" value="Trailový běh v přírodě"> Trailový běh</label>
+                        <label class="fr"><input type="checkbox" class="ai-filter" value="Ferraty nebo horolezectví"> Ferraty</label>
+                        <label class="fr"><input type="checkbox" class="ai-filter" value="Vodácký výlet"> Vodáctví</label>
+                        <label class="fr"><input type="checkbox" class="ai-filter" value="Zimní běžky"> Běžecké lyžování</label>
                     </div></div>
                 </div>
                 <div class="acc" id="w-vibe">
-                    <div class="ach" onclick="toggleAcc('w-vibe','b-vibe')">Zájmy a Vibe <span class="aa">▾</span></div>
+                    <div class="ach" onclick="toggleAcc('w-vibe','b-vibe')">Zájmy a preference <span class="aa">▾</span></div>
                     <div class="acb" id="b-vibe"><div class="aci">
-                        <label class="fr"><input type="checkbox" class="ai-filter" value="Historie, hrady, zámky"> 🏰 Historie</label>
-                        <label class="fr"><input type="checkbox" class="ai-filter" value="Muzea, galerie"> 🏛️ Muzea</label>
-                        <label class="fr"><input type="checkbox" class="ai-filter" value="Gastronomie"> 🍔 Gastronomie</label>
-                        <label class="fr"><input type="checkbox" class="ai-filter" value="Degustace, vína, pivovary"> 🍷 Vína & Pivovary</label>
-                        <label class="fr"><input type="checkbox" class="ai-filter" value="Koupání"> 🏊 Koupání</label>
-                        <label class="fr"><input type="checkbox" class="ai-filter" value="Fotogenická místa"> 📸 Fotogenika</label>
-                        <label class="fr"><input type="checkbox" class="ai-filter" value="Hluboký les, únik od civilizace"> 🌲 Únik</label>
-                        <label class="fr"><input type="checkbox" class="ai-filter" value="Epické výhledy"> ⛰️ Výhledy</label>
-                        <label class="fr"><input type="checkbox" class="ai-filter" value="Wellness"> 💆 Wellness</label>
-                        <label class="fr"><input type="checkbox" class="ai-filter" value="Adrenalin a zábava"> 🎢 Adrenalin</label>
+                        <label class="fr"><input type="checkbox" class="ai-filter" value="Historie, hrady, zámky"> Historie a památky</label>
+                        <label class="fr"><input type="checkbox" class="ai-filter" value="Muzea, galerie"> Muzea a kultura</label>
+                        <label class="fr"><input type="checkbox" class="ai-filter" value="Gastronomie"> Gastronomie</label>
+                        <label class="fr"><input type="checkbox" class="ai-filter" value="Degustace, vína, pivovary"> Vína a Pivovary</label>
+                        <label class="fr"><input type="checkbox" class="ai-filter" value="Koupání"> Koupání</label>
+                        <label class="fr"><input type="checkbox" class="ai-filter" value="Fotogenická místa"> Fotogenická místa</label>
+                        <label class="fr"><input type="checkbox" class="ai-filter" value="Hluboký les, únik od civilizace"> Únik do přírody</label>
+                        <label class="fr"><input type="checkbox" class="ai-filter" value="Epické výhledy"> Panoramatické výhledy</label>
+                        <label class="fr"><input type="checkbox" class="ai-filter" value="Wellness"> Wellness</label>
+                        <label class="fr"><input type="checkbox" class="ai-filter" value="Adrenalin a zábava"> Adrenalin</label>
                     </div></div>
                 </div>
 
-                <button class="btn bp bf blg" id="genBtn" onclick="generovat()" style="margin-top:14px;">✨ Sestavit s AI</button>
-                <button class="btn bgh bf" onclick="document.getElementById('manualModal').style.display='flex'" style="margin-top:7px;border-radius:var(--rsm);">✍️ Vlastní plán</button>
+                <button class="btn bp bf blg" id="genBtn" onclick="generovat()" style="margin-top:14px;">Sestavit itinerář AI</button>
+                <button class="btn bgh bf" onclick="document.getElementById('manualModal').style.display='flex'" style="margin-top:7px;border-radius:var(--rsm);">Vytvořit vlastní plán</button>
             </div>
         </aside>
 
@@ -451,10 +473,10 @@
                     <div id="resBody" class="tl"></div>
                     <div class="hr"></div>
                     <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
-                        <button class="btn bg" onclick="ulozitNovyAI()" id="btnSaveAI">💾 Uložit do deníku</button>
+                        <button class="btn bg" onclick="ulozitNovyAI()" id="btnSaveAI">Uložit do deníku</button>
                         <div style="display:flex;gap:8px;align-items:center;">
                             <input type="date" id="dateIn" class="f" style="width:auto;margin:0;">
-                            <button class="btn bgh" onclick="doKalendare()">📅 Kalendář</button>
+                            <button class="btn bgh" onclick="doKalendare()">Přidat do kalendáře</button>
                         </div>
                     </div>
                     <div id="commentsSection" style="display:none;margin-top:28px;">
@@ -464,8 +486,8 @@
                         <div style="display:flex;gap:11px;align-items:flex-start;background:rgba(0,0,0,.12);padding:16px;border-radius:var(--r);border:1px solid var(--gbd);">
                             <div class="av" id="myMiniAvatar">V</div>
                             <div style="flex:1;">
-                                <textarea id="newCommentText" class="f" rows="2" placeholder="Přidej komentář…" style="margin-bottom:8px;"></textarea>
-                                <button class="btn bp" style="font-size:.8rem;padding:8px 16px;" onclick="odeslatKomentar()">Odeslat</button>
+                                <textarea id="newCommentText" class="f" rows="2" placeholder="Napište komentář k trase…" style="margin-bottom:8px;"></textarea>
+                                <button class="btn bp" style="font-size:.8rem;padding:8px 16px;" onclick="odeslatKomentar()">Odeslat komentář</button>
                             </div>
                         </div>
                     </div>
@@ -481,19 +503,18 @@
     </div>
 </div>
 
-<!-- CONTACT FLOAT -->
 <div class="cf">
-    <button class="cb" onclick="toggleContact()">✉️</button>
+    <button class="cb" onclick="toggleContact()" style="font-family: var(--fm); font-weight: 700;">?</button>
     <div class="cp" id="contactWin">
         <div class="cph">
-            <span>Napsat autorovi</span>
+            <span>Kontaktovat podporu</span>
             <span style="cursor:pointer;" onclick="document.getElementById('contactWin').style.display='none'">✕</span>
         </div>
         <div class="cpb">
-            <p style="font-size:.82rem;color:var(--t2);">Nápad na zlepšení nebo jste našli chybu?</p>
+            <p style="font-size:.82rem;color:var(--t2);">Máte nápad na zlepšení nebo jste narazili na chybu?</p>
             <input type="text" id="kontaktPredmet" class="f" placeholder="Předmět zprávy" style="margin:0;">
             <textarea id="kontaktZprava" class="f" rows="4" placeholder="Vaše zpráva…" style="margin:0;"></textarea>
-            <button class="btn bp bf" onclick="odeslatKontaktV2()">Odeslat</button>
+            <button class="btn bp bf" onclick="odeslatKontaktV2()">Odeslat zprávu</button>
         </div>
     </div>
 </div>
@@ -508,9 +529,12 @@ async function init(){
         const data=await(await fetch('/api/auth-status')).json();
         if(data.prihlaseno){
             prihlaseno=true;mujProfil=data.profil;
-            document.getElementById('btnGoogle').innerText='✓ Přihlášen';
+            document.getElementById('btnGoogle').innerText='Přihlášen';
             document.getElementById('btnGoogle').onclick=e=>e.preventDefault();
             document.getElementById('btnProfil').style.display='inline-flex';
+            document.getElementById('navTabsContainer').style.display='flex';
+            if(window.innerWidth <= 768) document.getElementById('mobileTabsContainer').style.display='flex';
+            
             document.getElementById('profPrezdivka').value=mujProfil.prezdivka||'';
             document.getElementById('profVek').value=mujProfil.vek||'';
             document.getElementById('profTelefon').value=mujProfil.telefon||'';
@@ -518,20 +542,38 @@ async function init(){
             const ini=(mujProfil.jmeno?mujProfil.jmeno.charAt(0):'U').toUpperCase();
             if(mujProfil.avatar){['profAvatar','myMiniAvatar'].forEach(id=>{document.getElementById(id).style.backgroundImage=`url(${mujProfil.avatar})`;document.getElementById(id).innerText='';});}
             else{document.getElementById('profAvatar').innerText=ini;document.getElementById('myMiniAvatar').innerText=ini;}
+            
+            prepniTab('planovac');
+        } else {
+            prepniTab('landing');
         }
-    }catch(e){}
+    }catch(e){
+        prepniTab('landing');
+    }
     await nactiDnik();await nactiFeed();
 }
 
 function prepniTab(tab){
-    ['komunita','planovac'].forEach(t=>{
-        document.getElementById(`t-${t}`).classList.remove('active');
-        const m=document.getElementById(`mt-${t}`);if(m)m.classList.remove('active');
-        document.getElementById(t==='komunita'?'viewKomunita':'viewPlanovac').classList.add('hidden');
+    ['komunita','planovac', 'landing'].forEach(t=>{
+        const btn = document.getElementById(`t-${t}`);
+        if(btn) btn.classList.remove('active');
+        const m = document.getElementById(`mt-${t}`);
+        if(m) m.classList.remove('active');
+        
+        const view = document.getElementById(t==='komunita'?'viewKomunita':(t==='planovac'?'viewPlanovac':'viewLanding'));
+        if(view) view.classList.add('hidden');
     });
-    document.getElementById(`t-${tab}`).classList.add('active');
-    const m=document.getElementById(`mt-${tab}`);if(m)m.classList.add('active');
-    document.getElementById(tab==='komunita'?'viewKomunita':'viewPlanovac').classList.remove('hidden');
+    
+    if(tab !== 'landing') {
+        const activeBtn = document.getElementById(`t-${tab}`);
+        if(activeBtn) activeBtn.classList.add('active');
+        const activeM = document.getElementById(`mt-${tab}`);
+        if(activeM) activeM.classList.add('active');
+    }
+    
+    const activeView = document.getElementById(tab==='komunita'?'viewKomunita':(tab==='planovac'?'viewPlanovac':'viewLanding'));
+    if(activeView) activeView.classList.remove('hidden');
+    
     if(tab==='planovac'&&mainMap)setTimeout(()=>mainMap.invalidateSize(),200);
 }
 
@@ -546,7 +588,7 @@ function aktualizovatMapu(v){
     if(!mainMap){mainMap=L.map('globalMap').setView([49.8,15.5],5);L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{maxZoom:18}).addTo(mainMap);markerCluster=L.markerClusterGroup({chunkedLoading:true,spiderfyOnMaxZoom:true});mainMap.addLayer(markerCluster);}
     markerCluster.clearLayers();const pts=[];
     const icon=L.divIcon({className:'custom-map-marker',iconSize:[11,11],iconAnchor:[5,5]});
-    v.forEach(x=>{if(x.etapy&&x.etapy[0]?.lat){const m=L.marker([x.etapy[0].lat,x.etapy[0].lng],{icon});m.bindPopup(`<div style="text-align:center;padding:4px;"><h4 style="margin:0 0 8px;">${x.lokace}</h4><button onclick="otevritGoogleMaps('${x.id}')" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border:none;padding:6px 14px;border-radius:9px;cursor:pointer;font-weight:700;font-size:.78rem;">📍 Navigovat</button></div>`);markerCluster.addLayer(m);pts.push([x.etapy[0].lat,x.etapy[0].lng]);}});
+    v.forEach(x=>{if(x.etapy&&x.etapy[0]?.lat){const m=L.marker([x.etapy[0].lat,x.etapy[0].lng],{icon});m.bindPopup(`<div style="text-align:center;padding:4px;"><h4 style="margin:0 0 8px;">${x.lokace}</h4><button onclick="otevritGoogleMaps('${x.id}')" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border:none;padding:6px 14px;border-radius:9px;cursor:pointer;font-weight:700;font-size:.78rem;">Navigovat k cíli</button></div>`);markerCluster.addLayer(m);pts.push([x.etapy[0].lat,x.etapy[0].lng]);}});
     if(pts.length)mainMap.fitBounds(L.latLngBounds(pts).pad(0.15));
 }
 
@@ -554,33 +596,33 @@ async function nactiDnik(){
     const v=await(await fetch('/api/ulozene-vylety')).json();
     aktualizovatMapu(v);
     const d=document.getElementById('diary'),sel=document.getElementById('feedTripSelect');
-    sel.innerHTML='<option value="">Bez výletu</option>';
-    if(!v.length){d.innerHTML=`<div class="es"><div style="font-size:2.8rem;opacity:.35;margin-bottom:12px;">🗺</div><p style="font-size:.9rem;">Deník je prázdný. Vygeneruj svůj první výlet!</p></div>`;return;}
+    sel.innerHTML='<option value="">Bez navázaného výletu</option>';
+    if(!v.length){d.innerHTML=`<div class="es"><p style="font-size:.9rem;">Deník je prázdný. Vygenerujte svůj první výlet v plánovači.</p></div>`;return;}
     d.innerHTML='';
     v.forEach((x,i)=>{
         sel.innerHTML+=`<option value="${x.id}">${x.lokace}</option>`;
         const k=document.createElement('div');k.className=`dc au${x.dokonceno?' done':''}`;k.style.animationDelay=`${i*.05}s`;
         const sh=Array.from({length:5},(_,j)=>`<span class="star${j<(x.hodnoceni||0)?' lit':''}">★</span>`).join('');
         const fh=x.fotky?.length?`<div class="ps">${x.fotky.map(f=>`<img src="${f}" class="pt2" onclick="event.stopPropagation();openGallery('${f}')">`).join('')}</div>`:'';
-        const ab=(!x.fotky||x.fotky.length<3)?`<button class="btn bg bi" onclick="event.stopPropagation();upload('${x.id}')" style="border-radius:10px;">📸</button>`:'';
+        const ab=(!x.fotky||x.fotky.length<3)?`<button class="btn bg bi" onclick="event.stopPropagation();upload('${x.id}')" style="border-radius:10px; font-size:0.75rem;">Foto</button>`:'';
         k.innerHTML=`
             <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;">
                 <div><h3 style="font-size:1.15rem;font-weight:800;letter-spacing:-.02em;margin-bottom:3px;">${x.lokace}</h3><p style="font-family:var(--fm);font-size:.62rem;color:var(--t2);">${x.datumUlozeni||''}</p></div>
                 <button class="btnx" onclick="event.stopPropagation();smazat('${x.id}')">✕</button>
             </div>
-            <div class="pr"><span class="chip ${x.verejny?'ci':'cm'}">${x.verejny?'🌍 Veřejný':'🔒 Soukromý'}</span><button class="btn bgh" style="padding:4px 11px;font-size:.7rem;border-radius:8px;" onclick="event.stopPropagation();prepnoutSoukromi('${x.id}',${!x.verejny})">Změnit</button></div>
-            <div class="sr"><div><span class="sl">Hodnocení</span><div>${sh}</div></div><div style="text-align:right;"><span class="sl">Komentáře</span><span class="sv">💬 ${x.komentare?.length||0}</span></div></div>
+            <div class="pr"><span class="chip ${x.verejny?'ci':'cm'}">${x.verejny?'Veřejný':'Soukromý'}</span><button class="btn bgh" style="padding:4px 11px;font-size:.7rem;border-radius:8px;" onclick="event.stopPropagation();prepnoutSoukromi('${x.id}',${!x.verejny})">Změnit</button></div>
+            <div class="sr"><div><span class="sl">Hodnocení</span><div>${sh}</div></div><div style="text-align:right;"><span class="sl">Komentáře</span><span class="sv">${x.komentare?.length||0}</span></div></div>
             ${fh}
-            <div class="ar">${ab}<button class="btn bg bi" onclick="event.stopPropagation();otevritGoogleMaps('${x.id}')" style="border-radius:10px;">📍</button><button class="btn bg" style="padding:8px 13px;font-size:.75rem;color:#fcd34d;border-color:rgba(245,158,11,.25);" onclick="event.stopPropagation();stahnoutGPX('${x.id}','${x.lokace}')">GPX</button><button class="btn ${x.dokonceno?'bgh':'bp'}" style="flex:1;font-size:.8rem;border-radius:10px;" onclick="event.stopPropagation();prepnoutStav('${x.id}',${!x.dokonceno})">${x.dokonceno?'Zrušit':'✓ Splněno'}</button></div>`;
+            <div class="ar">${ab}<button class="btn bg bi" onclick="event.stopPropagation();otevritGoogleMaps('${x.id}')" style="border-radius:10px; font-size:0.75rem;">Mapa</button><button class="btn bg" style="padding:8px 13px;font-size:.75rem;color:#fcd34d;border-color:rgba(245,158,11,.25);" onclick="event.stopPropagation();stahnoutGPX('${x.id}','${x.lokace}')">GPX</button><button class="btn ${x.dokonceno?'bgh':'bp'}" style="flex:1;font-size:.8rem;border-radius:10px;" onclick="event.stopPropagation();prepnoutStav('${x.id}',${!x.dokonceno})">${x.dokonceno?'Zrušit':'Splněno'}</button></div>`;
         k.onclick=e=>{if(e.target.tagName==='BUTTON'||e.target.tagName==='IMG')return;otevritDetailVyletu(x);};
         d.appendChild(k);
     });
 }
 
-async function upload(id){const v=await(await fetch('/api/ulozene-vylety')).json();const vy=v.find(x=>x.id===id);if(vy.fotky?.length>=3)return alert('Max 3 fotky.');const i=document.createElement('input');i.type='file';i.accept='image/*';i.onchange=async e=>{const r=new FileReader();r.onloadend=async()=>{if(!vy.fotky)vy.fotky=[];vy.fotky.push(r.result);await fetch('/api/upravit-vylet',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,fotky:vy.fotky})});nactiDnik();};r.readAsDataURL(e.target.files[0]);};i.click();}
+async function upload(id){const v=await(await fetch('/api/ulozene-vylety')).json();const vy=v.find(x=>x.id===id);if(vy.fotky?.length>=3)return alert('Maximálně 3 fotografie.');const i=document.createElement('input');i.type='file';i.accept='image/*';i.onchange=async e=>{const r=new FileReader();r.onloadend=async()=>{if(!vy.fotky)vy.fotky=[];vy.fotky.push(r.result);await fetch('/api/upravit-vylet',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,fotky:vy.fotky})});nactiDnik();};r.readAsDataURL(e.target.files[0]);};i.click();}
 async function prepnoutStav(id,s){await fetch('/api/upravit-vylet',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,dokonceno:s})});nactiDnik();}
 async function prepnoutSoukromi(id,s){await fetch('/api/upravit-vylet',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,verejny:s})});nactiDnik();}
-async function smazat(id){if(confirm('Smazat výlet?')){await fetch(`/api/smazat-vylet/${id}`,{method:'DELETE'});nactiDnik();document.getElementById('resCard').style.display='none';}}
+async function smazat(id){if(confirm('Opravdu chcete výlet smazat?')){await fetch(`/api/smazat-vylet/${id}`,{method:'DELETE'});nactiDnik();document.getElementById('resCard').style.display='none';}}
 
 function otevritDetailVyletu(v){curOpenTripId=v.id;document.getElementById('resTitle').innerText=v.lokace;document.getElementById('resDiffText').innerText='Uloženo: '+(v.datumUlozeni||'');document.getElementById('btnSaveAI').style.display='none';document.getElementById('resBody').innerHTML=v.popis;vykresliHvezdicky(v.id,v.hodnoceni||0);vykresliKomentare(v.komentare||[]);curDraft=v;document.getElementById('resCard').style.display='block';window.scrollTo({top:document.getElementById('resCard').offsetTop-80,behavior:'smooth'});}
 function vykresliHvezdicky(id,h){document.getElementById('resTopRating').innerHTML=Array.from({length:5},(_,i)=>`<span class="star${i<h?' lit':''}" onclick="ohodnotitVylet('${id}',${i+1})">★</span>`).join('');}
@@ -589,50 +631,50 @@ async function ohodnotitVylet(id,h){await fetch('/api/upravit-vylet',{method:'PO
 function vykresliKomentare(k){
     document.getElementById('commentsSection').style.display='block';
     const l=document.getElementById('commentsList');
-    if(!k.length){l.innerHTML=`<p style="color:var(--t2);font-size:.85rem;text-align:center;padding:20px;">Zatím žádné komentáře. Buďte první!</p>`;return;}
+    if(!k.length){l.innerHTML=`<p style="color:var(--t2);font-size:.85rem;text-align:center;padding:20px;">Zatím žádné komentáře.</p>`;return;}
     l.innerHTML=k.map(c=>{
         const av=c.avatar?`background-image:url(${c.avatar});color:transparent;`:'';
         const io=prihlaseno&&mujProfil&&(c.autorId===mujProfil._id||mujProfil.isAdmin);
-        const ak=io?`<div style="display:flex;gap:5px;"><button class="btn bgh bi" style="width:26px;height:26px;border-radius:6px;font-size:.75rem;" onclick="upravitKomentar('${c.id}','${encodeURIComponent(c.text)}')">✏️</button><button class="btn bgh bi" style="width:26px;height:26px;border-radius:6px;font-size:.75rem;" onclick="smazatKomentar('${c.id}')">🗑️</button></div>`:'';
+        const ak=io?`<div style="display:flex;gap:5px;"><button class="btn bgh bi" style="width:26px;height:26px;border-radius:6px;font-size:.75rem;" onclick="upravitKomentar('${c.id}','${encodeURIComponent(c.text)}')">Upravit</button><button class="btn bgh bi" style="width:26px;height:26px;border-radius:6px;font-size:.75rem;" onclick="smazatKomentar('${c.id}')">Smazat</button></div>`:'';
         return `<div class="ci2"><div class="av" style="${av};width:34px;height:34px;font-size:.78rem;">${c.autor?.charAt(0).toUpperCase()||'U'}</div><div style="flex:1;"><div class="cm2"><div><span class="cn">${c.autor}</span><span class="cd" style="margin-left:8px;">${c.datum}</span></div>${ak}</div><p class="ct">${c.text}</p></div></div>`;
     }).join('');
 }
 
-async function odeslatKomentar(){if(!prihlaseno)return alert('Přihlaste se.');if(!curOpenTripId)return;const t=document.getElementById('newCommentText').value.trim();if(!t)return;document.getElementById('newCommentText').value='';await fetch('/api/pridat-komentar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({idVyletu:curOpenTripId,text:t})});const v=await(await fetch('/api/ulozene-vylety')).json();vykresliKomentare(v.find(x=>x.id===curOpenTripId)?.komentare||[]);nactiDnik();}
-async function smazatKomentar(cid){if(!confirm('Smazat?'))return;await fetch('/api/smazat-komentar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tripId:curOpenTripId,commentId:cid})});const v=await(await fetch('/api/ulozene-vylety')).json();vykresliKomentare(v.find(x=>x.id===curOpenTripId)?.komentare||[]);}
-async function upravitKomentar(cid,enc){const s=decodeURIComponent(enc),n=prompt('Upravit:',s);if(n&&n.trim()&&n!==s){await fetch('/api/upravit-komentar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tripId:curOpenTripId,commentId:cid,text:n})});const v=await(await fetch('/api/ulozene-vylety')).json();vykresliKomentare(v.find(x=>x.id===curOpenTripId)?.komentare||[]);}}
+async function odeslatKomentar(){if(!prihlaseno)return alert('Pro komentování se prosím přihlaste.');if(!curOpenTripId)return;const t=document.getElementById('newCommentText').value.trim();if(!t)return;document.getElementById('newCommentText').value='';await fetch('/api/pridat-komentar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({idVyletu:curOpenTripId,text:t})});const v=await(await fetch('/api/ulozene-vylety')).json();vykresliKomentare(v.find(x=>x.id===curOpenTripId)?.komentare||[]);nactiDnik();}
+async function smazatKomentar(cid){if(!confirm('Smazat komentář?'))return;await fetch('/api/smazat-komentar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tripId:curOpenTripId,commentId:cid})});const v=await(await fetch('/api/ulozene-vylety')).json();vykresliKomentare(v.find(x=>x.id===curOpenTripId)?.komentare||[]);}
+async function upravitKomentar(cid,enc){const s=decodeURIComponent(enc),n=prompt('Upravit komentář:',s);if(n&&n.trim()&&n!==s){await fetch('/api/upravit-komentar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tripId:curOpenTripId,commentId:cid,text:n})});const v=await(await fetch('/api/ulozene-vylety')).json();vykresliKomentare(v.find(x=>x.id===curOpenTripId)?.komentare||[]);}}
 
 function nactiFotkyDoFeedu(i){const p=document.getElementById('feedPhotoPreview');p.innerHTML='';pripraveneFotky=[];Array.from(i.files).slice(0,4).forEach(f=>{const r=new FileReader();r.onloadend=()=>{pripraveneFotky.push(r.result);p.innerHTML+=`<img src="${r.result}" style="width:70px;height:70px;border-radius:10px;object-fit:cover;border:1px solid var(--gbd);">`;};r.readAsDataURL(f);});}
-async function odeslatDoFeedu(){if(!prihlaseno)return alert('Přihlaste se.');const t=document.getElementById('feedText').value.trim();if(!t&&!pripraveneFotky.length)return alert('Prázdný příspěvek.');const sel=document.getElementById('feedTripSelect'),btn=document.getElementById('btnOdeslatFeed');btn.innerHTML='<div class="spin"></div>';await fetch('/api/pridat-do-feedu',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:t,fotky:pripraveneFotky,pripojenyVyletId:sel.value,pripojenyVyletLokace:sel.value?sel.options[sel.selectedIndex].text:null})});document.getElementById('feedText').value='';document.getElementById('feedPhotoPreview').innerHTML='';pripraveneFotky=[];btn.innerText='Odeslat do komunity';nactiFeed();}
+async function odeslatDoFeedu(){if(!prihlaseno)return alert('Pro publikování se prosím přihlaste.');const t=document.getElementById('feedText').value.trim();if(!t&&!pripraveneFotky.length)return alert('Příspěvek nemůže být prázdný.');const sel=document.getElementById('feedTripSelect'),btn=document.getElementById('btnOdeslatFeed');btn.innerHTML='<div class="spin"></div>';await fetch('/api/pridat-do-feedu',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:t,fotky:pripraveneFotky,pripojenyVyletId:sel.value,pripojenyVyletLokace:sel.value?sel.options[sel.selectedIndex].text:null})});document.getElementById('feedText').value='';document.getElementById('feedPhotoPreview').innerHTML='';pripraveneFotky=[];btn.innerText='Publikovat v komunitě';nactiFeed();}
 
 async function nactiFeed(){
     const f=await(await fetch('/api/feed')).json();const c=document.getElementById('feedStream');
-    if(!f.length){c.innerHTML=`<div class="es"><div style="font-size:2.8rem;opacity:.35;margin-bottom:12px;">🌍</div><p style="font-size:.88rem;">Komunita zatím spí. Přidej první příspěvek!</p></div>`;return;}
+    if(!f.length){c.innerHTML=`<div class="es"><p style="font-size:.88rem;">Komunita je zatím prázdná. Buďte první, kdo sdílí svůj výlet!</p></div>`;return;}
     c.innerHTML=f.map((p,i)=>{
         const av=p.autorAvatar?`background-image:url(${p.autorAvatar});color:transparent;`:'';
         const fh=p.fotky?.length?`<div class="ps" style="margin-bottom:10px;">${p.fotky.map(img=>`<img src="${img}" class="pt2" style="width:110px;height:80px;" onclick="openGallery('${img}')">`).join('')}</div>`:'';
-        const th=p.pripojenyVyletId?`<div class="lt"><div><p class="ll">Sdílený výlet</p><p class="ln">${p.pripojenyVyletLokace}</p></div><button class="btn bp" style="font-size:.76rem;padding:7px 13px;" onclick="otevritGoogleMaps('${p.pripojenyVyletId}')">📍 Mapa</button></div>`:'';
+        const th=p.pripojenyVyletId?`<div class="lt"><div><p class="ll">Sdílený výlet</p><p class="ln">${p.pripojenyVyletLokace}</p></div><button class="btn bp" style="font-size:.76rem;padding:7px 13px;" onclick="otevritGoogleMaps('${p.pripojenyVyletId}')">Mapa</button></div>`:'';
         const io=prihlaseno&&mujProfil&&(p.autorId===mujProfil._id||mujProfil.isAdmin);
-        const ak=io?`<div style="display:flex;gap:5px;"><button class="btn bgh bi" style="width:28px;height:28px;border-radius:8px;font-size:.75rem;" onclick="upravitFeed('${p._id}','${encodeURIComponent(p.text)}')">✏️</button><button class="btn bgh bi" style="width:28px;height:28px;border-radius:8px;font-size:.75rem;" onclick="smazatFeed('${p._id}')">🗑️</button></div>`:'';
+        const ak=io?`<div style="display:flex;gap:5px;"><button class="btn bgh bi" style="width:auto;padding:0 8px;border-radius:8px;font-size:.75rem;" onclick="upravitFeed('${p._id}','${encodeURIComponent(p.text)}')">Upravit</button><button class="btn bgh bi" style="width:auto;padding:0 8px;border-radius:8px;font-size:.75rem;" onclick="smazatFeed('${p._id}')">Smazat</button></div>`:'';
         return `<div class="fp" style="animation-delay:${i*.06}s;"><div class="ph"><div class="pa"><div class="av" style="${av}">${p.autorJmeno?.charAt(0).toUpperCase()||'U'}</div><div><p class="an">${p.autorJmeno}</p><p class="pd">${p.datum}</p></div></div>${ak}</div><p class="pt">${p.text}</p>${fh}${th}</div>`;
     }).join('');
 }
 
-async function smazatFeed(id){if(confirm('Smazat?')){await fetch(`/api/smazat-feed/${id}`,{method:'DELETE'});nactiFeed();}}
-async function upravitFeed(id,enc){const s=decodeURIComponent(enc),n=prompt('Upravit:',s);if(n&&n.trim()&&n!==s){await fetch('/api/upravit-feed',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({postId:id,text:n})});nactiFeed();}}
+async function smazatFeed(id){if(confirm('Opravdu chcete příspěvek smazat?')){await fetch(`/api/smazat-feed/${id}`,{method:'DELETE'});nactiFeed();}}
+async function upravitFeed(id,enc){const s=decodeURIComponent(enc),n=prompt('Upravit příspěvek:',s);if(n&&n.trim()&&n!==s){await fetch('/api/upravit-feed',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({postId:id,text:n})});nactiFeed();}}
 
 async function generovat(){
-    if(!prihlaseno)return alert('Přihlaste se přes Google.');
-    const misto=document.getElementById('mistoIn').value.trim();if(!misto)return alert('Zadej lokalitu.');
+    if(!prihlaseno)return alert('Pro plánování výletů se prosím přihlaste.');
+    const misto=document.getElementById('mistoIn').value.trim();if(!misto)return alert('Zadejte prosím destinaci.');
     const filtry=Array.from(document.querySelectorAll('.ai-filter:checked')).map(c=>c.value);
-    const btn=document.getElementById('genBtn');btn.innerHTML='<div class="spin"></div> Sestavuji…';btn.disabled=true;
+    const btn=document.getElementById('genBtn');btn.innerHTML='<div class="spin"></div> Zpracovávám…';btn.disabled=true;
     try{
         const res=await(await fetch('/api/vylet',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({misto,specifikace:document.getElementById('specIn').value,vybraneFiltry:filtry})})).json();
         if(res.uspech){
             curDraft=res.data;curOpenTripId=null;
             document.getElementById('resTitle').innerText=curDraft.lokace;
             document.getElementById('resDiffText').innerText='AI Koncept — Náročnost '+(curDraft.obtiznost||2);
-            document.getElementById('resTopRating').innerHTML='<span style="font-family:var(--fm);font-size:.65rem;color:var(--t2);">ulož pro hodnocení</span>';
+            document.getElementById('resTopRating').innerHTML='<span style="font-family:var(--fm);font-size:.65rem;color:var(--t2);">Pro hodnocení nejprve uložte</span>';
             document.getElementById('commentsSection').style.display='none';
             document.getElementById('btnSaveAI').style.display='inline-flex';
             let h='<div class="tl">';
@@ -645,26 +687,47 @@ async function generovat(){
                 if(!isLast) h+=`<div class="tr-line"></div>`;
             });
             h+='</div>';
-            if(curDraft.doporuceni)h+=`<div class="ait"><span class="ait-ico">💡</span><span>${curDraft.doporuceni}</span></div>`;
+            if(curDraft.doporuceni)h+=`<div class="ait"><span class="ait-ico">+</span><span>${curDraft.doporuceni}</span></div>`;
             document.getElementById('resBody').innerHTML=h;
             document.getElementById('resCard').style.display='block';
             window.scrollTo({top:document.getElementById('resCard').offsetTop-80,behavior:'smooth'});
-        }else alert('Chyba: '+(res.chyba||'Neznámý problém'));
+        }else alert('Chyba: '+(res.chyba||'Neznámý problém při komunikaci s AI.'));
     }catch(e){alert('Chyba spojení: '+e.message);}
-    btn.innerHTML='✨ Sestavit s AI';btn.disabled=false;
+    btn.innerHTML='Sestavit itinerář AI';btn.disabled=false;
 }
 
-async function ulozitNovyAI(){if(!curDraft)return;await fetch('/api/ulozit-vylet',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({lokace:curDraft.lokace,popis:document.getElementById('resBody').innerHTML,obtiznost:curDraft.obtiznost,typ:'ai',etapy:curDraft.etapy})});document.getElementById('resCard').style.display='none';nactiDnik();alert('Uloženo!');}
+async function ulozitNovyAI(){if(!curDraft)return;await fetch('/api/ulozit-vylet',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({lokace:curDraft.lokace,popis:document.getElementById('resBody').innerHTML,obtiznost:curDraft.obtiznost,typ:'ai',etapy:curDraft.etapy})});document.getElementById('resCard').style.display='none';nactiDnik();alert('Itinerář byl úspěšně uložen do deníku.');}
 
 function pridatEtapu(){const d=document.createElement('div');d.className='man-etapa';d.style.cssText='display:flex;gap:7px;margin-bottom:7px;align-items:center;';d.innerHTML=`<input type="time" class="f e-cas" style="width:108px;margin:0;" value="12:00"><input type="text" class="f e-misto" placeholder="Místo" style="flex:1;margin:0;"><input type="text" class="f e-popis" placeholder="Popis" style="flex:2;margin:0;"><button onclick="this.parentElement.remove()" style="background:none;border:none;cursor:pointer;color:var(--t2);font-size:1rem;">✕</button>`;document.getElementById('manEtapy').appendChild(d);}
-async function ulozitVlastni(){const l=document.getElementById('manLokace').value.trim();if(!l)return alert('Zadej název.');const etapyEls=Array.from(document.querySelectorAll('.man-etapa'));let h='<div class="tl">';etapyEls.forEach((e,i)=>{const isLast=i===etapyEls.length-1;h+=`<div class="tr"><div class="t-left"><div class="td">${String(i+1).padStart(2,'0')}</div><div class="tt">${e.querySelector('.e-cas').value}</div></div><div class="tc"><h4>${e.querySelector('.e-misto').value}</h4><p>${e.querySelector('.e-popis').value}</p></div></div>`;if(!isLast)h+=`<div class="tr-line"></div>`;});h+='</div>';await fetch('/api/ulozit-vylet',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({lokace:l,popis:h,obtiznost:parseInt(document.getElementById('manObtiznost').value),typ:'vlastni',etapy:[]})});document.getElementById('manualModal').style.display='none';nactiDnik();}
+async function ulozitVlastni(){const l=document.getElementById('manLokace').value.trim();if(!l)return alert('Zadejte název výletu.');const etapyEls=Array.from(document.querySelectorAll('.man-etapa'));let h='<div class="tl">';etapyEls.forEach((e,i)=>{const isLast=i===etapyEls.length-1;h+=`<div class="tr"><div class="t-left"><div class="td">${String(i+1).padStart(2,'0')}</div><div class="tt">${e.querySelector('.e-cas').value}</div></div><div class="tc"><h4>${e.querySelector('.e-misto').value}</h4><p>${e.querySelector('.e-popis').value}</p></div></div>`;if(!isLast)h+=`<div class="tr-line"></div>`;});h+='</div>';await fetch('/api/ulozit-vylet',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({lokace:l,popis:h,obtiznost:parseInt(document.getElementById('manObtiznost').value),typ:'vlastni',etapy:[]})});document.getElementById('manualModal').style.display='none';nactiDnik();}
 
-function otevritGoogleMaps(id){fetch('/api/ulozene-vylety').then(r=>r.json()).then(v=>{const x=v.find(x=>x.id===id);if(!x?.etapy?.[0]?.lat)return alert('Chybí GPS data.');const o=`${x.etapy[0].lat},${x.etapy[0].lng}`,d=`${x.etapy[x.etapy.length-1].lat},${x.etapy[x.etapy.length-1].lng}`,wp=x.etapy.length>2?'&waypoints='+x.etapy.slice(1,-1).map(e=>`${e.lat},${e.lng}`).join('|'):'';window.open(`https://www.google.com/maps/dir/?api=1&origin=${o}&destination=${d}${wp}&travelmode=walking`,'_blank');});}
-function stahnoutGPX(id,l){fetch('/api/ulozene-vylety').then(r=>r.json()).then(v=>{const x=v.find(x=>x.id===id);if(!x?.etapy?.[0]?.lat)return alert('Chybí GPS data.');let g=`<?xml version="1.0" encoding="UTF-8"?>\n<gpx version="1.1" creator="VERONA" xmlns="http://www.topografix.com/GPX/1/1">\n  <rte><n>${l}</n>\n`;x.etapy.forEach(b=>{g+=`    <rtept lat="${b.lat}" lon="${b.lng}"><n>${b.misto}</n></rtept>\n`;});g+=`  </rte>\n</gpx>`;const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([g],{type:'application/gpx+xml'}));a.download=`${l.replace(/\s+/g,'_')}.gpx`;document.body.appendChild(a);a.click();});}
+function otevritGoogleMaps(id){fetch('/api/ulozene-vylety').then(r=>r.json()).then(v=>{const x=v.find(x=>x.id===id);if(!x?.etapy?.[0]?.lat)return alert('U tohoto výletu chybí navigační data.');const o=`${x.etapy[0].lat},${x.etapy[0].lng}`,d=`${x.etapy[x.etapy.length-1].lat},${x.etapy[x.etapy.length-1].lng}`,wp=x.etapy.length>2?'&waypoints='+x.etapy.slice(1,-1).map(e=>`${e.lat},${e.lng}`).join('|'):'';window.open(`http://googleusercontent.com/maps.google.com/?origin=${o}&destination=${d}${wp}&travelmode=walking`,'_blank');});}
+function stahnoutGPX(id,l){fetch('/api/ulozene-vylety').then(r=>r.json()).then(v=>{const x=v.find(x=>x.id===id);if(!x?.etapy?.[0]?.lat)return alert('U tohoto výletu chybí GPS data.');let g=`<?xml version="1.0" encoding="UTF-8"?>\n<gpx version="1.1" creator="VERONA" xmlns="http://www.topografix.com/GPX/1/1">\n  <rte><n>${l}</n>\n`;x.etapy.forEach(b=>{g+=`    <rtept lat="${b.lat}" lon="${b.lng}"><n>${b.misto}</n></rtept>\n`;});g+=`  </rte>\n</gpx>`;const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([g],{type:'application/gpx+xml'}));a.download=`${l.replace(/\s+/g,'_')}.gpx`;document.body.appendChild(a);a.click();});}
 function openGallery(s){document.getElementById('lightboxImg').src=s;document.getElementById('lightbox').style.display='flex';}
-async function doKalendare(){const d=document.getElementById('dateIn').value;if(!d)return alert('Zvol datum.');let ml='';if(curDraft?.etapy?.[0]?.lat){const o=`${curDraft.etapy[0].lat},${curDraft.etapy[0].lng}`,d2=`${curDraft.etapy[curDraft.etapy.length-1].lat},${curDraft.etapy[curDraft.etapy.length-1].lng}`;ml=`https://www.google.com/maps/dir/?api=1&origin=${o}&destination=${d2}&travelmode=walking`;}const r=await fetch('/api/kalendar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({lokace:document.getElementById('resTitle').innerText,popis:'VERONA',datum:d,mapaLink:ml})});if((await r.json()).uspech)alert('Přidáno!');}
 
-async function odeslatKontaktV2(){const pe=document.getElementById('kontaktPredmet'),ze=document.getElementById('kontaktZprava');if(!pe.value||!ze.value)return alert('Vyplň všechna pole.');const btn=event.target,orig=btn.innerText;btn.innerHTML='<div class="spin" style="margin:0 auto"></div>';btn.disabled=true;try{const r=await fetch('https://api.web3forms.com/submit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({access_key:'c8ed8521-b2ea-4c17-ad1a-2379968a739e',subject:`VERONA: ${pe.value}`,from_name:'Uživatel VERONA',message:ze.value})});const res=await r.json();if(res.success){alert('Zpráva odeslána!');document.getElementById('contactWin').style.display='none';pe.value='';ze.value='';}else alert('Chyba: '+res.message);}catch(e){alert('Chyba spojení.');}btn.innerText=orig;btn.disabled=false;}
+async function doKalendare(){
+    const d=document.getElementById('dateIn').value;
+    if(!d)return alert('Vyberte prosím datum.');
+    let ml='';
+    if(curDraft?.etapy?.[0]?.lat){
+        const o=`${curDraft.etapy[0].lat},${curDraft.etapy[0].lng}`;
+        const d2=`${curDraft.etapy[curDraft.etapy.length-1].lat},${curDraft.etapy[curDraft.etapy.length-1].lng}`;
+        ml=`http://googleusercontent.com/maps.google.com/?origin=${o}&destination=${d2}&travelmode=walking`;
+    }
+    const r=await fetch('/api/kalendar',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({lokace:document.getElementById('resTitle').innerText,popis:'Trasa vytvořená v aplikaci VERONA',datum:d,mapaLink:ml})
+    });
+    const data = await r.json();
+    if(data.uspech && data.url) {
+        window.open(data.url, '_blank'); 
+    } else {
+        alert('Chyba: ' + (data.chyba || 'Nepodařilo se otevřít kalendář.'));
+    }
+}
+
+async function odeslatKontaktV2(){const pe=document.getElementById('kontaktPredmet'),ze=document.getElementById('kontaktZprava');if(!pe.value||!ze.value)return alert('Vyplňte prosím všechna pole.');const btn=event.target,orig=btn.innerText;btn.innerHTML='<div class="spin" style="margin:0 auto"></div>';btn.disabled=true;try{const r=await fetch('https://api.web3forms.com/submit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({access_key:'c8ed8521-b2ea-4c17-ad1a-2379968a739e',subject:`VERONA: ${pe.value}`,from_name:'Uživatel VERONA',message:ze.value})});const res=await r.json();if(res.success){alert('Vaše zpráva byla úspěšně odeslána. Děkujeme.');document.getElementById('contactWin').style.display='none';pe.value='';ze.value='';}else alert('Došlo k chybě: '+res.message);}catch(e){alert('Chyba při komunikaci se serverem.');}btn.innerText=orig;btn.disabled=false;}
 
 window.onload=init;
 </script>
