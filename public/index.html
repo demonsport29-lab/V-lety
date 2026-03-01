@@ -59,7 +59,7 @@
         .blob:nth-child(4){width:400px;height:400px;background:var(--a2);top:60%;left:10%;animation-duration:22s;animation-delay:-3s;}
         @keyframes drift{from{transform:translate(0,0) scale(1)}to{transform:translate(60px,40px) scale(1.08)}}
 
-        body::after{content:'';position:fixed;inset:0;z-index:1;pointer-events:none;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='1'/%3E%3C/svg%3E");opacity:.02;}
+        
         body>*:not(.aurora){position:relative;z-index:2;}
         .hidden{display:none!important;}
 
