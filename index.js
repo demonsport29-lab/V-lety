@@ -158,6 +158,44 @@ app.post('/api/pridat-komentar', async (req, res) => {
     res.json({ uspech: true });
 });
 
+app.post('/api/smazat-komentar', async (req, res) => {
+    if (!req.session.userId) return res.json({ uspech: false });
+    try {
+        const { tripId, commentId } = req.body;
+        const user = await User.findById(req.session.userId);
+        const vylet = await Vylet.findById(tripId);
+        if (!vylet) return res.json({ uspech: false, chyba: 'Výlet nenalezen.' });
+        const komentar = vylet.komentare.find(k => k.id === commentId);
+        if (!komentar) return res.json({ uspech: false, chyba: 'Komentář nenalezen.' });
+        if (komentar.autorId !== req.session.userId.toString() && !user.isAdmin) {
+            return res.status(403).json({ uspech: false, chyba: 'Nemáš oprávnění.' });
+        }
+        await Vylet.findByIdAndUpdate(tripId, { $pull: { komentare: { id: commentId } } });
+        res.json({ uspech: true });
+    } catch (e) { res.json({ uspech: false, chyba: e.message }); }
+});
+
+app.post('/api/upravit-komentar', async (req, res) => {
+    if (!req.session.userId) return res.json({ uspech: false });
+    try {
+        const { tripId, commentId, text } = req.body;
+        if (!text || !text.trim()) return res.json({ uspech: false, chyba: 'Text nesmí být prázdný.' });
+        const user = await User.findById(req.session.userId);
+        const vylet = await Vylet.findById(tripId);
+        if (!vylet) return res.json({ uspech: false, chyba: 'Výlet nenalezen.' });
+        const komentar = vylet.komentare.find(k => k.id === commentId);
+        if (!komentar) return res.json({ uspech: false, chyba: 'Komentář nenalezen.' });
+        if (komentar.autorId !== req.session.userId.toString() && !user.isAdmin) {
+            return res.status(403).json({ uspech: false, chyba: 'Nemáš oprávnění.' });
+        }
+        await Vylet.updateOne(
+            { _id: tripId, 'komentare.id': commentId },
+            { $set: { 'komentare.$.text': text.trim() } }
+        );
+        res.json({ uspech: true });
+    } catch (e) { res.json({ uspech: false, chyba: e.message }); }
+});
+
 // ==========================================
 // 5. KOMUNITA (FEED)
 // ==========================================
@@ -176,6 +214,36 @@ app.post('/api/pridat-do-feedu', async (req, res) => {
         }).save();
         res.json({ uspech: true });
     } catch(e) { res.json({ uspech: false }); }
+});
+
+app.delete('/api/smazat-feed/:id', async (req, res) => {
+    if (!req.session.userId) return res.json({ uspech: false });
+    try {
+        const user = await User.findById(req.session.userId);
+        const post = await FeedPost.findById(req.params.id);
+        if (!post) return res.json({ uspech: false, chyba: 'Příspěvek nenalezen.' });
+        if (post.autorId !== req.session.userId.toString() && !user.isAdmin) {
+            return res.status(403).json({ uspech: false, chyba: 'Nemáš oprávnění.' });
+        }
+        await FeedPost.findByIdAndDelete(req.params.id);
+        res.json({ uspech: true });
+    } catch (e) { res.json({ uspech: false, chyba: e.message }); }
+});
+
+app.post('/api/upravit-feed', async (req, res) => {
+    if (!req.session.userId) return res.json({ uspech: false });
+    try {
+        const { postId, text } = req.body;
+        if (!text || !text.trim()) return res.json({ uspech: false, chyba: 'Text nesmí být prázdný.' });
+        const user = await User.findById(req.session.userId);
+        const post = await FeedPost.findById(postId);
+        if (!post) return res.json({ uspech: false, chyba: 'Příspěvek nenalezen.' });
+        if (post.autorId !== req.session.userId.toString() && !user.isAdmin) {
+            return res.status(403).json({ uspech: false, chyba: 'Nemáš oprávnění.' });
+        }
+        await FeedPost.findByIdAndUpdate(postId, { text: text.trim() });
+        res.json({ uspech: true });
+    } catch (e) { res.json({ uspech: false, chyba: e.message }); }
 });
 
 // Platby
@@ -220,6 +288,30 @@ app.post('/api/kontakt', async (req, res) => {
         console.error("Chyba API odesílání:", error);
         res.json({ uspech: false, chyba: error.message });
     }
+});
+
+// ==========================================
+// 7. KALENDÁŘ (Google Calendar)
+// ==========================================
+app.post('/api/kalendar', async (req, res) => {
+    if (!req.session.userId) return res.json({ uspech: false, chyba: 'Nepřihlášen.' });
+    try {
+        const { lokace, popis, datum, mapaLink } = req.body;
+        if (!lokace || !datum) return res.json({ uspech: false, chyba: 'Chybí lokace nebo datum.' });
+
+        const datumObj = new Date(datum);
+        const start = datumObj.toISOString().split('T')[0]; // YYYY-MM-DD
+        const end   = new Date(datumObj.getTime() + 86400000).toISOString().split('T')[0];
+
+        const popisFull = mapaLink
+            ? `${popis || 'Výlet VERONA'}\n\nNavigace: ${mapaLink}`
+            : (popis || 'Výlet VERONA');
+
+        // Otevře Google Calendar s předvyplněnými daty (URL metoda — nevyžaduje OAuth)
+        const gcalUrl = `https://calendar.google.com/calendar/r/eventedit?text=${encodeURIComponent('🗺 ' + lokace)}&dates=${start.replace(/-/g,'')}/${end.replace(/-/g,'')}&details=${encodeURIComponent(popisFull)}&sf=true`;
+
+        res.json({ uspech: true, url: gcalUrl });
+    } catch (e) { res.json({ uspech: false, chyba: e.message }); }
 });
 
 // START SERVERU
