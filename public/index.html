@@ -208,12 +208,10 @@
         .mw{height:380px;border-radius:var(--rlg);overflow:hidden;border:1px solid var(--gbd);margin-bottom:28px;}
 
         /* CONTACT */
-        .cf{position:fixed;bottom:26px;right:26px;z-index:2000;}
+        .cf{position:fixed;bottom:26px;right:26px;left:auto;z-index:2000;display:flex;flex-direction:column;align-items:flex-end;}
         .cb{width:52px;height:52px;border-radius:15px;background:linear-gradient(135deg,var(--a1),var(--a2));border:none;cursor:pointer;color:#fff;font-size:1.25rem;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 28px rgba(99,102,241,.45);transition:all .3s var(--ease);}
         .cb:hover{transform:scale(1.08);box-shadow:0 12px 36px rgba(99,102,241,.6);}
-        .cp{position:absolute;bottom:66px;right:0;width:330px;background:var(--gb2);backdrop-filter:blur(32px) saturate(200%);-webkit-backdrop-filter:blur(32px) saturate(200%);border:1px solid var(--gbd2);border-radius:var(--rlg);overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,.5),0 0 0 1px rgba(99,102,241,.1);display:none;animation:fadeUp .3s var(--ease) both;}
-        .cph{padding:16px 18px;background:linear-gradient(135deg,var(--a1),var(--a2));color:#fff;font-weight:800;font-size:.85rem;display:flex;justify-content:space-between;align-items:center;}
-        .cpb{padding:18px;display:flex;flex-direction:column;gap:10px;}
+        .cp{position:absolute;bottom:66px;right:0;width:330px;background:var(--gb2);backdrop-filter:blur(32px) saturate(200%);-webkit-backdrop-filter:blur(32px) saturate(200%);border:1px solid var(--gbd2);border-radius:var(--rlg);overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,.5),0 0 0 1px rgba(99,102,241,.1);display:none;animation:fadeUp .3s var(--ease) both; transform-origin: bottom right;}
 
         /* SECTIONS */
         .ey{font-family:var(--fm);font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;color:var(--a1);margin-bottom:6px;}
@@ -256,7 +254,7 @@
             .sidebar{position:static;}
             .card,.dc{padding:18px;border-radius:var(--r);}
             .mb{padding:22px;}
-            .cf{bottom:90px;right:14px;}
+            .cf{bottom:90px;right:14px;left:auto;}
             .nav-act .btn span{display:none;}
             .nav-act{gap:6px;}
         }
