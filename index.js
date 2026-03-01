@@ -141,9 +141,27 @@ app.post('/api/upravit-vylet', async (req, res) => {
     res.json({ uspech: true }); 
 });
 
+// BEZPEČNÉ MAZÁNÍ VÝLETU Z DENÍKU
 app.delete('/api/smazat-vylet/:id', async (req, res) => { 
-    await Vylet.findByIdAndDelete(req.params.id); 
-    res.json({ uspech: true }); 
+    try {
+        if (!req.session.userId) return res.json({ uspech: false, chyba: "Nejste přihlášeni." });
+        
+        const vylet = await Vylet.findById(req.params.id);
+        if (!vylet) return res.json({ uspech: false, chyba: "Výlet se v databázi nenašel." });
+
+        const user = await User.findById(req.session.userId);
+        
+        // Smazat může jen autor nebo admin
+        if (vylet.vlastnikId === user._id.toString() || user.isAdmin) {
+            await Vylet.findByIdAndDelete(req.params.id);
+            res.json({ uspech: true });
+        } else {
+            res.json({ uspech: false, chyba: "Nemáte oprávnění smazat tento výlet." });
+        }
+    } catch (e) {
+        console.error("Chyba při mazání výletu:", e);
+        res.json({ uspech: false, chyba: e.message });
+    }
 });
 
 app.post('/api/pridat-komentar', async (req, res) => {

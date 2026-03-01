@@ -622,7 +622,23 @@ async function nactiDnik(){
 async function upload(id){const v=await(await fetch('/api/ulozene-vylety')).json();const vy=v.find(x=>x.id===id);if(vy.fotky?.length>=3)return alert('Maximálně 3 fotografie.');const i=document.createElement('input');i.type='file';i.accept='image/*';i.onchange=async e=>{const r=new FileReader();r.onloadend=async()=>{if(!vy.fotky)vy.fotky=[];vy.fotky.push(r.result);await fetch('/api/upravit-vylet',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,fotky:vy.fotky})});nactiDnik();};r.readAsDataURL(e.target.files[0]);};i.click();}
 async function prepnoutStav(id,s){await fetch('/api/upravit-vylet',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,dokonceno:s})});nactiDnik();}
 async function prepnoutSoukromi(id,s){await fetch('/api/upravit-vylet',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,verejny:s})});nactiDnik();}
-async function smazat(id){if(confirm('Opravdu chcete výlet smazat?')){await fetch(`/api/smazat-vylet/${id}`,{method:'DELETE'});nactiDnik();document.getElementById('resCard').style.display='none';}}
+async function smazat(id) {
+    if(!confirm('Opravdu chcete výlet smazat?')) return;
+    
+    try {
+        const res = await fetch(`/api/smazat-vylet/${id}`, { method: 'DELETE' });
+        const data = await res.json();
+        
+        if (data.uspech) {
+            nactiDnik();
+            document.getElementById('resCard').style.display='none';
+        } else {
+            alert('Nepodařilo se smazat: ' + (data.chyba || 'Neznámá chyba.'));
+        }
+    } catch(e) {
+        alert('Chyba při komunikaci se serverem.');
+    }
+}
 
 function otevritDetailVyletu(v){curOpenTripId=v.id;document.getElementById('resTitle').innerText=v.lokace;document.getElementById('resDiffText').innerText='Uloženo: '+(v.datumUlozeni||'');document.getElementById('btnSaveAI').style.display='none';document.getElementById('resBody').innerHTML=v.popis;vykresliHvezdicky(v.id,v.hodnoceni||0);vykresliKomentare(v.komentare||[]);curDraft=v;document.getElementById('resCard').style.display='block';window.scrollTo({top:document.getElementById('resCard').offsetTop-80,behavior:'smooth'});}
 function vykresliHvezdicky(id,h){document.getElementById('resTopRating').innerHTML=Array.from({length:5},(_,i)=>`<span class="star${i<h?' lit':''}" onclick="ohodnotitVylet('${id}',${i+1})">★</span>`).join('');}
