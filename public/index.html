@@ -624,27 +624,33 @@ async function smazat(id) {
     if (!karta) { await _smazatAPI(id); return; }
     karta.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:160px;gap:16px;padding:20px;"><p style="font-weight:800;font-size:1rem;text-align:center;">Opravdu smazat výlet?</p><div style="display:flex;gap:10px;"><button class=\"btn bp\" onclick=\"event.stopPropagation();_smazatAPI(\'' + id + '\')\">Ano, smazat</button><button class=\"btn bgh\" onclick=\"event.stopPropagation();nactiDnik()\">Zrušit</button></div></div>';
 }
-async function _smazatAPI(id) {
-    try {
-        const res = await fetch('/api/smazat-vylet/' + id, { method: 'DELETE' });
-        const data = await res.json();
-        if (data.uspech) { nactiDnik(); document.getElementById('resCard').style.display='none'; }
-        else { alert(data.chyba || 'Nepodařilo se smazat.'); nactiDnik(); }
-    } catch(e) { alert('Chyba: ' + e.message); }
+// Bezpečnější a čistší vložení ID díky template literals
+async function smazat(id) {
+    const karta = document.querySelector(`[data-id="${id}"]`);
+    if (!karta) { await _smazatAPI(id); return; }
+    
+    // Zápis HTML do backticků (`) nevyžaduje žádné složité escapování uvozovek
+    karta.innerHTML = `
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:160px;gap:16px;padding:20px;">
+            <p style="font-weight:800;font-size:1rem;text-align:center;">Opravdu smazat výlet?</p>
+            <div style="display:flex;gap:10px;">
+                <button class="btn bp" onclick="event.stopPropagation();_smazatAPI('${id}')">Ano, smazat</button>
+                <button class="btn bgh" onclick="event.stopPropagation();nactiDnik()">Zrušit</button>
+            </div>
+        </div>
+    `;
 }
-async function upload(id){const v=await(await fetch('/api/ulozene-vylety')).json();const vy=v.find(x=>x.id===id);if(vy.fotky?.length>=3)return alert('Maximálně 3 fotografie.');const i=document.createElement('input');i.type='file';i.accept='image/*';i.onchange=async e=>{const r=new FileReader();r.onloadend=async()=>{if(!vy.fotky)vy.fotky=[];vy.fotky.push(r.result);await fetch('/api/upravit-vylet',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,fotky:vy.fotky})});nactiDnik();};r.readAsDataURL(e.target.files[0]);};i.click();}
-async function prepnoutStav(id,s){await fetch('/api/upravit-vylet',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,dokonceno:s})});nactiDnik();}
-async function prepnoutSoukromi(id,s){await fetch('/api/upravit-vylet',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,verejny:s})});nactiDnik();}
 
+// Sloučená a jediná definice volání API pro smazání výletu
 async function _smazatAPI(id) {
     try {
         const res = await fetch('/api/smazat-vylet/' + id, { method: 'DELETE' });
         const data = await res.json();
         if (data.uspech) {
-            nactiDnik();
             document.getElementById('resCard').style.display = 'none';
+            nactiDnik();
         } else {
-            alert(data.chyba || 'Nepodařilo se smazat.');
+            alert(data.chyba || 'Nepodařilo se smazat výlet.');
         }
     } catch(e) {
         alert('Chyba spojení: ' + e.message);
