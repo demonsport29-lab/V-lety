@@ -772,24 +772,43 @@ function openGallery(s){document.getElementById('lightboxImg').src=s;document.ge
 async function doKalendare() {
     const d = document.getElementById('dateIn').value;
     if (!d) return alert('Vyberte datum.');
-    
+
     let ml = '';
-    if (curDraft?.etapy?.[0]?.lat) {
-        const o = `${curDraft.etapy[0].lat},${curDraft.etapy[0].lng}`;
-        const d2 = `${curDraft.etapy[curDraft.etapy.length - 1].lat},${curDraft.etapy[curDraft.etapy.length - 1].lng}`;
-        // Správná URL i pro kalendář
-        ml = `https://www.google.com/maps/dir/?api=1&origin=${o}&destination=${d2}&travelmode=walking`;
-    }
+    let polohaStartu = '';
     
+    // Získání navigační URL a prvního bodu jako lokace
+    if (curDraft?.etapy && curDraft.etapy.length > 0) {
+        polohaStartu = curDraft.etapy[0].misto; // Vytažení lokace startu
+        
+        if (curDraft.etapy[0].lat) {
+            const o = `${curDraft.etapy[0].lat},${curDraft.etapy[0].lng}`;
+            const d2 = `${curDraft.etapy[curDraft.etapy.length - 1].lat},${curDraft.etapy[curDraft.etapy.length - 1].lng}`;
+            const wp = curDraft.etapy.length > 2 ? '&waypoints=' + curDraft.etapy.slice(1, -1).map(e => `${e.lat},${e.lng}`).join('|') : '';
+            ml = `https://www.google.com/maps/dir/?api=1&origin=${o}&destination=${d2}${wp}&travelmode=walking`;
+        }
+    }
+
+    // Tvorba krásného textového itineráře do popisu
+    let detailniPopis = `Itinerář výletu: ${document.getElementById('resTitle').innerText}\n\n`;
+    if (curDraft?.etapy) {
+        curDraft.etapy.forEach(e => {
+            detailniPopis += `🕒 ${e.cas} — ${e.misto}\n📝 ${e.popis}\n\n`;
+        });
+    }
+    if (curDraft?.doporuceni) {
+        detailniPopis += `💡 Tip architekta: ${curDraft.doporuceni}\n\n`;
+    }
+
     try {
         const r = await fetch('/api/kalendar', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 lokace: document.getElementById('resTitle').innerText,
-                popis: 'Výlet VERONA',
+                popis: detailniPopis.trim(),
                 datum: d,
-                mapaLink: ml
+                mapaLink: ml,
+                startMisto: polohaStartu // Odeslání startovního místa na server
             })
         });
         const data = await r.json();

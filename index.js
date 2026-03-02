@@ -314,19 +314,25 @@ app.post('/api/kontakt', async (req, res) => {
 app.post('/api/kalendar', async (req, res) => {
     if (!req.session.userId) return res.json({ uspech: false, chyba: 'Nepřihlášen.' });
     try {
-        const { lokace, popis, datum, mapaLink } = req.body;
+        const { lokace, popis, datum, mapaLink, startMisto } = req.body;
         if (!lokace || !datum) return res.json({ uspech: false, chyba: 'Chybí lokace nebo datum.' });
 
         const datumObj = new Date(datum);
         const start = datumObj.toISOString().split('T')[0]; // YYYY-MM-DD
         const end   = new Date(datumObj.getTime() + 86400000).toISOString().split('T')[0];
 
+        // Sloučení hezkého popisu z frontendu a mapového odkazu
         const popisFull = mapaLink
-            ? `${popis || 'Výlet VERONA'}\n\nNavigace: ${mapaLink}`
-            : (popis || 'Výlet VERONA');
+            ? `${popis}\n\n📍 Odkaz na mapu a navigaci k trase:\n${mapaLink}`
+            : popis;
 
-        // Otevře Google Calendar s předvyplněnými daty (URL metoda — nevyžaduje OAuth)
-        const gcalUrl = `https://calendar.google.com/calendar/r/eventedit?text=${encodeURIComponent('🗺 ' + lokace)}&dates=${start.replace(/-/g,'')}/${end.replace(/-/g,'')}&details=${encodeURIComponent(popisFull)}&sf=true`;
+        // Otevře Google Calendar s předvyplněnými daty
+        let gcalUrl = `https://calendar.google.com/calendar/r/eventedit?text=${encodeURIComponent('🗺 ' + lokace)}&dates=${start.replace(/-/g,'')}/${end.replace(/-/g,'')}&details=${encodeURIComponent(popisFull)}&sf=true`;
+
+        // Pokud je zadané startovní místo, zapíšeme ho do kolonky "Místo" v kalendáři
+        if (startMisto) {
+            gcalUrl += `&location=${encodeURIComponent(startMisto)}`;
+        }
 
         res.json({ uspech: true, url: gcalUrl });
     } catch (e) { res.json({ uspech: false, chyba: e.message }); }
