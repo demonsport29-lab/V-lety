@@ -608,7 +608,7 @@ async function nactiDnik(){
         k.innerHTML=`
             <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;">
                 <div><h3 style="font-size:1.15rem;font-weight:800;letter-spacing:-.02em;margin-bottom:3px;">${x.lokace}</h3><p style="font-family:var(--fm);font-size:.62rem;color:var(--t2);">${x.datumUlozeni||''}</p></div>
-                <button class="btnx" onclick="event.stopPropagation();smazat('${x.id}')">✕</button>
+                <button class="btnx" onclick="event.stopPropagation();event.preventDefault();smazat('${x.id}');return false;">✕</button>
             </div>
             <div class="pr"><span class="chip ${x.verejny?'ci':'cm'}">${x.verejny?'Veřejný':'Soukromý'}</span><button class="btn bgh" style="padding:4px 11px;font-size:.7rem;border-radius:8px;" onclick="event.stopPropagation();prepnoutSoukromi('${x.id}',${!x.verejny})">Změnit</button></div>
             <div class="sr"><div><span class="sl">Hodnocení</span><div>${sh}</div></div><div style="text-align:right;"><span class="sl">Komentáře</span><span class="sv">${x.komentare?.length||0}</span></div></div>
@@ -623,20 +623,18 @@ async function upload(id){const v=await(await fetch('/api/ulozene-vylety')).json
 async function prepnoutStav(id,s){await fetch('/api/upravit-vylet',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,dokonceno:s})});nactiDnik();}
 async function prepnoutSoukromi(id,s){await fetch('/api/upravit-vylet',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,verejny:s})});nactiDnik();}
 async function smazat(id) {
-    if(!confirm('Opravdu chcete výlet smazat?')) return;
-    
+    if(!window.confirm('Opravdu smazat tento výlet?')) return;
     try {
-        const res = await fetch(`/api/smazat-vylet/${id}`, { method: 'DELETE' });
+        const res = await fetch('/api/smazat-vylet/' + id, { method: 'DELETE' });
         const data = await res.json();
-        
         if (data.uspech) {
             nactiDnik();
-            document.getElementById('resCard').style.display='none';
+            document.getElementById('resCard').style.display = 'none';
         } else {
-            alert('Nepodařilo se smazat: ' + (data.chyba || 'Neznámá chyba.'));
+            window.alert('Chyba: ' + (data.chyba || 'Neznámá chyba'));
         }
     } catch(e) {
-        alert('Chyba při komunikaci se serverem.');
+        window.alert('Chyba spojení: ' + e.message);
     }
 }
 
