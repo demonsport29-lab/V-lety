@@ -59,7 +59,6 @@
         .blob:nth-child(4){width:400px;height:400px;background:var(--a2);top:60%;left:10%;animation-duration:22s;animation-delay:-3s;}
         @keyframes drift{from{transform:translate(0,0) scale(1)}to{transform:translate(60px,40px) scale(1.08)}}
 
-        
         body>*:not(.aurora){position:relative;z-index:2;}
         .hidden{display:none!important;}
 
@@ -97,7 +96,7 @@
         .bi{width:38px;height:38px;padding:0;border-radius:11px;}
         .bf{width:100%;border-radius:var(--rsm);}
         .blg{padding:14px 28px;font-size:.9rem;border-radius:var(--rsm);}
-        .btnx{width:32px;height:32px;border-radius:10px;background:var(--gb);border:1px solid var(--gbd);color:var(--t2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.8rem;transition:all .2s;flex-shrink:0;}
+        .btnx{width:32px;height:32px;border-radius:10px;background:var(--gb);border:1px solid var(--gbd);color:var(--t2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.8rem;transition:all .2s;flex-shrink:0; position:relative; z-index:10;}
         .btnx:hover{background:var(--gb2);color:var(--t1);}
 
         /* LAYOUT */
@@ -154,7 +153,7 @@
         /* DIARY */
         .dg{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:16px;}
         .dc{background:var(--gb);backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);border:1px solid var(--gbd);border-radius:var(--rlg);padding:22px;cursor:pointer;transition:all .3s var(--ease);position:relative;overflow:hidden;display:flex;flex-direction:column;}
-        .dc::before{content:'';position:absolute;inset:0;border-radius:inherit;background:linear-gradient(135deg,rgba(99,102,241,.06),transparent 60%);opacity:0;transition:opacity .3s;}
+        .dc::before{content:'';position:absolute;inset:0;border-radius:inherit;background:linear-gradient(135deg,rgba(99,102,241,.06),transparent 60%);opacity:0;transition:opacity .3s; pointer-events:none;}
         .dc:hover{transform:translateY(-5px);border-color:rgba(99,102,241,.35);box-shadow:0 20px 60px rgba(0,0,0,.35);}
         .dc:hover::before{opacity:1;}
         .dc.done{border-left:2px solid var(--a4);}
@@ -601,14 +600,14 @@ async function nactiDnik(){
     d.innerHTML='';
     v.forEach((x,i)=>{
         sel.innerHTML+=`<option value="${x.id}">${x.lokace}</option>`;
-        const k=document.createElement('div');k.className=`dc au${x.dokonceno?' done':''}`;k.style.animationDelay=`${i*.05}s`;k.dataset.id=x.id;k.dataset.id=x.id;
+        const k=document.createElement('div');k.className=`dc au${x.dokonceno?' done':''}`;k.style.animationDelay=`${i*.05}s`;k.dataset.id=x.id;
         const sh=Array.from({length:5},(_,j)=>`<span class="star${j<(x.hodnoceni||0)?' lit':''}">★</span>`).join('');
         const fh=x.fotky?.length?`<div class="ps">${x.fotky.map(f=>`<img src="${f}" class="pt2" onclick="event.stopPropagation();openGallery('${f}')">`).join('')}</div>`:'';
         const ab=(!x.fotky||x.fotky.length<3)?`<button class="btn bg bi" onclick="event.stopPropagation();upload('${x.id}')" style="border-radius:10px; font-size:0.75rem;">Foto</button>`:'';
         k.innerHTML=`
             <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;">
                 <div><h3 style="font-size:1.15rem;font-weight:800;letter-spacing:-.02em;margin-bottom:3px;">${x.lokace}</h3><p style="font-family:var(--fm);font-size:.62rem;color:var(--t2);">${x.datumUlozeni||''}</p></div>
-                <button class="btnx" onclick="event.stopPropagation();smazat('${x.id}')">✕</button>
+                <button class="btnx" onclick="event.stopPropagation(); window.smazat('${x.id}')">✕</button>
             </div>
             <div class="pr"><span class="chip ${x.verejny?'ci':'cm'}">${x.verejny?'Veřejný':'Soukromý'}</span><button class="btn bgh" style="padding:4px 11px;font-size:.7rem;border-radius:8px;" onclick="event.stopPropagation();prepnoutSoukromi('${x.id}',${!x.verejny})">Změnit</button></div>
             <div class="sr"><div><span class="sl">Hodnocení</span><div>${sh}</div></div><div style="text-align:right;"><span class="sl">Komentáře</span><span class="sv">${x.komentare?.length||0}</span></div></div>
@@ -619,30 +618,22 @@ async function nactiDnik(){
     });
 }
 
-async function smazat(id) {
-    const karta = document.querySelector('[data-id="' + id + '"]');
-    if (!karta) { await _smazatAPI(id); return; }
-    karta.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:160px;gap:16px;padding:20px;"><p style="font-weight:800;font-size:1rem;text-align:center;">Opravdu smazat výlet?</p><div style="display:flex;gap:10px;"><button class=\"btn bp\" onclick=\"event.stopPropagation();_smazatAPI(\'' + id + '\')\">Ano, smazat</button><button class=\"btn bgh\" onclick=\"event.stopPropagation();nactiDnik()\">Zrušit</button></div></div>';
-}
-// Bezpečnější a čistší vložení ID díky template literals
-async function smazat(id) {
+window.smazat = async function(id) {
     const karta = document.querySelector(`[data-id="${id}"]`);
-    if (!karta) { await _smazatAPI(id); return; }
+    if (!karta) { await window._smazatAPI(id); return; }
     
-    // Zápis HTML do backticků (`) nevyžaduje žádné složité escapování uvozovek
     karta.innerHTML = `
-        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:160px;gap:16px;padding:20px;">
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:160px;gap:16px;padding:20px;position:relative;z-index:10;">
             <p style="font-weight:800;font-size:1rem;text-align:center;">Opravdu smazat výlet?</p>
             <div style="display:flex;gap:10px;">
-                <button class="btn bp" onclick="event.stopPropagation();_smazatAPI('${id}')">Ano, smazat</button>
-                <button class="btn bgh" onclick="event.stopPropagation();nactiDnik()">Zrušit</button>
+                <button class="btn bp" onclick="event.stopPropagation(); window._smazatAPI('${id}')">Ano, smazat</button>
+                <button class="btn bgh" onclick="event.stopPropagation(); nactiDnik()">Zrušit</button>
             </div>
         </div>
     `;
-}
+};
 
-// Sloučená a jediná definice volání API pro smazání výletu
-async function _smazatAPI(id) {
+window._smazatAPI = async function(id) {
     try {
         const res = await fetch('/api/smazat-vylet/' + id, { method: 'DELETE' });
         const data = await res.json();
@@ -650,12 +641,12 @@ async function _smazatAPI(id) {
             document.getElementById('resCard').style.display = 'none';
             nactiDnik();
         } else {
-            alert(data.chyba || 'Nepodařilo se smazat výlet.');
+            alert('Chyba při mazání: ' + (data.chyba || 'Neznámý problém.'));
         }
     } catch(e) {
         alert('Chyba spojení: ' + e.message);
     }
-}
+};
 
 function otevritDetailVyletu(v){curOpenTripId=v.id;document.getElementById('resTitle').innerText=v.lokace;document.getElementById('resDiffText').innerText='Uloženo: '+(v.datumUlozeni||'');document.getElementById('btnSaveAI').style.display='none';document.getElementById('resBody').innerHTML=v.popis;vykresliHvezdicky(v.id,v.hodnoceni||0);vykresliKomentare(v.komentare||[]);curDraft=v;document.getElementById('resCard').style.display='block';window.scrollTo({top:document.getElementById('resCard').offsetTop-80,behavior:'smooth'});}
 function vykresliHvezdicky(id,h){document.getElementById('resTopRating').innerHTML=Array.from({length:5},(_,i)=>`<span class="star${i<h?' lit':''}" onclick="ohodnotitVylet('${id}',${i+1})">★</span>`).join('');}
