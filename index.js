@@ -1,7 +1,6 @@
 require('dotenv').config();
 const express = require('express');
 const session = require('express-session');
-const MongoStore = require('connect-mongo');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const { google } = require('googleapis');
 const mongoose = require('mongoose');
@@ -18,11 +17,10 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.static('public'));
 
 app.use(session({
-    secret: process.env.SESSION_SECRET || 'tajny-verona-klic',
+    secret: 'tajny-verona-klic',
     resave: false,
     saveUninitialized: false,
-    store: MongoStore.create({ mongoUrl: process.env.MONGODB_URI, touchAfter: 24 * 3600 }),
-    cookie: { secure: false, httpOnly: true, maxAge: 1000 * 60 * 60 * 24 * 30 }
+    cookie: { secure: false, maxAge: 1000 * 60 * 60 * 24 * 30 }
 }));
 
 // ==========================================
@@ -144,23 +142,24 @@ app.post('/api/upravit-vylet', async (req, res) => {
 });
 
 // BEZPEČNÉ MAZÁNÍ VÝLETU Z DENÍKU
-app.delete('/api/smazat-vylet/:id', async (req, res) => {
-    console.log('DELETE /api/smazat-vylet/' + req.params.id, '| session.userId:', req.session.userId);
+app.delete('/api/smazat-vylet/:id', async (req, res) => { 
     try {
         if (!req.session.userId) return res.json({ uspech: false, chyba: "Nejste přihlášeni." });
+        
         const vylet = await Vylet.findById(req.params.id);
-        if (!vylet) return res.json({ uspech: false, chyba: "Výlet nenalezen." });
+        if (!vylet) return res.json({ uspech: false, chyba: "Výlet se v databázi nenašel." });
+
         const user = await User.findById(req.session.userId);
-        console.log('vlastnikId:', vylet.vlastnikId, '| userId:', user._id.toString(), '| isAdmin:', user.isAdmin);
+        
+        // Smazat může jen autor nebo admin
         if (vylet.vlastnikId === user._id.toString() || user.isAdmin) {
             await Vylet.findByIdAndDelete(req.params.id);
-            console.log('OK - smazáno');
             res.json({ uspech: true });
         } else {
-            res.json({ uspech: false, chyba: "Nemáte oprávnění." });
+            res.json({ uspech: false, chyba: "Nemáte oprávnění smazat tento výlet." });
         }
     } catch (e) {
-        console.error("Chyba mazání:", e);
+        console.error("Chyba při mazání výletu:", e);
         res.json({ uspech: false, chyba: e.message });
     }
 });

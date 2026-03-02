@@ -601,14 +601,14 @@ async function nactiDnik(){
     d.innerHTML='';
     v.forEach((x,i)=>{
         sel.innerHTML+=`<option value="${x.id}">${x.lokace}</option>`;
-        const k=document.createElement('div');k.className=`dc au${x.dokonceno?' done':''}`;k.style.animationDelay=`${i*.05}s`;
+        const k=document.createElement('div');k.className=`dc au${x.dokonceno?' done':''}`;k.style.animationDelay=`${i*.05}s`;k.dataset.id=x.id;
         const sh=Array.from({length:5},(_,j)=>`<span class="star${j<(x.hodnoceni||0)?' lit':''}">★</span>`).join('');
         const fh=x.fotky?.length?`<div class="ps">${x.fotky.map(f=>`<img src="${f}" class="pt2" onclick="event.stopPropagation();openGallery('${f}')">`).join('')}</div>`:'';
         const ab=(!x.fotky||x.fotky.length<3)?`<button class="btn bg bi" onclick="event.stopPropagation();upload('${x.id}')" style="border-radius:10px; font-size:0.75rem;">Foto</button>`:'';
         k.innerHTML=`
             <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;">
                 <div><h3 style="font-size:1.15rem;font-weight:800;letter-spacing:-.02em;margin-bottom:3px;">${x.lokace}</h3><p style="font-family:var(--fm);font-size:.62rem;color:var(--t2);">${x.datumUlozeni||''}</p></div>
-                <button class="btnx" onclick="event.stopPropagation();event.preventDefault();smazat('${x.id}');return false;">✕</button>
+                <button class="btnx" onclick="event.stopPropagation();smazat('${x.id}')">✕</button>
             </div>
             <div class="pr"><span class="chip ${x.verejny?'ci':'cm'}">${x.verejny?'Veřejný':'Soukromý'}</span><button class="btn bgh" style="padding:4px 11px;font-size:.7rem;border-radius:8px;" onclick="event.stopPropagation();prepnoutSoukromi('${x.id}',${!x.verejny})">Změnit</button></div>
             <div class="sr"><div><span class="sl">Hodnocení</span><div>${sh}</div></div><div style="text-align:right;"><span class="sl">Komentáře</span><span class="sv">${x.komentare?.length||0}</span></div></div>
@@ -623,7 +623,30 @@ async function upload(id){const v=await(await fetch('/api/ulozene-vylety')).json
 async function prepnoutStav(id,s){await fetch('/api/upravit-vylet',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,dokonceno:s})});nactiDnik();}
 async function prepnoutSoukromi(id,s){await fetch('/api/upravit-vylet',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,verejny:s})});nactiDnik();}
 async function smazat(id) {
-    if(!window.confirm('Opravdu smazat tento výlet?')) return;
+    // Najdi kartu a ukaz potvrzovaci UI primo v ni
+    const karty = document.querySelectorAll('.dc');
+    let karta = null;
+    for (const k of karty) {
+        if (k.dataset.id === id) { karta = k; break; }
+    }
+    if (!karta) {
+        // fallback - smaž přímo
+        await _smazatAPI(id);
+        return;
+    }
+    // Zobraz potvrzení v kartě
+    const puvodni = karta.innerHTML;
+    karta.innerHTML = `
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;min-height:120px;gap:14px;">
+            <p style="font-weight:700;font-size:.95rem;">Opravdu smazat?</p>
+            <div style="display:flex;gap:10px;">
+                <button class="btn bp" onclick="event.stopPropagation();_smazatAPI('${id}')">Ano, smazat</button>
+                <button class="btn bgh" onclick="event.stopPropagation();nactiDnik()">Zrušit</button>
+            </div>
+        </div>`;
+}
+
+async function _smazatAPI(id) {
     try {
         const res = await fetch('/api/smazat-vylet/' + id, { method: 'DELETE' });
         const data = await res.json();
@@ -631,10 +654,10 @@ async function smazat(id) {
             nactiDnik();
             document.getElementById('resCard').style.display = 'none';
         } else {
-            window.alert('Chyba: ' + (data.chyba || 'Neznámá chyba'));
+            alert(data.chyba || 'Nepodařilo se smazat.');
         }
     } catch(e) {
-        window.alert('Chyba spojení: ' + e.message);
+        alert('Chyba spojení: ' + e.message);
     }
 }
 
