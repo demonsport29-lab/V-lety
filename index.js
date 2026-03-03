@@ -337,6 +337,30 @@ app.post('/api/kalendar', async (req, res) => {
         res.json({ uspech: true, url: gcalUrl });
     } catch (e) { res.json({ uspech: false, chyba: e.message }); }
 });
-
+// ==========================================
+// 8. VEŘEJNÉ PROFILY A DENÍKY
+// ==========================================
+app.get('/api/profil/:id', async (req, res) => {
+    try {
+        // Vytáhneme jen necitlivá data (vynecháme email, isPremium apod.)
+        const user = await User.findById(req.params.id, 'jmeno prijmeni prezdivka avatar bio');
+        if (!user) return res.json({ uspech: false, chyba: 'Uživatel nenalezen.' });
+        
+        // Najdeme všechny výlety tohoto uživatele, které mají přepínač "veřejný" na true
+        const verejneVylety = await Vylet.find({ vlastnikId: req.params.id, verejny: true }).sort({_id: -1});
+        
+        res.json({
+            uspech: true,
+            profil: {
+                jmeno: user.prezdivka || `${user.jmeno} ${user.prijmeni}`,
+                avatar: user.avatar,
+                bio: user.bio
+            },
+            vylety: verejneVylety.map(doc => ({ ...doc._doc, id: doc._id }))
+        });
+    } catch (e) {
+        res.json({ uspech: false, chyba: e.message });
+    }
+});
 // START SERVERU
 app.listen(port, () => console.log(`🚀 VERONA běží na portu ${port}`));

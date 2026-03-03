@@ -352,7 +352,19 @@
         <button class="btn bp bf blg" onclick="ulozitVlastni()">Uložit do deníku</button>
     </div>
 </div>
-
+<div id="publicProfileModal" class="overlay" onclick="if(event.target===this)this.style.display='none'">
+    <div class="mb" style="max-width: 500px;">
+        <div class="mh"><h2 class="mt" id="pubName">Profil</h2><button class="btnx" onclick="document.getElementById('publicProfileModal').style.display='none'">✕</button></div>
+        <div style="text-align:center;margin-bottom:22px;">
+            <div class="pa2" id="pubAvatar" style="cursor:default;">U</div>
+            <p id="pubBio" style="font-size:.85rem;color:var(--t2);margin-top:14px;line-height:1.6;"></p>
+        </div>
+        <div class="hr"></div>
+        <p class="ey" style="margin-bottom:12px;">Veřejný deník cestovatele</p>
+        <div id="pubTrips" class="dg" style="grid-template-columns: 1fr; max-height: 340px; overflow-y: auto; gap:10px;">
+            </div>
+    </div>
+</div>
 <nav class="nav au">
     <div class="nav-in">
         <a href="#" class="logo" onclick="location.reload()">
@@ -545,7 +557,7 @@
 </div>
 
 <script>
-let curDraft=null,curOpenTripId=null,prihlaseno=false,mainMap=null,markerCluster=null,mujProfil=null,pripraveneFotky=[];
+let curDraft=null,curOpenTripId=null,prihlaseno=false,mainMap=null,markerCluster=null,mujProfil=null,pripraveneFotky=[],curPolyline=null
 
 function toggleContact(){const w=document.getElementById('contactWin');if(w.style.display==='flex'){w.style.display='none';return;}w.style.display='flex';w.style.flexDirection='column';}
 
@@ -836,7 +848,109 @@ async function doKalendare() {
 }
 
 async function odeslatKontaktV2(){const pe=document.getElementById('kontaktPredmet'),ze=document.getElementById('kontaktZprava');if(!pe.value||!ze.value)return alert('Vyplňte prosím všechna pole.');const btn=event.target,orig=btn.innerText;btn.innerHTML='<div class="spin" style="margin:0 auto"></div>';btn.disabled=true;try{const r=await fetch('https://api.web3forms.com/submit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({access_key:'c8ed8521-b2ea-4c17-ad1a-2379968a739e',subject:`VERONA: ${pe.value}`,from_name:'Uživatel VERONA',message:ze.value})});const res=await r.json();if(res.success){alert('Vaše zpráva byla úspěšně odeslána. Děkujeme.');document.getElementById('contactWin').style.display='none';pe.value='';ze.value='';}else alert('Došlo k chybě: '+res.message);}catch(e){alert('Chyba při komunikaci se serverem.');}btn.innerText=orig;btn.disabled=false;}
+// 1. UPRAVENÁ FUNKCE PRO DETAIL - Zavolá kreslení mapy
+function otevritDetailVyletu(v){
+    curOpenTripId=v.id;
+    document.getElementById('resTitle').innerText=v.lokace;
+    document.getElementById('resDiffText').innerText='Uloženo: '+(v.datumUlozeni||'');
+    document.getElementById('btnSaveAI').style.display='none';
+    document.getElementById('resBody').innerHTML=v.popis;
+    vykresliHvezdicky(v.id,v.hodnoceni||0);
+    vykresliKomentare(v.komentare||[]);
+    curDraft=v;
+    document.getElementById('resCard').style.display='block';
+    window.scrollTo({top:document.getElementById('resCard').offsetTop-80,behavior:'smooth'});
+    
+    // Novinka: Nakreslí trasu!
+    vykresliTrasuNaMape(v);
+}
 
+// 2. ZCELA NOVÁ FUNKCE - Kreslí polyline trasu na mapu
+function vykresliTrasuNaMape(v) {
+    if (!mainMap) return;
+    if (curPolyline) { mainMap.removeLayer(curPolyline); curPolyline = null; } // Smaže předchozí trasu
+    
+    const pts = [];
+    if (v.etapy && v.etapy.length > 0) {
+        v.etapy.forEach(e => {
+            if (e.lat && e.lng) pts.push([e.lat, e.lng]);
+        });
+    }
+    
+    if (pts.length > 1) {
+        // Vykreslí fialovou, přerušovanou, tlustou čáru
+        curPolyline = L.polyline(pts, {color: '#6366f1', weight: 4, opacity: 0.9, dashArray: '8, 8'}).addTo(mainMap);
+        // Odzoomuje mapu tak, aby byla vidět celá trasa
+        mainMap.fitBounds(curPolyline.getBounds(), {padding: [40, 40]});
+    } else if (pts.length === 1) {
+        mainMap.setView(pts[0], 12);
+    }
+}
+
+// 3. UPRAVENÝ FEED - Dělá jména a avatary klikací
+async function nactiFeed(){
+    const f=await(await fetch('/api/feed')).json();const c=document.getElementById('feedStream');
+    if(!f.length){c.innerHTML=`<div class="es"><p style="font-size:.88rem;">Komunita je zatím prázdná. Buďte první, kdo sdílí svůj výlet!</p></div>`;return;}
+    c.innerHTML=f.map((p,i)=>{
+        const av=p.autorAvatar?`background-image:url(${p.autorAvatar});color:transparent;`:'';
+        const fh=p.fotky?.length?`<div class="ps" style="margin-bottom:10px;">${p.fotky.map(img=>`<img src="${img}" class="pt2" style="width:110px;height:80px;" onclick="openGallery('${img}')">`).join('')}</div>`:'';
+        const th=p.pripojenyVyletId?`<div class="lt"><div><p class="ll">Sdílený výlet</p><p class="ln">${p.pripojenyVyletLokace}</p></div><button class="btn bp" style="font-size:.76rem;padding:7px 13px;" onclick="otevritGoogleMaps('${p.pripojenyVyletId}')">Mapa</button></div>`:'';
+        const io=prihlaseno&&mujProfil&&(p.autorId===mujProfil._id||mujProfil.isAdmin);
+        const ak=io?`<div style="display:flex;gap:5px;"><button class="btn bgh bi" style="width:auto;padding:0 8px;border-radius:8px;font-size:.75rem;" onclick="upravitFeed('${p._id}','${encodeURIComponent(p.text)}')">Upravit</button><button class="btn bgh bi" style="width:auto;padding:0 8px;border-radius:8px;font-size:.75rem;" onclick="smazatFeed('${p._id}')">Smazat</button></div>`:'';
+        
+        // Nový HTML kód hlavičky, přidán onclick na profil uživatele
+        return `<div class="fp" style="animation-delay:${i*.06}s;"><div class="ph"><div class="pa" style="cursor:pointer;" onclick="otevritVerejnyProfil('${p.autorId}')" title="Zobrazit profil cestovatele"><div class="av" style="${av}">${p.autorJmeno?.charAt(0).toUpperCase()||'U'}</div><div><p class="an" style="transition:color .2s;" onmouseover="this.style.color='var(--a1)'" onmouseout="this.style.color='currentColor'">${p.autorJmeno}</p><p class="pd">${p.datum}</p></div></div>${ak}</div><p class="pt">${p.text}</p>${fh}${th}</div>`;
+    }).join('');
+}
+
+// 4. ZCELA NOVÉ FUNKCE PRO VEŘEJNÉ PROFILY
+window.pubTripsData = []; // Záložní úložiště pro prokliky
+async function otevritVerejnyProfil(id) {
+    if (!id) return;
+    document.getElementById('pubTrips').innerHTML = '<div class="spin" style="margin:20px auto;display:block;"></div>';
+    document.getElementById('publicProfileModal').style.display = 'flex';
+    
+    try {
+        const res = await (await fetch('/api/profil/' + id)).json();
+        if (res.uspech) {
+            const p = res.profil;
+            window.pubTripsData = res.vylety; 
+            
+            document.getElementById('pubName').innerText = p.jmeno;
+            document.getElementById('pubBio').innerText = p.bio || 'Tento cestovatel o sobě zatím nic nenapsal.';
+            
+            const avDiv = document.getElementById('pubAvatar');
+            if (p.avatar) { avDiv.style.backgroundImage = `url(${p.avatar})`; avDiv.innerText = ''; } 
+            else { avDiv.style.backgroundImage = 'linear-gradient(135deg,var(--a1),var(--a3))'; avDiv.innerText = p.jmeno.charAt(0).toUpperCase(); }
+            
+            const c = document.getElementById('pubTrips');
+            if (!window.pubTripsData.length) {
+                c.innerHTML = '<p style="color:var(--t2);font-size:.85rem;text-align:center;padding:20px;">Zatím žádné veřejné výlety.</p>';
+            } else {
+                c.innerHTML = window.pubTripsData.map(x => `
+                    <div class="dc" style="padding:16px;margin-bottom:0;cursor:default;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;">
+                            <div>
+                                <h4 style="font-size:1rem;font-weight:700;margin-bottom:4px;">${x.lokace}</h4>
+                                <p style="font-family:var(--fm);font-size:.6rem;color:var(--t2);">${x.datumUlozeni||''}</p>
+                            </div>
+                            <button class="btn bg" style="font-size:.7rem;padding:6px 12px;" onclick="otevritDetailVerejnehoVyletu('${x.id}')">Zobrazit trasu</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        } else { document.getElementById('pubTrips').innerHTML = '<p>Chyba načítání profilu.</p>'; }
+    } catch(e) { document.getElementById('pubTrips').innerHTML = '<p>Chyba spojení.</p>'; }
+}
+
+window.otevritDetailVerejnehoVyletu = function(id) {
+    const trip = window.pubTripsData.find(t => t.id === id);
+    if (trip) {
+        document.getElementById('publicProfileModal').style.display = 'none';
+        prepniTab('planovac'); // Hodíme uživatele na hlavní obrazovku k mapě
+        otevritDetailVyletu(trip); // A vykreslíme cizí trasu i s čárou!
+    }
+};
 window.onload=init;
 </script>
 </body>
