@@ -758,11 +758,19 @@ function otevritGoogleMaps(id) {
         
         const o = `${x.etapy[0].lat},${x.etapy[0].lng}`;
         const d = `${x.etapy[x.etapy.length - 1].lat},${x.etapy[x.etapy.length - 1].lng}`;
-        // Poskládání zastávek na trase
         const wp = x.etapy.length > 2 ? '&waypoints=' + x.etapy.slice(1, -1).map(e => `${e.lat},${e.lng}`).join('|') : '';
         
-        // Zcela nová a správná URL pro Google Maps Directions API
-        const url = `https://www.google.com/maps/dir/?api=1&origin=${o}&destination=${d}${wp}&travelmode=walking`;
+        // Chytrá detekce módu dopravy podle textu výletu
+        let tm = 'driving'; // Výchozí stav (auto)
+        const text = (x.lokace + ' ' + x.popis).toLowerCase();
+        if (text.includes('kolo') || text.includes('cyklistika') || text.includes('mtb') || text.includes('cyklo')) {
+            tm = 'bicycling'; // Kolo
+        } else if (text.includes('procházka') || text.includes('turistika') || text.includes('pěší')) {
+            tm = 'walking'; // Pěší
+        }
+        
+        // Zcela nová, čistá a oficiální URL pro Google Maps Directions API
+        const url = `https://www.google.com/maps/dir/?api=1&origin=${o}&destination=${d}${wp}&travelmode=${tm}`;
         window.open(url, '_blank');
     });
 }
@@ -776,19 +784,24 @@ async function doKalendare() {
     let ml = '';
     let polohaStartu = '';
     
-    // Získání navigační URL a prvního bodu jako lokace
     if (curDraft?.etapy && curDraft.etapy.length > 0) {
-        polohaStartu = curDraft.etapy[0].misto; // Vytažení lokace startu
+        polohaStartu = curDraft.etapy[0].misto;
         
         if (curDraft.etapy[0].lat) {
             const o = `${curDraft.etapy[0].lat},${curDraft.etapy[0].lng}`;
             const d2 = `${curDraft.etapy[curDraft.etapy.length - 1].lat},${curDraft.etapy[curDraft.etapy.length - 1].lng}`;
             const wp = curDraft.etapy.length > 2 ? '&waypoints=' + curDraft.etapy.slice(1, -1).map(e => `${e.lat},${e.lng}`).join('|') : '';
-            ml = `https://www.google.com/maps/dir/?api=1&origin=${o}&destination=${d2}${wp}&travelmode=walking`;
+            
+            // Chytrá detekce módu dopravy
+            let tm = 'driving';
+            const text = (document.getElementById('resTitle').innerText + ' ' + document.getElementById('resBody').innerText).toLowerCase();
+            if (text.includes('kolo') || text.includes('cyklistika') || text.includes('mtb') || text.includes('cyklo')) tm = 'bicycling';
+            else if (text.includes('procházka') || text.includes('turistika') || text.includes('pěší')) tm = 'walking';
+
+            ml = `https://www.google.com/maps/dir/?api=1&origin=${o}&destination=${d2}${wp}&travelmode=${tm}`;
         }
     }
 
-    // Tvorba krásného textového itineráře do popisu
     let detailniPopis = `Itinerář výletu: ${document.getElementById('resTitle').innerText}\n\n`;
     if (curDraft?.etapy) {
         curDraft.etapy.forEach(e => {
@@ -808,7 +821,7 @@ async function doKalendare() {
                 popis: detailniPopis.trim(),
                 datum: d,
                 mapaLink: ml,
-                startMisto: polohaStartu // Odeslání startovního místa na server
+                startMisto: polohaStartu
             })
         });
         const data = await r.json();
