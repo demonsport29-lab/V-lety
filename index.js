@@ -61,7 +61,8 @@ const FeedPost = mongoose.model('FeedPost', feedSchema);
 // ==========================================
 // 2. GOOGLE PŘIHLÁŠENÍ & ADMIN
 // ==========================================
-const redirectUrl = process.env.RENDER_EXTERNAL_URL ? `${process.env.RENDER_EXTERNAL_URL}/oauth2callback` : 'http://localhost:3000/oauth2callback';
+// Použijeme vlastní proměnnou MOJE_DOMENA, kterou nám Render nebude přepisovat
+const redirectUrl = process.env.MOJE_DOMENA ? `${process.env.MOJE_DOMENA}/oauth2callback` : 'http://localhost:3000/oauth2callback';
 const oauth2Client = new google.auth.OAuth2(process.env.GOOGLE_CLIENT_ID, process.env.GOOGLE_CLIENT_SECRET, redirectUrl);
 const ADMIN_EMAIL = 'demonsport29@gmail.com'; 
 
