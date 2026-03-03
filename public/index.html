@@ -580,7 +580,9 @@ async function init(){
             if(mujProfil.avatar){['profAvatar','myMiniAvatar'].forEach(id=>{document.getElementById(id).style.backgroundImage=`url(${mujProfil.avatar})`;document.getElementById(id).innerText='';});}
             else{document.getElementById('profAvatar').innerText=ini;document.getElementById('myMiniAvatar').innerText=ini;}
             
-            prepniTab('planovac');
+            // Nahradit původní prepniTab('planovac') tímto:
+            const hash = window.location.hash.replace('#', '');
+            prepniTab(hash === 'komunita' ? 'komunita' : 'planovac', false);
         } else {
             prepniTab('landing');
         }
@@ -590,7 +592,8 @@ async function init(){
     await nactiDnik();await nactiFeed();
 }
 
-function prepniTab(tab){
+// Upravená funkce pro přepínání tabů s podporou URL adresy
+function prepniTab(tab, updateUrl = true){
     ['komunita','planovac', 'landing'].forEach(t=>{
         const btn = document.getElementById(`t-${t}`);
         if(btn) btn.classList.remove('active');
@@ -612,7 +615,19 @@ function prepniTab(tab){
     if(activeView) activeView.classList.remove('hidden');
     
     if(tab==='planovac'&&mainMap)setTimeout(()=>mainMap.invalidateSize(),200);
+
+    // Změna URL adresy bez znovunačtení stránky
+    if (updateUrl) {
+        history.pushState(null, '', tab === 'landing' ? '/' : '#' + tab);
+    }
 }
+
+// Podpora pro tlačítko "Zpět" v prohlížeči
+window.addEventListener('popstate', () => {
+    if (!prihlaseno) return;
+    const hash = window.location.hash.replace('#', '');
+    prepniTab(hash === 'komunita' ? 'komunita' : 'planovac', false);
+});
 
 function toggleAcc(wid,bid){const w=document.getElementById(wid),b=document.getElementById(bid),o=w.classList.toggle('open');b.style.maxHeight=o?'380px':'0';}
 function prepniRezim(){document.documentElement.setAttribute('data-theme',document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark');}
@@ -951,6 +966,43 @@ window.otevritDetailVerejnehoVyletu = function(id) {
         otevritDetailVyletu(trip); // A vykreslíme cizí trasu i s čárou!
     }
 };
+// Změna soukromí výletu (Veřejný <-> Soukromý)
+async function prepnoutSoukromi(id, stav) {
+    try {
+        const r = await fetch('/api/upravit-vylet', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: id, verejny: stav })
+        });
+        const data = await r.json();
+        if (data.uspech) {
+            nactiDnik(); // Překreslí deník a aktualizuje štítek
+        } else {
+            alert('Chyba při změně soukromí.');
+        }
+    } catch(e) {
+        alert('Chyba spojení.');
+    }
+}
+
+// Změna stavu výletu (Splněno <-> Zrušit)
+async function prepnoutStav(id, stav) {
+    try {
+        const r = await fetch('/api/upravit-vylet', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: id, dokonceno: stav })
+        });
+        const data = await r.json();
+        if (data.uspech) {
+            nactiDnik(); // Překreslí deník a zbarví okraj výletu
+        } else {
+            alert('Chyba při změně stavu.');
+        }
+    } catch(e) {
+        alert('Chyba spojení.');
+    }
+}
 window.onload=init;
 </script>
 </body>
