@@ -678,42 +678,6 @@ window.otevritDetailVerejnehoVyletuZListu = function(id) {
         otevritDetailVyletu(trip); // Nakreslí čáru na mapu a ukáže itinerář
     }
 };
-// Upravená funkce pro přepínání tabů s podporou URL adresy
-function prepniTab(tab, updateUrl = true){
-    ['komunita','planovac', 'landing'].forEach(t=>{
-        const btn = document.getElementById(`t-${t}`);
-        if(btn) btn.classList.remove('active');
-        const m = document.getElementById(`mt-${t}`);
-        if(m) m.classList.remove('active');
-        
-        const view = document.getElementById(t==='komunita'?'viewKomunita':(t==='planovac'?'viewPlanovac':'viewLanding'));
-        if(view) view.classList.add('hidden');
-    });
-    
-    if(tab !== 'landing') {
-        const activeBtn = document.getElementById(`t-${tab}`);
-        if(activeBtn) activeBtn.classList.add('active');
-        const activeM = document.getElementById(`mt-${tab}`);
-        if(activeM) activeM.classList.add('active');
-    }
-    
-    const activeView = document.getElementById(tab==='komunita'?'viewKomunita':(tab==='planovac'?'viewPlanovac':'viewLanding'));
-    if(activeView) activeView.classList.remove('hidden');
-    
-    if(tab==='planovac'&&mainMap)setTimeout(()=>mainMap.invalidateSize(),200);
-
-    // Změna URL adresy bez znovunačtení stránky
-    if (updateUrl) {
-        history.pushState(null, '', tab === 'landing' ? '/' : '#' + tab);
-    }
-}
-
-// Podpora pro tlačítko "Zpět" v prohlížeči
-window.addEventListener('popstate', () => {
-    if (!prihlaseno) return;
-    const hash = window.location.hash.replace('#', '');
-    prepniTab(hash === 'komunita' ? 'komunita' : 'planovac', false);
-});
 
 function toggleAcc(wid,bid){const w=document.getElementById(wid),b=document.getElementById(bid),o=w.classList.toggle('open');b.style.maxHeight=o?'380px':'0';}
 function prepniRezim(){document.documentElement.setAttribute('data-theme',document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark');}
