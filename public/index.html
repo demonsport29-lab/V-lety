@@ -372,8 +372,10 @@
             <div><span class="logo-wm">Verona</span><span class="logo-tag">Trip Architect</span></div>
         </a>
         <div class="tabs" id="navTabsContainer" style="display:none;">
-            <button class="tab" id="t-komunita" onclick="prepniTab('komunita')">Komunita</button>
-            <button class="tab" id="t-planovac" onclick="prepniTab('planovac')">Plánovač</button>
+            <button class="tab" id="t-landing" onclick="prepniTab('landing')">Domů</button>
+            <button class="tab" id="t-planovac" onclick="prepniTab('planovac')">Můj deník</button>
+            <button class="tab" id="t-verejne" onclick="prepniTab('verejne')">Inspirace</button>
+            <button class="tab" id="t-komunita" onclick="prepniTab('komunita')">Chat</button>
         </div>
         <div class="nav-act">
             <button class="btn bg" onclick="document.getElementById('donateModal').style.display='flex'"><span>Podpořit</span></button>
@@ -385,8 +387,10 @@
 </nav>
 
 <div class="mnav" id="mobileTabsContainer" style="display:none;">
-    <button class="tab" id="mt-komunita" onclick="prepniTab('komunita')">Komunita</button>
-    <button class="tab" id="mt-planovac" onclick="prepniTab('planovac')">Plánovač</button>
+    <button class="tab" id="mt-landing" onclick="prepniTab('landing')">Domů</button>
+    <button class="tab" id="mt-planovac" onclick="prepniTab('planovac')">Deník</button>
+    <button class="tab" id="mt-verejne" onclick="prepniTab('verejne')">Inspirace</button>
+    <button class="tab" id="mt-komunita" onclick="prepniTab('komunita')">Chat</button>
 </div>
 
 <div id="viewLanding" class="wrap view au">
@@ -394,7 +398,7 @@
         <p class="ey" style="margin-bottom: 20px; font-size: 0.8rem; letter-spacing: 0.15em;">Premium Trip Architect</p>
         <h1 style="font-size: 4rem; font-weight: 800; margin-bottom: 28px; letter-spacing: -0.03em; line-height: 1.1;">Inteligentní plánování vašich cest</h1>
         <p style="font-size: 1.15rem; color: var(--t2); margin-bottom: 44px; line-height: 1.7; max-width: 700px; margin-left: auto; margin-right: auto;">Objevujte svět s osobním AI architektem. Generujte itineráře na míru, prozkoumávejte interaktivní mapy a sdílejte své zážitky s komunitou cestovatelů.</p>
-        <div style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
+       <div id="landingActionBtns" style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
             <button class="btn bp blg" onclick="location.href='/auth/google'">Přihlásit se a začít</button>
         </div>
     </div>
@@ -416,7 +420,15 @@
         </div>
     </div>
 </div>
-
+<div id="viewVerejne" class="wrap view hidden">
+    <div style="max-width: 900px; margin: 0 auto;">
+        <p class="ey">Objevujte svět</p>
+        <h2 class="st">Inspirace od komunity</h2>
+        <div id="verejneStream" class="dg" style="grid-template-columns: repeat(auto-fill,minmax(320px,1fr));">
+            <div class="spin" style="margin:40px auto;display:block;"></div>
+        </div>
+    </div>
+</div>
 <div id="viewKomunita" class="wrap view hidden">
     <div class="fc">
         <div class="composer">
@@ -572,26 +584,100 @@ async function init(){
             document.getElementById('navTabsContainer').style.display='flex';
             if(window.innerWidth <= 768) document.getElementById('mobileTabsContainer').style.display='flex';
             
-            document.getElementById('profPrezdivka').value=mujProfil.prezdivka||'';
-            document.getElementById('profVek').value=mujProfil.vek||'';
-            document.getElementById('profTelefon').value=mujProfil.telefon||'';
-            document.getElementById('profBio').value=mujProfil.bio||'';
-            const ini=(mujProfil.jmeno?mujProfil.jmeno.charAt(0):'U').toUpperCase();
-            if(mujProfil.avatar){['profAvatar','myMiniAvatar'].forEach(id=>{document.getElementById(id).style.backgroundImage=`url(${mujProfil.avatar})`;document.getElementById(id).innerText='';});}
-            else{document.getElementById('profAvatar').innerText=ini;document.getElementById('myMiniAvatar').innerText=ini;}
+            // Dynamická změna úvodní obrazovky (Rozcestník)
+            document.getElementById('landingActionBtns').innerHTML = `
+                <button class="btn bp blg" onclick="prepniTab('planovac')">Otevřít můj deník</button>
+                <button class="btn bg blg" onclick="prepniTab('verejne')">Procházet inspiraci</button>
+                <button class="btn bg blg" onclick="prepniTab('komunita')">Komunitní chat</button>
+            `;
             
-            // Nahradit původní prepniTab('planovac') tímto:
             const hash = window.location.hash.replace('#', '');
-            prepniTab(hash === 'komunita' ? 'komunita' : 'planovac', false);
+            prepniTab(['komunita', 'planovac', 'verejne'].includes(hash) ? hash : 'landing', false);
         } else {
             prepniTab('landing');
         }
     }catch(e){
         prepniTab('landing');
     }
-    await nactiDnik();await nactiFeed();
+    await nactiDnik(); await nactiFeed(); await nactiVerejneVylety();
 }
 
+function prepniTab(tab, updateUrl = true){
+    ['landing', 'planovac', 'verejne', 'komunita'].forEach(t=>{
+        const btn = document.getElementById(`t-${t}`);
+        if(btn) btn.classList.remove('active');
+        const m = document.getElementById(`mt-${t}`);
+        if(m) m.classList.remove('active');
+        
+        const viewId = t === 'landing' ? 'viewLanding' : t === 'planovac' ? 'viewPlanovac' : t === 'verejne' ? 'viewVerejne' : 'viewKomunita';
+        const view = document.getElementById(viewId);
+        if(view) view.classList.add('hidden');
+    });
+    
+    if (tab !== 'landing' || prihlaseno) {
+        const activeBtn = document.getElementById(`t-${tab}`);
+        if(activeBtn) activeBtn.classList.add('active');
+        const activeM = document.getElementById(`mt-${tab}`);
+        if(activeM) activeM.classList.add('active');
+    }
+    
+    const activeViewId = tab === 'landing' ? 'viewLanding' : tab === 'planovac' ? 'viewPlanovac' : tab === 'verejne' ? 'viewVerejne' : 'viewKomunita';
+    const activeView = document.getElementById(activeViewId);
+    if(activeView) activeView.classList.remove('hidden');
+    
+    if(tab==='planovac'&&mainMap)setTimeout(()=>mainMap.invalidateSize(),200);
+
+    if (updateUrl) {
+        history.pushState(null, '', tab === 'landing' ? '/' : '#' + tab);
+    }
+}
+
+window.addEventListener('popstate', () => {
+    if (!prihlaseno) return;
+    const hash = window.location.hash.replace('#', '');
+    prepniTab(['komunita', 'planovac', 'verejne'].includes(hash) ? hash : 'landing', false);
+});
+async function nactiVerejneVylety() {
+    const res = await fetch('/api/verejne-vylety');
+    const data = await res.json();
+    const c = document.getElementById('verejneStream');
+    if (!c) return;
+    
+    if (!data.uspech || !data.data.length) {
+        c.innerHTML = '<div class="es"><p>Zatím zde nejsou žádné veřejné výlety. Buďte první!</p></div>';
+        return;
+    }
+    
+    window.verejneVyletyData = data.data; // Uložení pro prokliky
+    
+    c.innerHTML = data.data.map((x, i) => {
+        const sh = Array.from({length:5}, (_,j) => `<span class="star${j<(x.hodnoceni||0)?' lit':''}">★</span>`).join('');
+        const av = x.autorAvatar ? `background-image:url(${x.autorAvatar});color:transparent;` : '';
+        const ini = x.autorJmeno ? x.autorJmeno.charAt(0).toUpperCase() : 'U';
+        
+        return `
+        <div class="dc au" style="animation-delay:${i*.05}s;" onclick="otevritDetailVerejnehoVyletuZListu('${x.id}')">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;">
+                <div>
+                    <h3 style="font-size:1.15rem;font-weight:800;letter-spacing:-.02em;margin-bottom:3px;">${x.lokace}</h3>
+                    <div style="display:flex;align-items:center;gap:6px;margin-top:8px;cursor:pointer;" onclick="event.stopPropagation(); otevritVerejnyProfil('${x.vlastnikId}')" title="Profil autora">
+                        <div class="av" style="${av};width:24px;height:24px;font-size:.6rem;">${ini}</div>
+                        <span style="font-family:var(--fm);font-size:.7rem;color:var(--a1);transition:color .2s;" onmouseover="this.style.color='var(--a2)'" onmouseout="this.style.color='var(--a1)'">${x.autorJmeno}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="sr"><div><span class="sl">Hodnocení</span><div>${sh}</div></div><div style="text-align:right;"><span class="sl">Komentáře</span><span class="sv">${x.komentare?.length||0}</span></div></div>
+        </div>`;
+    }).join('');
+}
+
+window.otevritDetailVerejnehoVyletuZListu = function(id) {
+    const trip = window.verejneVyletyData.find(t => t.id === id);
+    if (trip) {
+        prepniTab('planovac'); // Hodí tě k mapě
+        otevritDetailVyletu(trip); // Nakreslí čáru na mapu a ukáže itinerář
+    }
+};
 // Upravená funkce pro přepínání tabů s podporou URL adresy
 function prepniTab(tab, updateUrl = true){
     ['komunita','planovac', 'landing'].forEach(t=>{
@@ -905,16 +991,28 @@ function vykresliTrasuNaMape(v) {
 // 3. UPRAVENÝ FEED - Dělá jména a avatary klikací
 async function nactiFeed(){
     const f=await(await fetch('/api/feed')).json();const c=document.getElementById('feedStream');
-    if(!f.length){c.innerHTML=`<div class="es"><p style="font-size:.88rem;">Komunita je zatím prázdná. Buďte první, kdo sdílí svůj výlet!</p></div>`;return;}
+    if(!f.length){c.innerHTML=`<div class="es"><p style="font-size:.88rem;">Komunita je zatím prázdná. Napište první zprávu!</p></div>`;return;}
+    
+    // Změna názvů v poli pro psaní
+    document.querySelector('.clabel').innerText = '// Chat s komunitou';
+    document.getElementById('btnOdeslatFeed').innerText = 'Odeslat do chatu';
+    
     c.innerHTML=f.map((p,i)=>{
+        const isMine = prihlaseno && mujProfil && p.autorId === mujProfil._id;
+        // Pokud je zpráva tvá, zarovná se doprava a získá lehce fialový nádech jako iMessage
+        const chatStyle = isMine 
+            ? 'margin-left:auto; background: linear-gradient(135deg, rgba(99,102,241,0.1), rgba(139,92,246,0.05)); border-color: rgba(99,102,241,0.25);' 
+            : 'margin-right:auto;';
+
         const av=p.autorAvatar?`background-image:url(${p.autorAvatar});color:transparent;`:'';
         const fh=p.fotky?.length?`<div class="ps" style="margin-bottom:10px;">${p.fotky.map(img=>`<img src="${img}" class="pt2" style="width:110px;height:80px;" onclick="openGallery('${img}')">`).join('')}</div>`:'';
         const th=p.pripojenyVyletId?`<div class="lt"><div><p class="ll">Sdílený výlet</p><p class="ln">${p.pripojenyVyletLokace}</p></div><button class="btn bp" style="font-size:.76rem;padding:7px 13px;" onclick="otevritGoogleMaps('${p.pripojenyVyletId}')">Mapa</button></div>`:'';
-        const io=prihlaseno&&mujProfil&&(p.autorId===mujProfil._id||mujProfil.isAdmin);
-        const ak=io?`<div style="display:flex;gap:5px;"><button class="btn bgh bi" style="width:auto;padding:0 8px;border-radius:8px;font-size:.75rem;" onclick="upravitFeed('${p._id}','${encodeURIComponent(p.text)}')">Upravit</button><button class="btn bgh bi" style="width:auto;padding:0 8px;border-radius:8px;font-size:.75rem;" onclick="smazatFeed('${p._id}')">Smazat</button></div>`:'';
+        const ak=isMine||(prihlaseno&&mujProfil&&mujProfil.isAdmin)?`<div style="display:flex;gap:5px;"><button class="btn bgh bi" style="width:auto;padding:0 8px;border-radius:8px;font-size:.75rem;" onclick="upravitFeed('${p._id}','${encodeURIComponent(p.text)}')">Upravit</button><button class="btn bgh bi" style="width:auto;padding:0 8px;border-radius:8px;font-size:.75rem;" onclick="smazatFeed('${p._id}')">Smazat</button></div>`:'';
         
-        // Nový HTML kód hlavičky, přidán onclick na profil uživatele
-        return `<div class="fp" style="animation-delay:${i*.06}s;"><div class="ph"><div class="pa" style="cursor:pointer;" onclick="otevritVerejnyProfil('${p.autorId}')" title="Zobrazit profil cestovatele"><div class="av" style="${av}">${p.autorJmeno?.charAt(0).toUpperCase()||'U'}</div><div><p class="an" style="transition:color .2s;" onmouseover="this.style.color='var(--a1)'" onmouseout="this.style.color='currentColor'">${p.autorJmeno}</p><p class="pd">${p.datum}</p></div></div>${ak}</div><p class="pt">${p.text}</p>${fh}${th}</div>`;
+        return `<div class="fp" style="max-width:85%; ${chatStyle} animation-delay:${i*.06}s;">
+            <div class="ph"><div class="pa" style="cursor:pointer;" onclick="otevritVerejnyProfil('${p.autorId}')" title="Zobrazit profil"><div class="av" style="${av}">${p.autorJmeno?.charAt(0).toUpperCase()||'U'}</div><div><p class="an" style="transition:color .2s;" onmouseover="this.style.color='var(--a1)'" onmouseout="this.style.color='currentColor'">${p.autorJmeno}</p><p class="pd">${p.datum}</p></div></div>${ak}</div>
+            <p class="pt">${p.text}</p>${fh}${th}
+        </div>`;
     }).join('');
 }
 

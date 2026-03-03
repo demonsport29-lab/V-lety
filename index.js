@@ -363,5 +363,30 @@ app.get('/api/profil/:id', async (req, res) => {
         res.json({ uspech: false, chyba: e.message });
     }
 });
+// VEŘEJNÉ VÝLETY VŠECH UŽIVATELŮ (Inspirace)
+app.get('/api/verejne-vylety', async (req, res) => {
+    try {
+        const vylety = await Vylet.find({ verejny: true }).sort({_id: -1});
+        const users = await User.find({}, '_id prezdivka jmeno prijmeni avatar');
+        
+        // Vytvoříme si mapu uživatelů pro rychlé přiřazení jmen k výletům
+        const userMap = {};
+        users.forEach(u => {
+            userMap[u._id.toString()] = { 
+                jmeno: u.prezdivka || `${u.jmeno} ${u.prijmeni}`, 
+                avatar: u.avatar 
+            };
+        });
+
+        const data = vylety.map(doc => {
+            const autor = userMap[doc.vlastnikId] || { jmeno: 'Neznámý', avatar: '' };
+            return { ...doc._doc, id: doc._id, autorJmeno: autor.jmeno, autorAvatar: autor.avatar };
+        });
+        
+        res.json({ uspech: true, data });
+    } catch (e) {
+        res.json({ uspech: false, chyba: e.message });
+    }
+});
 // START SERVERU
 app.listen(port, () => console.log(`🚀 VERONA běží na portu ${port}`));
