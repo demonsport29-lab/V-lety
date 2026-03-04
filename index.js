@@ -436,22 +436,6 @@ const seznamAkci = [
         popis: "Zde napište krátký a úderný popis události, který návštěvníky naláká k nákupu vstupenek.",
         logoUrl: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=800&q=80",
         vstupenkyUrl: "https://www.ticketportal.cz"
-    },
-    {
-        nazev: "Název akce 7",
-        datum: "5. Listopadu 2026",
-        misto: "Místo konání",
-        popis: "Zde napište krátký a úderný popis události, který návštěvníky naláká k nákupu vstupenek.",
-        logoUrl: "https://images.unsplash.com/photo-1511527661048-7fe73d85e9a4?auto=format&fit=crop&w=800&q=80",
-        vstupenkyUrl: "https://www.ticketportal.cz"
-    },
-    {
-        nazev: "Název akce 8",
-        datum: "20. Prosince 2026",
-        misto: "Místo konání",
-        popis: "Zde napište krátký a úderný popis události, který návštěvníky naláká k nákupu vstupenek.",
-        logoUrl: "https://images.unsplash.com/photo-1472653431158-6364773b2a56?auto=format&fit=crop&w=800&q=80",
-        vstupenkyUrl: "https://www.ticketportal.cz"
     }
 ];
 
