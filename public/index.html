@@ -375,6 +375,7 @@
             <button class="tab" id="t-landing" onclick="prepniTab('landing')">Domů</button>
             <button class="tab" id="t-planovac" onclick="prepniTab('planovac')">Můj deník</button>
             <button class="tab" id="t-verejne" onclick="prepniTab('verejne')">Inspirace</button>
+            <button class="tab" id="t-akce" onclick="prepniTab('akce')">Akce</button>
             <button class="tab" id="t-komunita" onclick="prepniTab('komunita')">Chat</button>
         </div>
         <div class="nav-act">
@@ -390,6 +391,7 @@
     <button class="tab" id="mt-landing" onclick="prepniTab('landing')">Domů</button>
     <button class="tab" id="mt-planovac" onclick="prepniTab('planovac')">Deník</button>
     <button class="tab" id="mt-verejne" onclick="prepniTab('verejne')">Inspirace</button>
+    <button class="tab" id="mt-akce" onclick="prepniTab('akce')">Akce</button>
     <button class="tab" id="mt-komunita" onclick="prepniTab('komunita')">Chat</button>
 </div>
 
@@ -425,6 +427,15 @@
         <p class="ey">Objevujte svět</p>
         <h2 class="st">Inspirace od komunity</h2>
         <div id="verejneStream" class="dg" style="grid-template-columns: repeat(auto-fill,minmax(320px,1fr));">
+            <div class="spin" style="margin:40px auto;display:block;"></div>
+        </div>
+    </div>
+</div>
+<div id="viewAkce" class="wrap view hidden">
+    <div style="max-width: 1000px; margin: 0 auto;">
+        <p class="ey">Kultura a sport</p>
+        <h2 class="st">Aktuální akce v okolí</h2>
+        <div id="akceStream" class="dg" style="grid-template-columns: repeat(auto-fill,minmax(300px,1fr));">
             <div class="spin" style="margin:40px auto;display:block;"></div>
         </div>
     </div>
@@ -599,7 +610,7 @@ async function init(){
     }catch(e){
         prepniTab('landing');
     }
-    await nactiDnik(); await nactiFeed(); await nactiVerejneVylety();
+    await nactiDnik(); await nactiFeed(); await nactiVerejneVylety(); await nactiAkce();
 }
 
 function prepniTab(tab, updateUrl = true){
@@ -1065,6 +1076,93 @@ async function prepnoutStav(id, stav) {
         alert('Chyba spojení.');
     }
 }
+// AKTUALIZOVANÁ FUNKCE PRO PŘEPÍNÁNÍ TABŮ (Nyní zná záložku 'akce')
+function prepniTab(tab, updateUrl = true){
+    ['landing', 'planovac', 'verejne', 'akce', 'komunita'].forEach(t=>{
+        const btn = document.getElementById(`t-${t}`);
+        if(btn) btn.classList.remove('active');
+        const m = document.getElementById(`mt-${t}`);
+        if(m) m.classList.remove('active');
+        
+        const viewId = t === 'landing' ? 'viewLanding' : t === 'planovac' ? 'viewPlanovac' : t === 'verejne' ? 'viewVerejne' : t === 'akce' ? 'viewAkce' : 'viewKomunita';
+        const view = document.getElementById(viewId);
+        if(view) view.classList.add('hidden');
+    });
+    
+    if (tab !== 'landing' || prihlaseno) {
+        const activeBtn = document.getElementById(`t-${tab}`);
+        if(activeBtn) activeBtn.classList.add('active');
+        const activeM = document.getElementById(`mt-${tab}`);
+        if(activeM) activeM.classList.add('active');
+    }
+    
+    const activeViewId = tab === 'landing' ? 'viewLanding' : tab === 'planovac' ? 'viewPlanovac' : tab === 'verejne' ? 'viewVerejne' : tab === 'akce' ? 'viewAkce' : 'viewKomunita';
+    const activeView = document.getElementById(activeViewId);
+    if(activeView) activeView.classList.remove('hidden');
+    
+    if(tab==='planovac'&&mainMap)setTimeout(()=>mainMap.invalidateSize(),200);
+
+    if (updateUrl) {
+        history.pushState(null, '', tab === 'landing' ? '/' : '#' + tab);
+    }
+}
+
+// Podpora pro tlačítko "Zpět"
+window.addEventListener('popstate', () => {
+    if (!prihlaseno) return;
+    const hash = window.location.hash.replace('#', '');
+    prepniTab(['komunita', 'planovac', 'verejne', 'akce'].includes(hash) ? hash : 'landing', false);
+});
+
+// VYKRESLENÍ AKCÍ
+async function nactiAkce() {
+    const res = await fetch('/api/akce');
+    const data = await res.json();
+    const c = document.getElementById('akceStream');
+    if (!c) return;
+    
+    if (!data.uspech || !data.data.length) {
+        c.innerHTML = '<div class="es"><p>Zatím zde nejsou žádné plánované akce.</p></div>';
+        return;
+    }
+    
+    c.innerHTML = data.data.map((x, i) => `
+        <div class="dc au" style="animation-delay:${i*.05}s; padding:0; cursor:default; overflow:hidden;">
+            <div style="height:160px; background:url(${x.logoUrl}) center/cover; position:relative; border-bottom:1px solid var(--gbd);">
+                <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,0.8), transparent);"></div>
+                <div style="position:absolute; bottom:16px; left:20px; right:20px;">
+                    <p style="font-family:var(--fm); font-size:.65rem; color:var(--a1); font-weight:700; text-transform:uppercase; letter-spacing:0.1em; margin-bottom:4px;">${x.datum}</p>
+                    <h3 style="font-size:1.3rem; font-weight:800; color:#fff; line-height:1.1;">${x.nazev}</h3>
+                </div>
+            </div>
+            <div style="padding:20px;">
+                <p style="font-size:.85rem; color:var(--t2); margin-bottom:14px;"><span style="color:var(--t1); font-weight:600;">📍 ${x.misto}</span><br>${x.popis}</p>
+                <a href="${x.vstupenkyUrl}" target="_blank" class="btn bp bf" style="text-decoration:none;">Vstupenky (Ticketportal)</a>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Nezapomeň přidat `await nactiAkce();` do funkce init() hned vedle `await nactiVerejneVylety();`!
+
+// ==========================================
+// TVŮJ TAJNÝ ADMIN NÁSTROJ DO KONZOLE
+// ==========================================
+window.pridatAkci = async function(nazev, datum, misto, popis, logoUrl, vstupenkyUrl) {
+    console.log("Odesílám akci na server...");
+    const res = await fetch('/api/admin/akce', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nazev, datum, misto, popis, logoUrl, vstupenkyUrl })
+    });
+    const data = await res.json();
+    if (data.uspech) {
+        console.log("✅ Akce úspěšně přidána!");
+        nactiAkce();
+    } else {
+        console.error("❌ Chyba:", data.chyba);
+    }
+};
 window.onload=init;
 </script>
 </body>
