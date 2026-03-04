@@ -390,22 +390,68 @@ app.get('/api/verejne-vylety', async (req, res) => {
 });
 const seznamAkci = [
     {
-        nazev: "Imagine Dragons - LOOM Tour",
-        datum: "9. Června 2026",
+        nazev: "Majáles 2026",
+        datum: "24. Května 2026",
         misto: "Letňany, Praha",
-        popis: "Epická show jedné z nejpopulárnějších kapel současnosti pod širým nebem.",
-        // Zde vložíš URL adresu konkrétní velké fotky (ta se roztáhne na pozadí názvu)
-        logoUrl: "https://upload.wikimedia.org/wikipedia/en/0/00/Loom_World_Tour.png", 
-        // Zde vložíš přímý odkaz na nákup lístků
-        vstupenkyUrl: "https://www.ticketportal.cz/event/IMAGINE-DRAGONS-LOOM-World-Tour" 
+        popis: "Největší studentský festival. Vystoupí přední české a slovenské kapely a chybět nebude ani skvělé jídlo.",
+        logoUrl: "https://praha.majales.cz/static/img/favicons/OG.jpg",
+        vstupenkyUrl: "https://praha.majales.cz/program-vstupenky/"
     },
     {
-        nazev: "COMIC-CON",
-        datum: "13. Března 2026",
-        misto: "O2 Universum, Praha",
-        popis: "VComic-Con Prague 2026 přijede o měsíc dřív! Amanda Tapping z Hvězdné brány mezi prvními potvrzenými hvězdami",
-        logoUrl: "https://sttpczprodcdn.azureedge.net////images/podujatie/-2147476029/orig_Comic_Con_Prague_2026_FRIDAY_202510712526.jpg?tag=7E6A76FD21CFE6BC2F9C6BD668119E7A&tag=",
-        vstupenkyUrl: "https://www.ticketportal.cz/event/Comic-Con-Prague-2026?imedium=timeline"
+        nazev: "PORSCHE DAY",
+        datum: "19. Dubna 2026",
+        misto: "Autodrom, Most",
+        popis: "VJiž čtvrtý ročník největšího sraz fanoušků vozů Porsche ve střední Evropě - Porsche Day – je opět tady! Vítáni jsou jak majitelé vozů, tak i všichni fanoušci.",
+        logoUrl: "https://sttpczprodcdn.azureedge.net////images/podujatie/1206609/orig_2025124132024_PORSCHE_DAY.jpg?tag=10F686AC2C2CB613114660346CEF049D&tag=0286B4CD20444748C3C0121F891E510B",
+        vstupenkyUrl: "https://www.ticketportal.cz/event/PORSCHE-DAY?imedium=timeline"
+    },
+    {
+        nazev: "OKTAGON 87",
+        datum: "25. Dubna 2026",
+        misto: "Home Credit Arena, Liberec",
+        popis: "OKTAGON se 25. 4. 2026 vrací na sever Čech do Home Credit Areny v Liberci. Fanouškům, kteří na tento turnaj čekali 3 roky, se představí naprostá špička domácí MMA scény, aby si diváci opět odnesli nezapomenutelný zážitek!",
+        logoUrl: "https://sttpczprodcdn.azureedge.net////images/podujatie/-13699798/orig_2026218162632_OKTAGON_87_.jpg?tag=C9C4893EDBE45CF7904342D185732A95&tag=29F989C096512F133BF8C7AF12B55261",
+        vstupenkyUrl: "https://www.ticketportal.cz/event/OKTAGON-87?imedium=timeline"
+    },
+    {
+        nazev: "Název akce 4",
+        datum: "15. Srpna 2026",
+        misto: "Místo konání",
+        popis: "Zde napište krátký a úderný popis události, který návštěvníky naláká k nákupu vstupenek.",
+        logoUrl: "https://images.unsplash.com/photo-1507676184212-d0330a15233c?auto=format&fit=crop&w=800&q=80",
+        vstupenkyUrl: "https://www.ticketportal.cz"
+    },
+    {
+        nazev: "Název akce 5",
+        datum: "2. Září 2026",
+        misto: "Místo konání",
+        popis: "Zde napište krátký a úderný popis události, který návštěvníky naláká k nákupu vstupenek.",
+        logoUrl: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=800&q=80",
+        vstupenkyUrl: "https://www.ticketportal.cz"
+    },
+    {
+        nazev: "Název akce 6",
+        datum: "10. Října 2026",
+        misto: "Místo konání",
+        popis: "Zde napište krátký a úderný popis události, který návštěvníky naláká k nákupu vstupenek.",
+        logoUrl: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=800&q=80",
+        vstupenkyUrl: "https://www.ticketportal.cz"
+    },
+    {
+        nazev: "Název akce 7",
+        datum: "5. Listopadu 2026",
+        misto: "Místo konání",
+        popis: "Zde napište krátký a úderný popis události, který návštěvníky naláká k nákupu vstupenek.",
+        logoUrl: "https://images.unsplash.com/photo-1511527661048-7fe73d85e9a4?auto=format&fit=crop&w=800&q=80",
+        vstupenkyUrl: "https://www.ticketportal.cz"
+    },
+    {
+        nazev: "Název akce 8",
+        datum: "20. Prosince 2026",
+        misto: "Místo konání",
+        popis: "Zde napište krátký a úderný popis události, který návštěvníky naláká k nákupu vstupenek.",
+        logoUrl: "https://images.unsplash.com/photo-1472653431158-6364773b2a56?auto=format&fit=crop&w=800&q=80",
+        vstupenkyUrl: "https://www.ticketportal.cz"
     }
 ];
 
