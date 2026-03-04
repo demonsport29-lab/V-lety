@@ -415,26 +415,6 @@ const seznamAkci = [
 app.get('/api/akce', (req, res) => {
     res.json({ uspech: true, data: seznamAkci });
 });
-const Akce = mongoose.model('Akce', akceSchema);
 
-// Načtení akcí pro všechny uživatele
-app.get('/api/akce', async (req, res) => {
-    try {
-        const akce = await Akce.find().sort({ vytvoreno: -1 });
-        res.json({ uspech: true, data: akce });
-    } catch (e) { res.json({ uspech: false, chyba: e.message }); }
-});
-
-// Přidání akce (Pouze pro ADMINA)
-app.post('/api/admin/akce', async (req, res) => {
-    if (!req.session.userId) return res.json({ uspech: false, chyba: 'Nepřihlášen' });
-    try {
-        const user = await User.findById(req.session.userId);
-        if (!user || !user.isAdmin) return res.json({ uspech: false, chyba: 'Nemáš oprávnění admina.' });
-        
-        await new Akce(req.body).save();
-        res.json({ uspech: true });
-    } catch (e) { res.json({ uspech: false, chyba: e.message }); }
-});
 // START SERVERU
 app.listen(port, () => console.log(`🚀 VERONA běží na portu ${port}`));
