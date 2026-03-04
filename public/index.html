@@ -434,7 +434,7 @@
 <div id="viewAkce" class="wrap view hidden">
     <div style="max-width: 1000px; margin: 0 auto;">
         <p class="ey">Kultura a sport</p>
-        <h2 class="st">Aktuální akce v okolí</h2>
+        <h2 class="st">Aktuální akce</h2>
         <div id="akceStream" class="dg" style="grid-template-columns: repeat(auto-fill,minmax(300px,1fr));">
             <div class="spin" style="margin:40px auto;display:block;"></div>
         </div>
@@ -1114,7 +1114,7 @@ window.addEventListener('popstate', () => {
     prepniTab(['komunita', 'planovac', 'verejne', 'akce'].includes(hash) ? hash : 'landing', false);
 });
 
-// VYKRESLENÍ AKCÍ (S výrazným datem dole)
+// VYKRESLENÍ AKCÍ (Bez pruhu, tlačítka vždy dole)
 async function nactiAkce() {
     const res = await fetch('/api/akce');
     const data = await res.json();
@@ -1126,15 +1126,16 @@ async function nactiAkce() {
         return;
     }
     
+    // Přidáno: height:100% u hlavní karty, flex-shrink:0 u obrázku, flex-grow:1 u obsahu a margin-top:auto u tlačítka
     c.innerHTML = data.data.map((x, i) => `
-        <div class="dc au" style="animation-delay:${i*.05}s; padding:0; cursor:default; overflow:hidden;">
-            <div style="height:160px; background:url(${x.logoUrl}) center/cover; position:relative; border-bottom:1px solid var(--gbd);">
+        <div class="dc au" style="animation-delay:${i*.05}s; padding:0; cursor:default; overflow:hidden; height:100%;">
+            <div style="height:160px; background:url(${x.logoUrl}) center/cover; position:relative; flex-shrink:0;">
                 <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,0.85), transparent);"></div>
                 <div style="position:absolute; bottom:16px; left:20px; right:20px;">
                     <h3 style="font-size:1.4rem; font-weight:800; color:#fff; line-height:1.1; text-shadow:0 2px 10px rgba(0,0,0,0.5);">${x.nazev}</h3>
                 </div>
             </div>
-            <div style="padding:20px;">
+            <div style="padding:20px; display:flex; flex-direction:column; flex-grow:1;">
                 <div style="margin-bottom:14px;">
                     <div style="display:inline-flex; align-items:center; gap:6px; background:linear-gradient(135deg,var(--a1),var(--a2)); color:#fff; padding:6px 12px; border-radius:8px; font-weight:800; font-size:.9rem; margin-bottom:10px; box-shadow:0 4px 14px rgba(99,102,241,.3);">
                         <span>📅</span> ${x.datum}
@@ -1142,7 +1143,7 @@ async function nactiAkce() {
                     <div style="color:var(--t1); font-weight:600; font-size:.85rem;">📍 ${x.misto}</div>
                 </div>
                 <p style="font-size:.85rem; color:var(--t2); margin-bottom:18px; line-height:1.6;">${x.popis}</p>
-                <a href="${x.vstupenkyUrl}" target="_blank" class="btn bp bf" style="text-decoration:none;">🎟 Koupit vstupenky</a>
+                <a href="${x.vstupenkyUrl}" target="_blank" class="btn bp bf" style="text-decoration:none; margin-top:auto;">🎟 Koupit vstupenky</a>
             </div>
         </div>
     `).join('');
