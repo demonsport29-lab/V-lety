@@ -389,16 +389,31 @@ app.get('/api/verejne-vylety', async (req, res) => {
     }
 });
 // ==========================================
-// 9. AKCE (Kultura a sport)
+// 9. AKCE (Kultura a sport) - Spravováno přes kód
 // ==========================================
-const akceSchema = new mongoose.Schema({
-    nazev: String,
-    datum: String,
-    misto: String,
-    popis: String,
-    logoUrl: String,      // Odkaz na oficiální logo/plakát
-    vstupenkyUrl: String, // Odkaz na Ticketportal, Ticketmaster atd.
-    vytvoreno: { type: Date, default: Date.now }
+const seznamAkci = [
+    {
+        nazev: "Majáles 2026",
+        datum: "24. Května 2026",
+        misto: "Letňany, Praha",
+        popis: "Největší studentský festival. Vystoupí přední české a slovenské kapely.",
+        logoUrl: "https://upload.wikimedia.org/wikipedia/commons/4/47/Pra%C5%BEsk%C3%BD_Maj%C3%A1les_logo.png",
+        vstupenkyUrl: "https://www.ticketportal.cz"
+    },
+    {
+        nazev: "Oktagon MMA",
+        datum: "12. Června 2026",
+        misto: "O2 Arena, Praha",
+        popis: "Velkolepý turnaj bojových sportů. Nenechte si ujít zápasy šampionů.",
+        logoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Oktagon_MMA_logo.svg/1200px-Oktagon_MMA_logo.svg.png",
+        vstupenkyUrl: "https://www.ticketmaster.cz"
+    }
+    // SEM MŮŽEŠ PŘIDÁVAT DALŠÍ AKCE (nezapomeň, že mezi bloky {...} musí být čárka)
+];
+
+// Odeslání seznamu aplikaci
+app.get('/api/akce', (req, res) => {
+    res.json({ uspech: true, data: seznamAkci });
 });
 const Akce = mongoose.model('Akce', akceSchema);
 

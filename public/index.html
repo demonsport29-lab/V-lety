@@ -1145,24 +1145,6 @@ async function nactiAkce() {
 
 // Nezapomeň přidat `await nactiAkce();` do funkce init() hned vedle `await nactiVerejneVylety();`!
 
-// ==========================================
-// TVŮJ TAJNÝ ADMIN NÁSTROJ DO KONZOLE
-// ==========================================
-window.pridatAkci = async function(nazev, datum, misto, popis, logoUrl, vstupenkyUrl) {
-    console.log("Odesílám akci na server...");
-    const res = await fetch('/api/admin/akce', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nazev, datum, misto, popis, logoUrl, vstupenkyUrl })
-    });
-    const data = await res.json();
-    if (data.uspech) {
-        console.log("✅ Akce úspěšně přidána!");
-        nactiAkce();
-    } else {
-        console.error("❌ Chyba:", data.chyba);
-    }
-};
 window.onload=init;
 </script>
 </body>
