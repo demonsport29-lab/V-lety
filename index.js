@@ -400,12 +400,12 @@ const seznamAkci = [
         vstupenkyUrl: "https://www.ticketportal.cz/event/IMAGINE-DRAGONS-LOOM-World-Tour" 
     },
     {
-        nazev: "Oktagon 68",
-        datum: "12. Června 2026",
-        misto: "O2 Arena, Praha",
-        popis: "Velkolepý turnaj bojových sportů. Nenechte si ujít zápasy šampionů.",
-        logoUrl: "https://www.o2arena.cz/wp-content/uploads/2023/11/Oktagon_hlavni_obr_1920x1080.jpg",
-        vstupenkyUrl: "https://www.ticketmaster.cz/event/oktagon-68-vstupenky/45678"
+        nazev: "COMIC-CON",
+        datum: "13. Března 2026",
+        misto: "O2 Universum, Praha",
+        popis: "VComic-Con Prague 2026 přijede o měsíc dřív! Amanda Tapping z Hvězdné brány mezi prvními potvrzenými hvězdami",
+        logoUrl: "https://sttpczprodcdn.azureedge.net////images/podujatie/-2147476029/orig_Comic_Con_Prague_2026_FRIDAY_202510712526.jpg?tag=7E6A76FD21CFE6BC2F9C6BD668119E7A&tag=",
+        vstupenkyUrl: "https://www.ticketportal.cz/event/Comic-Con-Prague-2026?imedium=timeline"
     }
 ];
 
