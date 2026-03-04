@@ -388,27 +388,25 @@ app.get('/api/verejne-vylety', async (req, res) => {
         res.json({ uspech: false, chyba: e.message });
     }
 });
-// ==========================================
-// 9. AKCE (Kultura a sport) - Spravováno přes kód
-// ==========================================
 const seznamAkci = [
     {
-        nazev: "Majáles 2026",
-        datum: "24. Května 2026",
+        nazev: "Imagine Dragons - LOOM Tour",
+        datum: "9. Června 2026",
         misto: "Letňany, Praha",
-        popis: "Největší studentský festival. Vystoupí přední české a slovenské kapely.",
-        logoUrl: "https://upload.wikimedia.org/wikipedia/commons/4/47/Pra%C5%BEsk%C3%BD_Maj%C3%A1les_logo.png",
-        vstupenkyUrl: "https://www.ticketportal.cz"
+        popis: "Epická show jedné z nejpopulárnějších kapel současnosti pod širým nebem.",
+        // Zde vložíš URL adresu konkrétní velké fotky (ta se roztáhne na pozadí názvu)
+        logoUrl: "https://images.unsplash.com/photo-1540039155732-68473500d6cb?q=80&w=1000&auto=format&fit=crop", 
+        // Zde vložíš přímý odkaz na nákup lístků
+        vstupenkyUrl: "https://www.ticketportal.cz/event/Imagine-Dragons-Loom-Tour" 
     },
     {
-        nazev: "Oktagon MMA",
+        nazev: "Oktagon 68",
         datum: "12. Června 2026",
         misto: "O2 Arena, Praha",
         popis: "Velkolepý turnaj bojových sportů. Nenechte si ujít zápasy šampionů.",
-        logoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Oktagon_MMA_logo.svg/1200px-Oktagon_MMA_logo.svg.png",
-        vstupenkyUrl: "https://www.ticketmaster.cz"
+        logoUrl: "https://www.o2arena.cz/wp-content/uploads/2023/11/Oktagon_hlavni_obr_1920x1080.jpg",
+        vstupenkyUrl: "https://www.ticketmaster.cz/event/oktagon-68-vstupenky/45678"
     }
-    // SEM MŮŽEŠ PŘIDÁVAT DALŠÍ AKCE (nezapomeň, že mezi bloky {...} musí být čárka)
 ];
 
 // Odeslání seznamu aplikaci
