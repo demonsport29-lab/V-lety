@@ -395,9 +395,9 @@ const seznamAkci = [
         misto: "Letňany, Praha",
         popis: "Epická show jedné z nejpopulárnějších kapel současnosti pod širým nebem.",
         // Zde vložíš URL adresu konkrétní velké fotky (ta se roztáhne na pozadí názvu)
-        logoUrl: "https://images.unsplash.com/photo-1540039155732-68473500d6cb?q=80&w=1000&auto=format&fit=crop", 
+        logoUrl: "https://upload.wikimedia.org/wikipedia/en/0/00/Loom_World_Tour.png", 
         // Zde vložíš přímý odkaz na nákup lístků
-        vstupenkyUrl: "https://www.ticketportal.cz/event/Imagine-Dragons-Loom-Tour" 
+        vstupenkyUrl: "https://www.ticketportal.cz/event/IMAGINE-DRAGONS-LOOM-World-Tour" 
     },
     {
         nazev: "Oktagon 68",
