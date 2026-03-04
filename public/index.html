@@ -404,24 +404,47 @@
             <button class="btn bp blg" onclick="location.href='/auth/google'">Přihlásit se a začít</button>
         </div>
     </div>
-    <div class="dg" style="margin-top: 60px;">
-        <div class="card" style="text-align: center;">
+    <div style="margin-top: 32px; display: flex; align-items: center; justify-content: center; gap: 12px; animation: fadeIn 1s ease-in-out 0.5s both;">
+            <div style="display: flex; margin-right: 8px;">
+                <div style="width: 34px; height: 34px; border-radius: 50%; border: 2px solid var(--bg); background: url('https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&q=80') center/cover; z-index: 4;"></div>
+                <div style="width: 34px; height: 34px; border-radius: 50%; border: 2px solid var(--bg); background: url('https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&q=80') center/cover; margin-left: -12px; z-index: 3;"></div>
+                <div style="width: 34px; height: 34px; border-radius: 50%; border: 2px solid var(--bg); background: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=80') center/cover; margin-left: -12px; z-index: 2;"></div>
+                <div style="width: 34px; height: 34px; border-radius: 50%; border: 2px solid var(--bg); background: linear-gradient(135deg, var(--a1), var(--a3)); display: flex; align-items: center; justify-content: center; color: white; font-size: 0.65rem; font-weight: 800; margin-left: -12px; z-index: 1;">+5k</div>
+            </div>
+            <div style="text-align: left;">
+                <div style="display: flex; gap: 2px; color: #fbbf24; font-size: 0.85rem; margin-bottom: 2px;">★★★★★</div>
+                <span style="font-size: 0.75rem; color: var(--t2); font-family: var(--fm);">Zamilováno cestovateli</span>
+            </div>
+        </div>
+    <div style="margin-top: 60px; display: flex; flex-wrap: wrap; justify-content: center; gap: 24px;">
+        <div class="card" style="text-align: center; flex: 1 1 300px; max-width: 340px;">
             <div style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, var(--a1), var(--a2)); color: white; display: flex; align-items: center; justify-content: center; font-family: var(--fm); font-weight: 700; margin: 0 auto 20px;">AI</div>
             <h3 style="margin-bottom: 12px; font-weight: 700;">AI Architekt</h3>
             <p style="color: var(--t2); font-size: 0.9rem; line-height: 1.6;">Zadejte destinaci, vyberte své zájmy a nechte umělou inteligenci sestavit detailní plán cesty včetně časového harmonogramu.</p>
         </div>
-        <div class="card" style="text-align: center;">
+        <div class="card" style="text-align: center; flex: 1 1 300px; max-width: 340px;">
             <div style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, var(--a3), var(--a1)); color: white; display: flex; align-items: center; justify-content: center; font-family: var(--fm); font-weight: 700; margin: 0 auto 20px;">GPX</div>
             <h3 style="margin-bottom: 12px; font-weight: 700;">Interaktivní Mapy</h3>
             <p style="color: var(--t2); font-size: 0.9rem; line-height: 1.6;">Všechny vaše výlety se automaticky propisují do interaktivní mapy. Sledujte svou stopu a exportujte trasy pro navigaci.</p>
         </div>
-        <div class="card" style="text-align: center;">
+        <div class="card" style="text-align: center; flex: 1 1 300px; max-width: 340px;">
             <div style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, var(--a4), var(--a3)); color: white; display: flex; align-items: center; justify-content: center; font-family: var(--fm); font-weight: 700; margin: 0 auto 20px;">COM</div>
             <h3 style="margin-bottom: 12px; font-weight: 700;">Aktivní Komunita</h3>
             <p style="color: var(--t2); font-size: 0.9rem; line-height: 1.6;">Inspirujte se deníky ostatních. Sdílejte fotografie z cest, hodnoťte trasy a objevujte ta nejlepší místa od zkušených cestovatelů.</p>
         </div>
     </div>
-</div>
+
+    <div style="margin-top: 100px; padding-top: 32px; border-top: 1px solid var(--gbd); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
+        <div>
+            <span style="font-family: var(--fm); font-size: 0.85rem; font-weight: 700; letter-spacing: 0.1em; color: var(--a1);">VERONA</span>
+            <p style="font-size: 0.75rem; color: var(--t3); margin-top: 6px;">© 2026 Premium Trip Architect. Všechna práva vyhrazena.</p>
+        </div>
+        <div style="display: flex; gap: 16px;">
+            <a href="#" style="color: var(--t2); font-size: 0.8rem; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='var(--t1)'" onmouseout="this.style.color='var(--t2)'">Ochrana soukromí</a>
+            <a href="#" style="color: var(--t2); font-size: 0.8rem; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='var(--t1)'" onmouseout="this.style.color='var(--t2)'">Podmínky použití</a>
+            <a href="mailto:info@veronaapp.eu" style="color: var(--t2); font-size: 0.8rem; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='var(--t1)'" onmouseout="this.style.color='var(--t2)'">Podpora</a>
+        </div>
+    </div>
 <div id="viewVerejne" class="wrap view hidden">
     <div style="max-width: 900px; margin: 0 auto;">
         <p class="ey">Objevujte svět</p>
