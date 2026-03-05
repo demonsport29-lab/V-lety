@@ -414,28 +414,28 @@ const seznamAkci = [
         vstupenkyUrl: "https://www.ticketportal.cz/event/OKTAGON-87?imedium=timeline"
     },
     {
-        nazev: "Název akce 4",
-        datum: "15. Srpna 2026",
-        misto: "Místo konání",
-        popis: "Zde napište krátký a úderný popis události, který návštěvníky naláká k nákupu vstupenek.",
-        logoUrl: "https://images.unsplash.com/photo-1507676184212-d0330a15233c?auto=format&fit=crop&w=800&q=80",
-        vstupenkyUrl: "https://www.ticketportal.cz"
+        nazev: "Cyklohráček",
+        datum: "7. Března 2026",
+        misto: "Praha - Zlonice",
+        popis: "Cyklohráček je tradičně zaměřen na rodiny s dětmi a nabízí tématicky laděné víkendové jízdy do zajímavých turistických cílů.",
+        logoUrl: "https://cdn.kudyznudy.cz/files/d6/d6f37ee3-a214-4709-a35b-5445596cdf41.webp?v=20260209152021",
+        vstupenkyUrl: "https://www.cd.cz/nase-vlaky/cyklohracek/cyklohracek/-29500/?utm_source=google&utm_medium=cpc&utm_campaign=222_dsa&utm_content=search&gad_source=1"
     },
     {
-        nazev: "Název akce 5",
-        datum: "2. Září 2026",
-        misto: "Místo konání",
-        popis: "Zde napište krátký a úderný popis události, který návštěvníky naláká k nákupu vstupenek.",
-        logoUrl: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=800&q=80",
-        vstupenkyUrl: "https://www.ticketportal.cz"
+        nazev: "OBŘI OCEÁNŮ - IMPOZANTNÍ VÝSTAVA",
+        datum: "11. Dubna 2026",
+        misto: "Westfield Černý Most, Praha",
+        popis: "Pokud patříte mezi vášnivé obdivovatele přírody, nebo chcete jen sobě či svým dětem přichystat nádherný den plný unikátních zážitků, přijměte naši pozvánku za velkým dobrodružstvím do podmořského světa plného úžasných, mnohdy bizarních či nebezpečných, tvorů.",
+        logoUrl: "https://static.ticketportal.cz//images/podujatie/1208824/orig_OBRI_OCEANU___IMPOZANTNI_VYSTAVA_shakeexhibitions2025_2026_202634.jpg?tag=547131A3BE56C8E57ADBFCF84F8F90B4&tag=103A2D0EA302821116E5377B4E902866",
+        vstupenkyUrl: "https://www.ticketportal.cz/event/OBRI-OCEANU-IMPOZANTNI-VYSTAVA?imedium=timeline"
     },
     {
-        nazev: "Název akce 6",
-        datum: "10. Října 2026",
-        misto: "Místo konání",
-        popis: "Zde napište krátký a úderný popis události, který návštěvníky naláká k nákupu vstupenek.",
-        logoUrl: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=800&q=80",
-        vstupenkyUrl: "https://www.ticketportal.cz"
+        nazev: "Nesem vám noviny",
+        datum: "18. Března 2026",
+        misto: "Rock Café, Praha",
+        popis: "Komici ze skupiny Underground Comedy představují skoro nový formát zábavného večera, v kterém provedou událostmi z uplynulého měsíce v Česku i v zahraničí.",
+        logoUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS9dd3qF9UJeO4NsNtZx5RK6X0zn6I0tEDqdw&s",
+        vstupenkyUrl: "https://goout.net/cs/underground-comedy-nesem-vam-noviny/ezgjaeh/"
     }
 ];
 
