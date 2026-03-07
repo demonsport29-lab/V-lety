@@ -8,9 +8,16 @@
   "theme_color": "#060810",
   "icons": [
     {
-      "src": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=512&q=80", 
+      "src": "/ikona.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/ikona.svg",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/svg+xml",
+      "purpose": "maskable"
     }
   ]
 }
