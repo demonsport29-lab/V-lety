@@ -388,6 +388,38 @@ app.get('/api/verejne-vylety', async (req, res) => {
         res.json({ uspech: false, chyba: e.message });
     }
 });
+// ==========================================
+// MEDAILE A STATISTIKY UŽIVATELE
+// ==========================================
+const seznamMedaili = [
+    { id: 'start', nazev: 'Průzkumník', popis: 'Uložil si svůj první výlet do deníku.', ikona: '<i class="ph-fill ph-map-trifold"></i>', podminka: (s) => s.pocetVyletu >= 1 },
+    { id: 'znalec', nazev: 'Světem protřelý', popis: 'Zapsal 10 výletů do deníku.', ikona: '<i class="ph-fill ph-backpack"></i>', podminka: (s) => s.pocetVyletu >= 10 },
+    { id: 'krok', nazev: 'Akční hrdina', popis: 'Fyzicky splnil svůj první výlet.', ikona: '<i class="ph-fill ph-boot"></i>', podminka: (s) => s.pocetSplnenych >= 1 },
+    { id: 'dobyvatel', nazev: 'Dobyvatel', popis: 'Fyzicky splnil 5 výletů.', ikona: '<i class="ph-fill ph-mountains"></i>', podminka: (s) => s.pocetSplnenych >= 5 },
+    { id: 'komunita', nazev: 'Hlas komunity', popis: 'Napsal první příspěvek do chatu.', ikona: '<i class="ph-fill ph-megaphone"></i>', podminka: (s) => s.pocetFeed >= 1 }
+];
+
+app.get('/api/moje-staty', async (req, res) => {
+    if (!req.session.userId) return res.json({ uspech: false });
+    try {
+        const pocetVyletu = await Vylet.countDocuments({ vlastnikId: req.session.userId });
+        const pocetSplnenych = await Vylet.countDocuments({ vlastnikId: req.session.userId, dokonceno: true });
+        const pocetFeed = await FeedPost.countDocuments({ autorId: req.session.userId });
+
+        const staty = { pocetVyletu, pocetSplnenych, pocetFeed };
+        
+        const medaileSvyhodnocenim = seznamMedaili.map(m => ({
+            nazev: m.nazev,
+            popis: m.popis,
+            ikona: m.ikona,
+            ziskana: m.podminka(staty)
+        }));
+
+        res.json({ uspech: true, staty, medaile: medaileSvyhodnocenim });
+    } catch (e) { 
+        res.json({ uspech: false, chyba: e.message }); 
+    }
+});
 const seznamAkci = [
     {
         nazev: "Majáles 2026",

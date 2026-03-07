@@ -9,13 +9,14 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <link rel="icon" type="image/svg+xml" href="/ikona.svg">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
     <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --fh: 'Bricolage Grotesque', sans-serif;
@@ -332,20 +333,42 @@
 </div>
 
 <div id="profileModal" class="overlay" onclick="if(event.target===this)this.style.display='none'">
-    <div class="mb">
-        <div class="mh"><h2 class="mt">Můj Profil</h2><button class="btnx" onclick="document.getElementById('profileModal').style.display='none'">✕</button></div>
-        <div style="text-align:center;margin-bottom:22px;">
-            <div class="pa2" id="profAvatar" onclick="zmenitAvatar()">V</div>
-            <p style="font-family:var(--fm);font-size:.62rem;color:var(--t2);">Kliknutím upravíte fotografii</p>
+    <div class="mb" style="max-width: 780px; padding: 32px;">
+        <div class="mh" style="margin-bottom: 20px;"><h2 class="mt">Můj Profil a Statistiky</h2><button class="btnx" onclick="document.getElementById('profileModal').style.display='none'">✕</button></div>
+
+        <div style="display:flex; flex-wrap: wrap; gap: 32px;">
+            <div style="flex: 1 1 280px;">
+                <p class="ey" style="margin-bottom:12px;">Osobní údaje</p>
+                <div style="text-align:center;margin-bottom:22px;background:rgba(0,0,0,.08);padding:20px;border-radius:var(--rsm);border:1px solid var(--gbd);">
+                    <div class="pa2" id="profAvatar" onclick="zmenitAvatar()" style="width:72px;height:72px;font-size:1.6rem;">V</div>
+                    <p style="font-family:var(--fm);font-size:.62rem;color:var(--t2);">Kliknutím upravíte fotografii</p>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                    <input type="text" id="profPrezdivka" class="f" placeholder="Přezdívka" style="margin:0;">
+                    <input type="number" id="profVek" class="f" placeholder="Věk" style="margin:0;">
+                </div>
+                <div style="height:8px;"></div>
+                <input type="text" id="profTelefon" class="f" placeholder="Telefon (volitelné)">
+                <textarea id="profBio" class="f" rows="3" placeholder="Pár slov o sobě…"></textarea>
+                <button class="btn bp bf" onclick="ulozitProfil()">Uložit profil</button>
+            </div>
+
+            <div style="flex: 1.5 1 340px; display:flex; flex-direction:column; gap: 20px;">
+                <div>
+                    <p class="ey" style="margin-bottom:8px;">Aktivita v aplikaci</p>
+                    <div style="height: 170px; background: rgba(0,0,0,0.15); border: 1px solid var(--gbd); border-radius: var(--rsm); padding: 12px;">
+                        <canvas id="profilGraf"></canvas>
+                    </div>
+                </div>
+
+                <div>
+                    <p class="ey" style="margin-bottom:8px;">Moje úspěchy</p>
+                    <div id="profilMedaile" style="display:flex; gap:10px; flex-wrap:wrap; max-height: 180px; overflow-y: auto; padding-right: 5px;">
+                        <div class="spin" style="margin: 20px auto;"></div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-            <input type="text" id="profPrezdivka" class="f" placeholder="Přezdívka" style="margin:0;">
-            <input type="number" id="profVek" class="f" placeholder="Věk" style="margin:0;">
-        </div>
-        <div style="height:8px;"></div>
-        <input type="text" id="profTelefon" class="f" placeholder="Telefon (volitelné)">
-        <textarea id="profBio" class="f" rows="3" placeholder="Pár slov o sobě…"></textarea>
-        <button class="btn bp bf blg" onclick="ulozitProfil()">Uložit profil</button>
     </div>
 </div>
 
@@ -417,10 +440,10 @@
             <button class="tab" id="t-komunita" onclick="prepniTab('komunita')">Chat</button>
         </div>
         <div class="nav-act">
-            <button class="btn bg" onclick="document.getElementById('donateModal').style.display='flex'"><span>Podpořit</span><span class="m-ico">☕</span></button>
-            <button class="btn bgh" id="btnGoogle" onclick="location.href='/auth/google'"><span>Přihlásit</span><span class="m-ico">👤</span></button>
-            <button class="btn bg" id="btnProfil" onclick="document.getElementById('profileModal').style.display='flex'" style="display:none;"><span>Profil</span><span class="m-ico">⚙️</span></button>
-            <button class="btn bgh bi" style="font-size: 0.75rem; letter-spacing: 0.05em; width: auto; padding: 0 12px;" onclick="prepniRezim()"><span>Režim</span><span class="m-ico">🌓</span></button>
+            <button class="btn bg" onclick="document.getElementById('donateModal').style.display='flex'"><span>Podpořit</span><span class="m-ico"><i class="ph ph-coffee"></i></span></button>
+            <button class="btn bgh" id="btnGoogle" onclick="location.href='/auth/google'"><span>Přihlásit</span><span class="m-ico"><i class="ph ph-user"></i></span></button>
+            <button class="btn bg" id="btnProfil" onclick="otevritMujProfil()" style="display:none;"><span>Profil</span><span class="m-ico"><i class="ph ph-gear"></i></span></button>
+            <button class="btn bgh bi" style="font-size: 0.75rem; letter-spacing: 0.05em; width: auto; padding: 0 12px;" onclick="prepniRezim()"><span>Režim</span><span class="m-ico"><i class="ph ph-moon"></i></span></button>
         </div>
     </div>
 </nav>
@@ -650,7 +673,7 @@ async function init(){
         const data=await(await fetch('/api/auth-status')).json();
         if(data.prihlaseno){
             prihlaseno=true;mujProfil=data.profil;
-            document.getElementById('btnGoogle').innerHTML='<span>Přihlášen</span><span class="m-ico">✓</span>';
+            document.getElementById('btnGoogle').innerHTML='<span>Přihlášen</span><span class="m-ico"><i class="ph ph-check-circle"></i></span>';
             document.getElementById('btnGoogle').onclick=e=>e.preventDefault();
             document.getElementById('btnProfil').style.display='inline-flex';
             document.getElementById('navTabsContainer').style.display='flex';
@@ -1205,12 +1228,12 @@ async function nactiAkce() {
             <div style="padding:20px; display:flex; flex-direction:column; flex-grow:1;">
                 <div style="margin-bottom:14px;">
                     <div style="display:inline-flex; align-items:center; gap:6px; background:linear-gradient(135deg,var(--a1),var(--a2)); color:#fff; padding:6px 12px; border-radius:8px; font-weight:800; font-size:.9rem; margin-bottom:10px; box-shadow:0 4px 14px rgba(99,102,241,.3);">
-                        <span>📅</span> ${x.datum}
+                        <i class="ph ph-calendar-blank" style="font-size:1.1rem; margin-top:-2px;"></i> ${x.datum}
                     </div>
-                    <div style="color:var(--t1); font-weight:600; font-size:.85rem;">📍 ${x.misto}</div>
+                    <div style="color:var(--t1); font-weight:600; font-size:.85rem; display:flex; align-items:center; gap:4px;"><i class="ph ph-map-pin" style="color:var(--a3); font-size:1rem;"></i> ${x.misto}</div>
                 </div>
                 <p style="font-size:.85rem; color:var(--t2); margin-bottom:18px; line-height:1.6;">${x.popis}</p>
-                <a href="${x.vstupenkyUrl}" target="_blank" class="btn bp bf" style="text-decoration:none; margin-top:auto;">🎟 Koupit vstupenky</a>
+                <a href="${x.vstupenkyUrl}" target="_blank" class="btn bp bf" style="text-decoration:none; margin-top:auto; gap:6px;"><i class="ph ph-ticket" style="font-size:1.1rem;"></i> Koupit vstupenky</a>
             </div>
         </div>
     `).join('');
@@ -1223,6 +1246,71 @@ function prihlasitNewsletter() {
     btn.style.background = 'var(--a4)'; 
     localStorage.setItem('verona_news', '1'); 
     setTimeout(() => { document.getElementById('newsletterModal').style.display='none'; }, 2000);
+}
+let mujChart = null; // Proměnná pro uchování grafu, aby se nenačítal přes sebe
+
+async function otevritMujProfil() {
+    // 1. Zobrazíme okno
+    document.getElementById('profileModal').style.display = 'flex';
+    
+    // 2. Stáhneme data ze serveru
+    try {
+        const res = await (await fetch('/api/moje-staty')).json();
+        if (res.uspech) {
+            vykresliGraf(res.staty);
+            vykresliMedaile(res.medaile);
+        }
+    } catch(e) { console.error('Chyba načítání statistik:', e); }
+}
+
+function vykresliGraf(staty) {
+    const ctx = document.getElementById('profilGraf').getContext('2d');
+    
+    // Pokud už tam starý graf je, zničíme ho, ať nedělá neplechu
+    if (mujChart) mujChart.destroy();
+
+    const barvaTextu = document.documentElement.getAttribute('data-theme') === 'light' ? '#333' : '#a5b4fc';
+
+    mujChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Uložené výlety', 'Splněno', 'Zpráv v komunitě'],
+            datasets: [{
+                label: 'Počet',
+                data: [staty.pocetVyletu, staty.pocetSplnenych, staty.pocetFeed],
+                backgroundColor: ['#6366f1', '#10b981', '#06b6d4'],
+                borderRadius: 8,
+                borderSkipped: false
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { beginAtZero: true, ticks: { stepSize: 1, color: barvaTextu, font: {family: 'Space Mono'} }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                x: { ticks: { color: barvaTextu, font: {family: 'Bricolage Grotesque', weight: 600} }, grid: { display: false } }
+            }
+        }
+    });
+}
+function vykresliMedaile(medaile) {
+    const kontejner = document.getElementById('profilMedaile');
+    
+    kontejner.innerHTML = medaile.map(m => {
+        // Pokud je medaile získaná, svítí barevně. Pokud ne, je zašedlá a průhledná.
+        const vzhled = m.ziskana 
+            ? 'background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(6,182,212,0.15)); border-color: rgba(99,102,241,0.4); opacity: 1; filter: none;' 
+            : 'background: rgba(0,0,0,0.1); border-color: transparent; opacity: 0.4; filter: grayscale(1);';
+            
+        return `
+            <div style="flex: 1 1 45%; border: 1px solid transparent; border-radius: 12px; padding: 12px; text-align: center; transition: all 0.3s; ${vzhled}">
+                <div style="font-size: 2rem; margin-bottom: 6px; text-shadow: 0 4px 10px rgba(0,0,0,0.2);">${m.ikona}</div>
+                <div style="font-size: 0.8rem; font-weight: 800; margin-bottom: 4px; color: var(--t1);">${m.nazev}</div>
+                <div style="font-size: 0.65rem; color: var(--t2); line-height: 1.4;">${m.popis}</div>
+            </div>
+        `;
+    }).join('');
 }
 window.onload=init;
 // Registrace Service Workeru pro PWA (Android instalace)
