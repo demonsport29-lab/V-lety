@@ -1216,7 +1216,6 @@ async function nactiAkce() {
         return;
     }
     
-    // Přidáno: height:100% u hlavní karty, flex-shrink:0 u obrázku, flex-grow:1 u obsahu a margin-top:auto u tlačítka
     c.innerHTML = data.data.map((x, i) => `
         <div class="dc au" style="animation-delay:${i*.05}s; padding:0; cursor:default; overflow:hidden; height:100%;">
             <div style="height:160px; background:url(${x.logoUrl}) center/cover; position:relative; flex-shrink:0;">
@@ -1227,16 +1226,19 @@ async function nactiAkce() {
             </div>
             <div style="padding:20px; display:flex; flex-direction:column; flex-grow:1;">
                 <div style="margin-bottom:14px;">
-                    <div style="display:inline-flex; align-items:center; justify-content:center; gap:8px; background:linear-gradient(135deg,var(--a1),var(--a2)); color:#fff; padding:6px 14px; border-radius:8px; font-weight:800; font-size:.9rem; margin-bottom:10px; box-shadow:0 4px 14px rgba(99,102,241,.3);">
-                        <i class="ph ph-calendar-blank" style="font-size:1.15rem;"></i> ${x.datum}
+                    <div style="display:inline-flex; align-items:center; gap:6px; background:linear-gradient(135deg,var(--a1),var(--a2)); color:#fff; padding:6px 14px; border-radius:8px; font-weight:800; font-size:.9rem; margin-bottom:10px; box-shadow:0 4px 14px rgba(99,102,241,.3);">
+                        <i class="ph ph-calendar-blank" style="font-size:1.15rem; display:flex;"></i> 
+                        <span style="padding-top:2px;">${x.datum}</span>
                     </div>
                     <div style="color:var(--t1); font-weight:600; font-size:.85rem; display:flex; align-items:center; gap:6px;">
-                        <i class="ph-fill ph-map-pin" style="color:var(--a3); font-size:1.1rem;"></i> ${x.misto}
+                        <i class="ph-fill ph-map-pin" style="color:var(--a3); font-size:1.2rem; display:flex;"></i> 
+                        <span style="padding-top:2px;">${x.misto}</span>
                     </div>
                 </div>
                 <p style="font-size:.85rem; color:var(--t2); margin-bottom:18px; line-height:1.6;">${x.popis}</p>
                 <a href="${x.vstupenkyUrl}" target="_blank" class="btn bp bf" style="text-decoration:none; margin-top:auto; display:flex; align-items:center; justify-content:center; gap:8px;">
-                    <i class="ph ph-ticket" style="font-size:1.2rem;"></i> Koupit vstupenky
+                    <i class="ph ph-ticket" style="font-size:1.3rem; display:flex;"></i> 
+                    <span style="padding-top:2px;">Koupit vstupenky</span>
                 </a>
             </div>
         </div>
