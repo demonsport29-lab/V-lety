@@ -327,8 +327,8 @@ app.post('/api/kalendar', async (req, res) => {
             ? `${popis}\n\n📍 Odkaz na mapu a navigaci k trase:\n${mapaLink}`
             : popis;
 
-        // Otevře Google Calendar s předvyplněnými daty
-        let gcalUrl = `https://calendar.google.com/calendar/r/eventedit?text=${encodeURIComponent('🗺 ' + lokace)}&dates=${start.replace(/-/g,'')}/${end.replace(/-/g,'')}&details=${encodeURIComponent(popisFull)}&sf=true`;
+        // Otevře Google Calendar s předvyplněnými daty (Opraveno pro mobilní aplikace)
+        let gcalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent('🗺 ' + lokace)}&dates=${start.replace(/-/g,'')}/${end.replace(/-/g,'')}&details=${encodeURIComponent(popisFull)}&sf=true`;
 
         // Pokud je zadané startovní místo, zapíšeme ho do kolonky "Místo" v kalendáři
         if (startMisto) {
