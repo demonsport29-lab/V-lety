@@ -1225,6 +1225,12 @@ function prihlasitNewsletter() {
     setTimeout(() => { document.getElementById('newsletterModal').style.display='none'; }, 2000);
 }
 window.onload=init;
+// Registrace Service Workeru pro PWA (Android instalace)
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW chyba:', err));
+    });
+}
 </script>
 </body>
 </html>
