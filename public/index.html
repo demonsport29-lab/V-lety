@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VERONA — Premium Trip Architect</title>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#060810">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -388,6 +392,16 @@
             </div>
     </div>
 </div>
+<div id="newsletterModal" class="overlay" onclick="if(event.target===this){this.style.display='none'; localStorage.setItem('verona_news', '1');}">
+    <div class="mb" style="text-align:center; max-width: 440px; background:linear-gradient(160deg, var(--gb2), rgba(99,102,241,.08));">
+        <button class="btnx" style="position:absolute;top:20px;right:20px;" onclick="document.getElementById('newsletterModal').style.display='none'; localStorage.setItem('verona_news', '1');">✕</button>
+        <div style="width:64px; height:64px; border-radius:50%; background:linear-gradient(135deg, var(--a1), var(--a3)); color:#fff; font-size:1.8rem; display:flex; align-items:center; justify-content:center; margin:0 auto 16px; box-shadow: 0 0 20px rgba(99,102,241,0.4);">💌</div>
+        <h2 style="font-size:1.6rem; font-weight:800; margin-bottom:12px; letter-spacing:-0.02em;">Cestujme v tom společně!</h2>
+        <p style="color:var(--t2); font-size:0.92rem; line-height:1.6; margin-bottom:24px;">Nechte si posílat exkluzivní tipy na tajná místa, nové funkce AI architekta a pozvánky na naše cestovatelské akce. Žádný spam, jen čistá inspirace.</p>
+        <button class="btn bp bf blg" onclick="prihlasitNewsletter()" id="btnNews">Chci dostávat novinky</button>
+        <button class="btn bgh bf" style="margin-top:10px; border:none;" onclick="document.getElementById('newsletterModal').style.display='none'; localStorage.setItem('verona_news', '1');">Možná později</button>
+    </div>
+</div>
 <nav class="nav au">
     <div class="nav-in">
         <a href="#" class="logo" onclick="location.reload()">
@@ -640,6 +654,12 @@ async function init(){
             document.getElementById('btnProfil').style.display='inline-flex';
             document.getElementById('navTabsContainer').style.display='flex';
             if(window.innerWidth <= 768) document.getElementById('mobileTabsContainer').style.display='flex';
+            // Zobrazení Newsletter okna s mírným zpožděním
+            if(!localStorage.getItem('verona_news')) {
+                setTimeout(() => {
+                    document.getElementById('newsletterModal').style.display='flex';
+                }, 1500);
+            }
             
             // Dynamická změna úvodní obrazovky (Rozcestník)
             document.getElementById('landingActionBtns').innerHTML = `
@@ -1196,7 +1216,13 @@ async function nactiAkce() {
 }
 
 // Nezapomeň přidat `await nactiAkce();` do funkce init() hned vedle `await nactiVerejneVylety();`!
-
+function prihlasitNewsletter() {
+    const btn = document.getElementById('btnNews');
+    btn.innerHTML = '✓ Jste na seznamu!';
+    btn.style.background = 'var(--a4)'; 
+    localStorage.setItem('verona_news', '1'); 
+    setTimeout(() => { document.getElementById('newsletterModal').style.display='none'; }, 2000);
+}
 window.onload=init;
 </script>
 </body>
