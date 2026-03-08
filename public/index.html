@@ -682,9 +682,15 @@
 
         <main>
             <div id="resCard" class="rc" style="display:none;">
-                <div id="printHeader" style="display:none;">
-                    <div style="width:34px;height:34px;border-radius:10px;background:black;color:white;display:flex;align-items:center;justify-content:center;font-size:16px;font-family:var(--fm);font-weight:700;">V</div>
-                    <div style="font-size:1.2rem; font-weight:800; letter-spacing:0.1em; color:black;">VERONA Trip Architect</div>
+                <div id="printHeader" style="display:none; justify-content:space-between; align-items:flex-start; margin-bottom: 24px; border-bottom: 2px solid #000; padding-bottom: 16px;">
+                    <div style="display:flex; align-items:center; gap: 12px; margin-top: 10px;">
+                        <div style="width:34px;height:34px;border-radius:10px;background:black;color:white;display:flex;align-items:center;justify-content:center;font-size:16px;font-family:var(--fm);font-weight:700;">V</div>
+                        <div style="font-size:1.2rem; font-weight:800; letter-spacing:0.1em; color:black;">VERONA Trip Architect</div>
+                    </div>
+                    <div style="text-align: right; display: flex; flex-direction: column; align-items: flex-end;">
+                        <div id="mojeQR" style="padding:4px; border:2px solid black; border-radius:8px; background:white; display:inline-block;"></div>
+                        <p style="font-family:var(--fm); font-size:0.65rem; margin-top:6px; color:black; font-weight:700;">Oskenujte pro mapu</p>
+                    </div>
                 </div>
 
                 <div class="rtop">
@@ -717,10 +723,7 @@
                         </div>
                     </div>
 
-                    <div id="printFooter" style="display:none; justify-content:center; align-items:center; flex-direction:column; margin-top:40px; page-break-inside:avoid; break-inside:avoid;">
-                        <div id="mojeQR" style="padding:10px; border:2px solid black; border-radius:12px; background:white;"></div>
-                        <p style="font-family:var(--fm); font-size:0.85rem; margin-top:12px; color:black; font-weight:700; text-align:center;">Oskenujte pro<br>interaktivní mapu</p>
-                    </div>
+                    
 
                     <div id="commentsSection" class="no-print" style="display:none;margin-top:28px;">
                         <div class="hr"></div>
@@ -1466,34 +1469,31 @@ function vykresliMedaile(medaile) {
         `;
     }).join('');
 }
-// 🖨️ FUNKCE PRO TISK A EXPORT DO PDF S QR KÓDEM A LOGEM
+// 🖨️ FUNKCE PRO TISK A EXPORT DO PDF S QR KÓDEM V HLAVIČCE
 function tiskniVylet() {
-    // 1. Zjistíme správný odkaz (na konkrétní výlet nebo hlavní stranu)
     const url = curOpenTripId ? (window.location.origin + '/?vylet=' + curOpenTripId) : window.location.origin;
-    
-    // 2. Najdeme náš nový box pro QR kód a vyčistíme ho (aby se tam kódy nehromadily)
     const box = document.getElementById("mojeQR");
     box.innerHTML = ""; 
     
-    // 3. Vykreslíme profi QR kód s tvým ikonickým "V"
+    // Vykreslíme profi QR kód (zmenšený pro hlavičku)
     new QRCode(box, {
         text: url,
-        width: 130,
-        height: 130,
+        width: 80,   // Zmenšeno z 130
+        height: 80,  // Zmenšeno z 130
         colorDark: "#000000",
         colorLight: "#ffffff",
-        logo: "/ikona.svg",      // Naše vektorové logo z minula
-        logoWidth: 36,
-        logoHeight: 36,
+        logo: "/ikona.svg",      
+        logoWidth: 22,  // Zmenšeno logo
+        logoHeight: 22,
         logoBackgroundColor: "#ffffff",
         logoBackgroundTransparent: false,
-        correctLevel: QRCode.CorrectLevel.H // Maximální spolehlivost čtení
+        correctLevel: QRCode.CorrectLevel.H 
     });
     
-    // 4. Počkáme malou chviličku, než se obrázek vygeneruje, a spustíme tisk do PDF
+    // Pro tablety často pomůže lehce prodloužit časovač, aby stihly vykreslit canvas
     setTimeout(() => {
         window.print();
-    }, 400);
+    }, 600);
 }
 
 // ✏️ FUNKCE PRO ÚPRAVU VÝLETU (Edit-in-place)
