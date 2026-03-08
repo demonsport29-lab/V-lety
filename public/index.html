@@ -318,6 +318,26 @@
         ::-webkit-scrollbar{width:5px;}
         ::-webkit-scrollbar-track{background:transparent;}
         ::-webkit-scrollbar-thumb{background:var(--gbd2);border-radius:99px;}
+        /* 🖨️ PDF & PRINT OPTIMIZATION */
+        @media print {
+            .nav, .aurora, .sidebar, .mnav, .cf, #diary, .ey:not(#resDiffText), h2.st, #globalMap, #commentsSection, .no-print { display: none !important; }
+            body { background: white !important; color: black !important; padding: 0 !important; }
+            .wrap { padding: 0 !important; margin: 0 !important; max-width: none !important; }
+            .pg { display: block !important; }
+            #resCard { box-shadow: none !important; border: none !important; margin: 0 !important; }
+            .rtop, .rbody { background: none !important; border: none !important; padding: 0 !important; }
+            .rtop::after { display: none !important; }
+            .tc { border: 1px solid #ddd !important; background: none !important; box-shadow: none !important; break-inside: avoid; margin-bottom: 15px !important; }
+            h2, h3, h4, p, span, div { color: black !important; text-shadow: none !important; }
+            .td { background: #f4f4f4 !important; color: #000 !important; border: 1px solid #ddd !important; box-shadow: none !important; }
+            .tr-line { background: #ccc !important; }
+            .ait { border: 1px dashed #aaa !important; background: none !important; color: #000 !important; break-inside: avoid; }
+            
+            /* Hlavička a patička pro tisk */
+            #printHeader { display: flex !important; align-items: center; gap: 12px; margin-bottom: 30px; border-bottom: 2px solid #000; padding-bottom: 15px; }
+            #printFooter { display: flex !important; justify-content: flex-end; margin-top: 40px; border-top: 1px solid #ddd; padding-top: 20px; break-inside: avoid; }
+            @page { margin: 1.5cm; }
+        }
     </style>
 </head>
 <body>
@@ -605,28 +625,49 @@
 
         <main>
             <div id="resCard" class="rc" style="display:none;">
+                <div id="printHeader" style="display:none;">
+                    <div style="width:34px;height:34px;border-radius:10px;background:black;color:white;display:flex;align-items:center;justify-content:center;font-size:16px;font-family:var(--fm);font-weight:700;">V</div>
+                    <div style="font-size:1.2rem; font-weight:800; letter-spacing:0.1em; color:black;">VERONA Trip Architect</div>
+                </div>
+
                 <div class="rtop">
                     <p class="ey" id="resDiffText">AI Koncept</p>
-                    <h2 id="resTitle" style="font-size:2rem;font-weight:800;letter-spacing:-.03em;margin-bottom:14px;">Název výletu</h2>
-                    <div>
+                    <h2 id="resTitle" style="font-size:2rem;font-weight:800;letter-spacing:-.03em;margin-bottom:14px;transition:all 0.2s;">Název výletu</h2>
+                    <div class="no-print">
                         <p style="font-family:var(--fm);font-size:.6rem;text-transform:uppercase;letter-spacing:.08em;color:var(--t2);margin-bottom:5px;">Hodnocení</p>
                         <div id="resTopRating"></div>
                     </div>
                 </div>
                 <div class="rbody">
-                    <div id="resBody" class="tl"></div>
-                    <div class="hr"></div>
-                    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+                    <div id="resBody" class="tl" style="transition:all 0.2s;"></div>
+                    <div class="hr no-print"></div>
+                    
+                    <div class="no-print" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
                         <button class="btn bg" onclick="ulozitNovyAI()" id="btnSaveAI">Uložit do deníku</button>
                         <div style="display:flex;gap:8px;align-items:center;">
-                            <button class="btn bg bi" onclick="sdiletVylet(curOpenTripId, document.getElementById('resTitle').innerText)" title="Sdílet s přáteli">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                            <button class="btn bgh bi" id="btnEditTrip" onclick="toggleEditTrip()" title="Upravit texty">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
                             </button>
+                            <button class="btn bg bi" id="btnShareTrip" onclick="sdiletVylet(curOpenTripId, document.getElementById('resTitle').innerText)" title="Sdílet s přáteli" style="display:none;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                            </button>
+                            <button class="btn bgh bi" onclick="tiskniVylet()" title="Exportovat PDF / Tisk">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+                            </button>
+                            
                             <input type="date" id="dateIn" class="f" style="width:auto;margin:0;">
-                            <button class="btn bgh" onclick="doKalendare()">Přidat do kalendáře</button>
+                            <button class="btn bgh" onclick="doKalendare()">Do kalendáře</button>
                         </div>
                     </div>
-                    <div id="commentsSection" style="display:none;margin-top:28px;">
+
+                    <div id="printFooter" style="display:none;">
+                        <div style="text-align:center;">
+                            <img id="printQrImg" src="" style="width:120px; height:120px; border:2px solid black; padding:4px; border-radius:12px;">
+                            <p style="font-family:var(--fm); font-size:0.75rem; margin-top:8px; color:black; font-weight:700;">Oskenujte pro<br>interaktivní mapu</p>
+                        </div>
+                    </div>
+
+                    <div id="commentsSection" class="no-print" style="display:none;margin-top:28px;">
                         <div class="hr"></div>
                         <p class="ey">Komentáře</p>
                         <div id="commentsList" style="margin-bottom:16px;max-height:380px;overflow-y:auto;"></div>
@@ -838,7 +879,7 @@ async function nactiDnik(){
             <div class="pr"><span class="chip ${x.verejny?'ci':'cm'}">${x.verejny?'Veřejný':'Soukromý'}</span><button class="btn bgh" style="padding:4px 11px;font-size:.7rem;border-radius:8px;" onclick="event.stopPropagation();prepnoutSoukromi('${x.id}',${!x.verejny})">Změnit</button></div>
             <div class="sr"><div><span class="sl">Hodnocení</span><div>${sh}</div></div><div style="text-align:right;"><span class="sl">Komentáře</span><span class="sv">${x.komentare?.length||0}</span></div></div>
             ${fh}
-            <div class="ar">${ab}<button class="btn bg bi" onclick="event.stopPropagation();sdiletVylet('${x.id}','${x.lokace}')" style="border-radius:10px; font-size:0.75rem;" title="Sdílet s přáteli"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg></button><button class="btn bg bi" onclick="event.stopPropagation();otevritGoogleMaps('${x.id}')" style="border-radius:10px; font-size:0.75rem;">Mapa</button><button class="btn bg" style="padding:8px 13px;font-size:.75rem;color:#fcd34d;border-color:rgba(245,158,11,.25);" onclick="event.stopPropagation();stahnoutGPX('${x.id}','${x.lokace}')">GPX</button><button class="btn ${x.dokonceno?'bgh':'bp'}" style="flex:1;font-size:.8rem;border-radius:10px;" onclick="event.stopPropagation();prepnoutStav('${x.id}',${!x.dokonceno})">${x.dokonceno?'Zrušit':'Splněno'}</button></div>`;
+            <div class="ar">${ab}<button class="btn bg bi" onclick="event.stopPropagation();sdiletVylet('${x.id}','${x.lokace}')" style="border-radius:10px; font-size:0.75rem;" title="Sdílet s přáteli"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg></button><button class="btn bg bi" onclick="event.stopPropagation();otevritGoogleMaps('${x.id}')" style="border-radius:10px; font-size:0.75rem;">Mapa</button><button class="btn ${x.dokonceno?'bgh':'bp'}" style="flex:1;font-size:.8rem;border-radius:10px;" onclick="event.stopPropagation();prepnoutStav('${x.id}',${!x.dokonceno})">${x.dokonceno?'Zrušit':'Splněno'}</button></div>`;
         k.onclick=e=>{if(e.target.closest('button')||e.target.closest('img'))return;otevritDetailVyletu(x);};
         d.appendChild(k);
     });
@@ -939,6 +980,11 @@ async function generovat(){
             h+='</div>';
             if(curDraft.doporuceni)h+=`<div class="ait"><span class="ait-ico">+</span><span>${curDraft.doporuceni}</span></div>`;
             document.getElementById('resBody').innerHTML=h;
+            
+            // BEZPEČNÉ SKRYTÍ TLAČÍTKA SDÍLENÍ
+            const shareBtn = document.getElementById('btnShareTrip');
+            if(shareBtn) shareBtn.style.display = 'none';
+            
             document.getElementById('resCard').style.display='block';
             window.scrollTo({top:document.getElementById('resCard').offsetTop-80,behavior:'smooth'});
         }else alert('Chyba: '+(res.chyba||'Neznámý problém při komunikaci s AI.'));
@@ -992,7 +1038,7 @@ function otevritGoogleMaps(id) {
         window.open(url, '_blank');
     });
 }
-function stahnoutGPX(id,l){fetch('/api/ulozene-vylety').then(r=>r.json()).then(v=>{const x=v.find(x=>x.id===id);if(!x?.etapy?.[0]?.lat)return alert('U tohoto výletu chybí GPS data.');let g=`<?xml version="1.0" encoding="UTF-8"?>\n<gpx version="1.1" creator="VERONA" xmlns="http://www.topografix.com/GPX/1/1">\n  <rte><n>${l}</n>\n`;x.etapy.forEach(b=>{g+=`    <rtept lat="${b.lat}" lon="${b.lng}"><n>${b.misto}</n></rtept>\n`;});g+=`  </rte>\n</gpx>`;const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([g],{type:'application/gpx+xml'}));a.download=`${l.replace(/\s+/g,'_')}.gpx`;document.body.appendChild(a);a.click();});}
+
 function openGallery(s){document.getElementById('lightboxImg').src=s;document.getElementById('lightbox').style.display='flex';}
 
 async function doKalendare() {
@@ -1057,6 +1103,11 @@ async function odeslatKontaktV2(){const pe=document.getElementById('kontaktPredm
 // 1. UPRAVENÁ FUNKCE PRO DETAIL - Zavolá kreslení mapy
 function otevritDetailVyletu(v){
     curOpenTripId=v.id;
+    
+    // BEZPEČNÉ ZOBRAZENÍ TLAČÍTKA SDÍLENÍ
+    const shareBtn = document.getElementById('btnShareTrip');
+    if(shareBtn) shareBtn.style.display = 'inline-flex';
+    
     document.getElementById('resTitle').innerText=v.lokace;
     document.getElementById('resDiffText').innerText='Uloženo: '+(v.datumUlozeni||'');
     document.getElementById('btnSaveAI').style.display='none';
@@ -1359,6 +1410,80 @@ function vykresliMedaile(medaile) {
             </div>
         `;
     }).join('');
+}
+// 🖨️ FUNKCE PRO TISK A EXPORT DO PDF S QR KÓDEM
+function tiskniVylet() {
+    // Vytvoření odkazu na konkrétní výlet (pokud je uložený) nebo jen na web (pokud je to návrh)
+    const url = curOpenTripId ? (window.location.origin + '/?vylet=' + curOpenTripId) : window.location.origin;
+    
+    // Vygenerování QR kódu přes bleskovou veřejnou API
+    document.getElementById('printQrImg').src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(url)}&color=000000&bgcolor=ffffff`;
+    
+    // Počkáme půl vteřiny na načtení obrázku QR kódu a vyvoláme tisk
+    setTimeout(() => {
+        window.print();
+    }, 500);
+}
+
+// ✏️ FUNKCE PRO ÚPRAVU VÝLETU (Edit-in-place)
+let isEditingTrip = false;
+async function toggleEditTrip() {
+    const btn = document.getElementById('btnEditTrip');
+    const title = document.getElementById('resTitle');
+    const body = document.getElementById('resBody');
+    
+    if (!isEditingTrip) {
+        // ZAPNUTÍ REŽIMU ÚPRAV
+        isEditingTrip = true;
+        title.contentEditable = true;
+        body.contentEditable = true;
+        
+        // Vizuální indikace
+        title.style.borderBottom = "1px dashed var(--a1)";
+        body.style.border = "1px dashed var(--a1)";
+        body.style.padding = "10px";
+        body.style.borderRadius = "10px";
+        body.style.background = "rgba(0,0,0,0.2)";
+        
+        btn.innerHTML = "💾 Uložit úpravy";
+        btn.style.width = "auto";
+        btn.style.padding = "0 14px";
+        btn.classList.replace("bgh", "bp"); // Zvýraznění tlačítka
+        
+    } else {
+        // VYPNUTÍ A ULOŽENÍ ÚPRAV
+        isEditingTrip = false;
+        title.contentEditable = false;
+        body.contentEditable = false;
+        
+        // Vizuální návrat do normálu
+        title.style.borderBottom = "none";
+        body.style.border = "none";
+        body.style.padding = "0";
+        body.style.background = "transparent";
+        
+        btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>`;
+        btn.style.width = "38px";
+        btn.style.padding = "0";
+        btn.classList.replace("bp", "bgh");
+
+        // Pokud jde o již uložený výlet v deníku, uložíme ho rovnou i na server
+        if (curOpenTripId) {
+            await fetch('/api/upravit-vylet', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    id: curOpenTripId,
+                    lokace: title.innerText,
+                    popis: body.innerHTML
+                })
+            });
+            nactiDnik();
+        } else if (curDraft) {
+            // Pokud je to zatím jen návrh od AI, aktualizujeme proměnnou a čekáme, až dá "Uložit do deníku"
+            curDraft.lokace = title.innerText;
+        }
+    }
 }
 window.onload=init;
 // Registrace Service Workeru pro PWA (Android instalace)
