@@ -1204,7 +1204,7 @@ window.addEventListener('popstate', () => {
     prepniTab(['komunita', 'planovac', 'verejne', 'akce'].includes(hash) ? hash : 'landing', false);
 });
 
-// VYKRESLENÍ AKCÍ (Bez pruhu, tlačítka vždy dole)
+// VYKRESLENÍ AKCÍ (S perfektně vycentrovanými SVG ikonami)
 async function nactiAkce() {
     const res = await fetch('/api/akce');
     const data = await res.json();
@@ -1226,19 +1226,21 @@ async function nactiAkce() {
             </div>
             <div style="padding:20px; display:flex; flex-direction:column; flex-grow:1;">
                 <div style="margin-bottom:14px;">
-                    <div style="display:inline-flex; align-items:center; gap:6px; background:linear-gradient(135deg,var(--a1),var(--a2)); color:#fff; padding:6px 14px; border-radius:8px; font-weight:800; font-size:.9rem; margin-bottom:10px; box-shadow:0 4px 14px rgba(99,102,241,.3);">
-                        <i class="ph ph-calendar-blank" style="font-size:1.15rem; display:flex;"></i> 
-                        <span style="padding-top:2px;">${x.datum}</span>
+                    <div style="display:inline-flex; align-items:center; gap:8px; background:linear-gradient(135deg,var(--a1),var(--a2)); color:#fff; padding:7px 14px; border-radius:8px; font-weight:800; font-size:.9rem; margin-bottom:12px; box-shadow:0 4px 14px rgba(99,102,241,.3); line-height:1;">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:block; margin-top:-1px;"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                        <span style="display:block; transform:translateY(1px);">${x.datum}</span>
                     </div>
-                    <div style="color:var(--t1); font-weight:600; font-size:.85rem; display:flex; align-items:center; gap:6px;">
-                        <i class="ph-fill ph-map-pin" style="color:var(--a3); font-size:1.2rem; display:flex;"></i> 
-                        <span style="padding-top:2px;">${x.misto}</span>
+                    
+                    <div style="color:var(--t1); font-weight:600; font-size:.85rem; display:flex; align-items:center; gap:6px; line-height:1;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--a3)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:block;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                        <span style="display:block; transform:translateY(1px);">${x.misto}</span>
                     </div>
                 </div>
                 <p style="font-size:.85rem; color:var(--t2); margin-bottom:18px; line-height:1.6;">${x.popis}</p>
-                <a href="${x.vstupenkyUrl}" target="_blank" class="btn bp bf" style="text-decoration:none; margin-top:auto; display:flex; align-items:center; justify-content:center; gap:8px;">
-                    <i class="ph ph-ticket" style="font-size:1.3rem; display:flex;"></i> 
-                    <span style="padding-top:2px;">Koupit vstupenky</span>
+                
+                <a href="${x.vstupenkyUrl}" target="_blank" class="btn bp bf" style="text-decoration:none; margin-top:auto; display:flex; align-items:center; justify-content:center; gap:8px; line-height:1; padding:12px;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block; margin-top:-1px;"><path d="M4 6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-4V6z"></path><line x1="9" y1="8" x2="15" y2="8"></line><line x1="9" y1="16" x2="15" y2="16"></line></svg>
+                    <span style="display:block; transform:translateY(1px);">Koupit vstupenky</span>
                 </a>
             </div>
         </div>
