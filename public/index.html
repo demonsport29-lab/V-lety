@@ -16,6 +16,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
     <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+    <script src="https://unpkg.com/easyqrcodejs@4.6.1/dist/easy.qrcode.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
@@ -338,18 +339,20 @@
             #printFooter { display: flex !important; justify-content: flex-end; margin-top: 40px; border-top: 1px solid #ddd; padding-top: 20px; break-inside: avoid; }
             @page { margin: 1.5cm; }
         }
-    /* 🖨️ EXTRÉMNÍ OPRAVA PRO TISK A EXPORT DO PDF */
+    /* 🖨️ EXTRÉMNÍ OPRAVA PRO TISK A EXPORT DO PDF (Včetně QR kódu) */
         @media print {
-            /* 1. Reset barev na čistý dokument */
-            body, html { background: #fff !important; color: #000 !important; padding: 0 !important; }
+            /* 1. Reset barev a uvolnění výšky pro stránkování */
+            body, html { background: #fff !important; color: #000 !important; padding: 0 !important; height: auto !important; overflow: visible !important; }
             
-            /* 2. Skrytí všeho, co do PDF nepatří (menu, tlačítka, stíny) */
+            /* 2. Skrytí všeho, co do PDF nepatří */
             .nav, .mnav, .sidebar, .btn, .cf, .aurora, .tabs, .nav-act { display: none !important; }
-            .wrap { padding: 0 !important; max-width: 100% !important; }
-            .view { padding: 0 !important; }
-            .pg { display: block !important; }
+            .wrap { padding: 0 !important; max-width: 100% !important; overflow: visible !important; }
+            .view { padding: 0 !important; overflow: visible !important; }
             
-            /* 3. Záchrana neviditelného textu (Zrušení efektů rozmazání) */
+            /* Zrušení mřížek a flexboxů, které ničí zalamování stránek! */
+            .pg, .rbody, #resCard { display: block !important; overflow: visible !important; height: auto !important; }
+            
+            /* 3. Záchrana neviditelného textu */
             .tc { 
                 backdrop-filter: none !important; 
                 -webkit-backdrop-filter: none !important; 
@@ -357,6 +360,8 @@
                 border: 1px solid #ddd !important;
                 color: #000 !important;
                 box-shadow: none !important;
+                page-break-inside: avoid !important; 
+                break-inside: avoid !important;
             }
             .tc h4, .tc p { color: #000 !important; }
             .td { background: #f4f4f5 !important; color: #000 !important; box-shadow: none !important; border: 1px solid #ccc !important; }
@@ -364,14 +369,28 @@
             .ey { color: #666 !important; }
             .st, #resTitle { color: #000 !important; }
             
-            /* 4. Ochrana proti rozříznutí QR kódu a karet na zlomu stránky */
-            .tr, .tc, img, svg, canvas { 
+            /* 4. Ochrana proti rozříznutí karet */
+            .tr { 
                 page-break-inside: avoid !important; 
                 break-inside: avoid !important; 
-                display: block; /* Pojistka pro obrázky */
             }
             
-            /* 5. Vyčištění hlavní karty s výsledkem */
+            /* 5. ZÁCHRANA QR KÓDU A OBRÁZKŮ (Nerozsekávat a dát jim prostor) */
+            canvas, img, svg {
+                max-width: 100% !important;
+                page-break-inside: avoid !important; 
+                break-inside: avoid !important;
+            }
+            
+            /* Pokud je QR kód na konci rbody, vnutíme mu bezpečný okraj a odřádkování */
+            .rbody > div:last-child {
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+                display: block !important;
+                margin-bottom: 40px !important; 
+            }
+
+            /* 6. Vyčištění hlavní karty */
             #resCard, .rtop, .rbody { background: none !important; border: none !important; padding: 0 !important; box-shadow: none !important; }
             .rtop::after { display: none !important; }
             .rtop { padding-bottom: 20px !important; }
@@ -698,11 +717,9 @@
                         </div>
                     </div>
 
-                    <div id="printFooter" style="display:none;">
-                        <div style="text-align:center;">
-                            <img id="printQrImg" src="" style="width:120px; height:120px; border:2px solid black; padding:4px; border-radius:12px;">
-                            <p style="font-family:var(--fm); font-size:0.75rem; margin-top:8px; color:black; font-weight:700;">Oskenujte pro<br>interaktivní mapu</p>
-                        </div>
+                    <div id="printFooter" style="display:none; justify-content:center; align-items:center; flex-direction:column; margin-top:40px; page-break-inside:avoid; break-inside:avoid;">
+                        <div id="mojeQR" style="padding:10px; border:2px solid black; border-radius:12px; background:white;"></div>
+                        <p style="font-family:var(--fm); font-size:0.85rem; margin-top:12px; color:black; font-weight:700; text-align:center;">Oskenujte pro<br>interaktivní mapu</p>
                     </div>
 
                     <div id="commentsSection" class="no-print" style="display:none;margin-top:28px;">
@@ -1449,18 +1466,34 @@ function vykresliMedaile(medaile) {
         `;
     }).join('');
 }
-// 🖨️ FUNKCE PRO TISK A EXPORT DO PDF S QR KÓDEM
+// 🖨️ FUNKCE PRO TISK A EXPORT DO PDF S QR KÓDEM A LOGEM
 function tiskniVylet() {
-    // Vytvoření odkazu na konkrétní výlet (pokud je uložený) nebo jen na web (pokud je to návrh)
+    // 1. Zjistíme správný odkaz (na konkrétní výlet nebo hlavní stranu)
     const url = curOpenTripId ? (window.location.origin + '/?vylet=' + curOpenTripId) : window.location.origin;
     
-    // Vygenerování QR kódu přes bleskovou veřejnou API
-    document.getElementById('printQrImg').src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(url)}&color=000000&bgcolor=ffffff`;
+    // 2. Najdeme náš nový box pro QR kód a vyčistíme ho (aby se tam kódy nehromadily)
+    const box = document.getElementById("mojeQR");
+    box.innerHTML = ""; 
     
-    // Počkáme půl vteřiny na načtení obrázku QR kódu a vyvoláme tisk
+    // 3. Vykreslíme profi QR kód s tvým ikonickým "V"
+    new QRCode(box, {
+        text: url,
+        width: 130,
+        height: 130,
+        colorDark: "#000000",
+        colorLight: "#ffffff",
+        logo: "/ikona.svg",      // Naše vektorové logo z minula
+        logoWidth: 36,
+        logoHeight: 36,
+        logoBackgroundColor: "#ffffff",
+        logoBackgroundTransparent: false,
+        correctLevel: QRCode.CorrectLevel.H // Maximální spolehlivost čtení
+    });
+    
+    // 4. Počkáme malou chviličku, než se obrázek vygeneruje, a spustíme tisk do PDF
     setTimeout(() => {
         window.print();
-    }, 500);
+    }, 400);
 }
 
 // ✏️ FUNKCE PRO ÚPRAVU VÝLETU (Edit-in-place)
