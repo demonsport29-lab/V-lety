@@ -338,6 +338,44 @@
             #printFooter { display: flex !important; justify-content: flex-end; margin-top: 40px; border-top: 1px solid #ddd; padding-top: 20px; break-inside: avoid; }
             @page { margin: 1.5cm; }
         }
+    /* 🖨️ EXTRÉMNÍ OPRAVA PRO TISK A EXPORT DO PDF */
+        @media print {
+            /* 1. Reset barev na čistý dokument */
+            body, html { background: #fff !important; color: #000 !important; padding: 0 !important; }
+            
+            /* 2. Skrytí všeho, co do PDF nepatří (menu, tlačítka, stíny) */
+            .nav, .mnav, .sidebar, .btn, .cf, .aurora, .tabs, .nav-act { display: none !important; }
+            .wrap { padding: 0 !important; max-width: 100% !important; }
+            .view { padding: 0 !important; }
+            .pg { display: block !important; }
+            
+            /* 3. Záchrana neviditelného textu (Zrušení efektů rozmazání) */
+            .tc { 
+                backdrop-filter: none !important; 
+                -webkit-backdrop-filter: none !important; 
+                background: none !important; 
+                border: 1px solid #ddd !important;
+                color: #000 !important;
+                box-shadow: none !important;
+            }
+            .tc h4, .tc p { color: #000 !important; }
+            .td { background: #f4f4f5 !important; color: #000 !important; box-shadow: none !important; border: 1px solid #ccc !important; }
+            .tr-line { background: #ddd !important; }
+            .ey { color: #666 !important; }
+            .st, #resTitle { color: #000 !important; }
+            
+            /* 4. Ochrana proti rozříznutí QR kódu a karet na zlomu stránky */
+            .tr, .tc, img, svg, canvas { 
+                page-break-inside: avoid !important; 
+                break-inside: avoid !important; 
+                display: block; /* Pojistka pro obrázky */
+            }
+            
+            /* 5. Vyčištění hlavní karty s výsledkem */
+            #resCard, .rtop, .rbody { background: none !important; border: none !important; padding: 0 !important; box-shadow: none !important; }
+            .rtop::after { display: none !important; }
+            .rtop { padding-bottom: 20px !important; }
+        }
     </style>
 </head>
 <body>
