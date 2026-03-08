@@ -341,6 +341,24 @@ app.post('/api/kalendar', async (req, res) => {
 // ==========================================
 // 8. VEŘEJNÉ PROFILY A DENÍKY
 // ==========================================
+// OTEVŘENÍ KONKRÉTNÍHO VÝLETU PŘES SDÍLENÝ ODKAZ
+app.get('/api/sdileny-vylet/:id', async (req, res) => {
+    try {
+        const vylet = await Vylet.findById(req.params.id);
+        if (!vylet) return res.json({ uspech: false, chyba: 'Výlet se v databázi nenašel.' });
+        
+        // Zásadní bezpečnostní kontrola: Výlet musí být veřejný!
+        if (!vylet.verejny) return res.json({ uspech: false, chyba: 'Tento výlet je soukromý. Autor ho musí nejprve přepnout na Veřejný.' });
+        
+        // Přidáme jméno autora
+        const autor = await User.findById(vylet.vlastnikId, 'prezdivka jmeno prijmeni avatar');
+        const autorJmeno = autor ? (autor.prezdivka || `${autor.jmeno} ${autor.prijmeni}`) : 'Neznámý';
+        
+        res.json({ uspech: true, data: { ...vylet._doc, id: vylet._id, autorJmeno, autorAvatar: autor ? autor.avatar : '' } });
+    } catch (e) {
+        res.json({ uspech: false, chyba: 'Špatný formát odkazu.' });
+    }
+});
 app.get('/api/profil/:id', async (req, res) => {
     try {
         // Vytáhneme jen necitlivá data (vynecháme email, isPremium apod.)
