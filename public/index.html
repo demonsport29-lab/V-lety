@@ -319,41 +319,87 @@
         ::-webkit-scrollbar{width:5px;}
         ::-webkit-scrollbar-track{background:transparent;}
         ::-webkit-scrollbar-thumb{background:var(--gbd2);border-radius:99px;}
-        /* 🖨️ KONEČNÁ OPRAVA PRO PDF (Bez mřížek = žádné roztrhané stránky) */
+        /* 🖨️ ABSOLUTNÍ MINIMALISMUS (Bílý papír, černý text, QR vpravo nahoře) */
         @media print {
-            body, html { background: #fff !important; color: #000 !important; margin: 0 !important; padding: 0 !important; font-size: 11pt !important; }
-            .nav, .mnav, .sidebar, .btn, .cf, .aurora, .tabs, .nav-act, .mw, #diary, main > .ey, main > .st, #commentsSection, .hr, .lbx, .overlay { display: none !important; }
-            .wrap { padding: 0 !important; max-width: 100% !important; display: block !important; }
-            .view { padding: 0 !important; display: block !important; }
-            .pg { display: block !important; }
+            /* 1. Skryjeme ÚPLNĚ VŠECHNO na celém webu */
+            body * { display: none !important; }
             
-            #resCard { display: block !important; border: none !important; box-shadow: none !important; }
-            .rtop, .rbody { background: transparent !important; padding: 0 !important; border: none !important; }
-            .rtop::after { display: none !important; }
+            /* 2. Bílý papír a zrušení okrajů */
+            body, html { background: #fff !important; margin: 0 !important; padding: 0 !important; }
             
-            #resTitle { font-size: 24pt !important; margin-bottom: 5px !important; color: #000 !important; page-break-after: avoid !important; }
-            #resDiffText { color: #666 !important; font-size: 10pt !important; margin-bottom: 20px !important; }
-            #resTopRating { display: none !important; }
+            /* 3. Zviditelníme JEN hlavní kartu s výsledkem a její obsah */
+            #resCard, #resCard * { 
+                display: block !important; 
+                visibility: visible !important; 
+                color: #000 !important; 
+                background: transparent !important; 
+                border: none !important; 
+                box-shadow: none !important; 
+            }
             
-            /* Časová osa - přepis z GRID na čistý BLOCK s obtočením (float) */
-            .tl { display: block !important; padding: 0 !important; }
-            .tr { display: block !important; margin-bottom: 15px !important; page-break-inside: avoid !important; break-inside: avoid !important; min-height: 50px !important; position: relative !important; }
+            /* Umístění hlavní karty na formát A4 */
+            #resCard {
+                position: absolute !important;
+                top: 0 !important;
+                left: 0 !important;
+                width: 100% !important;
+                padding: 15px !important;
+                box-sizing: border-box !important;
+            }
+
+            /* 4. HLAVIČKA (Nadpis vlevo, QR kód vpravo nahoře) */
+            #printHeader {
+                position: relative !important;
+                margin-bottom: 30px !important;
+                border-bottom: 2px solid #000 !important;
+                padding-bottom: 15px !important;
+            }
             
-            /* Časové údaje jdou doleva */
-            .t-left { display: block !important; float: left !important; width: 50px !important; text-align: center !important; }
-            .td { background: #eee !important; color: #000 !important; border: 1px solid #ccc !important; width: 35px !important; height: 35px !important; border-radius: 8px !important; font-size: 9pt !important; margin: 0 auto 3px !important; display: flex !important; align-items: center !important; justify-content: center !important; }
-            .tt { color: #000 !important; font-size: 8pt !important; font-weight: bold !important; }
-            .tr-line { display: none !important; } /* Pro tisk čáru skryjeme, dělá to paseku */
+            #resTitle { 
+                font-size: 24pt !important; 
+                font-weight: bold !important; 
+                margin: 0 !important; 
+                max-width: 75% !important; /* Nechá místo pro QR kód */
+            }
             
-            /* Boxy s textem jdou doprava vedle času */
-            .tc { display: block !important; margin-left: 60px !important; padding: 10px 15px !important; border: 1px solid #ddd !important; border-radius: 8px !important; background: transparent !important; box-shadow: none !important; }
-            .tc h4 { color: #000 !important; font-size: 12pt !important; margin: 0 0 5px 0 !important; }
-            .tc p { color: #333 !important; font-size: 10pt !important; line-height: 1.4 !important; margin: 0 !important; }
+            /* Přišpendlení QR kódu do pravého horního rohu hlavičky */
+            #mojeQR {
+                position: absolute !important;
+                top: 0 !important;
+                right: 0 !important;
+                width: 90px !important;
+                height: 90px !important;
+                padding: 0 !important;
+            }
+            #mojeQR img, #mojeQR svg, #mojeQR canvas { 
+                width: 100% !important; 
+                height: 100% !important; 
+            }
+
+            /* 5. SKRYTÍ ZBYTEČNOSTÍ (Tlačítka, textíky pod nadpisem, bublinky, čáry) */
+            #resDiffText, #resTopRating, .no-print, .btn, .hr, .ait, .td, .tr-line, #printHeader p, #printHeader div > div:first-child { 
+                display: none !important; 
+            }
+
+            /* 6. ČISTÝ TEXTOVÝ ITINERÁŘ */
+            .tl { display: block !important; }
+            .tr { 
+                display: flex !important; 
+                flex-direction: row !important; 
+                margin-bottom: 15px !important; 
+                page-break-inside: avoid !important; /* Zákaz rozříznutí odstavce */
+            }
+            .t-left { 
+                width: 70px !important; 
+                font-weight: bold !important; 
+                font-size: 12pt !important; 
+                flex-shrink: 0 !important;
+            }
+            .tt { font-size: 12pt !important; }
             
-            /* Záchrana QR kódu - vyčistí floaty a posune na novou řádku */
-            #printHeader { display: flex !important; margin-bottom: 20px !important; }
-            canvas, img, svg { display: block !important; max-width: 100% !important; page-break-inside: avoid !important; break-inside: avoid !important; }
-            .clear { clear: both !important; } /* Pomocná třída pro vyčištění floatů */
+            .tc { padding: 0 !important; margin: 0 !important; }
+            .tc h4 { font-size: 14pt !important; margin: 0 0 5px 0 !important; font-weight: bold !important; }
+            .tc p { font-size: 11pt !important; margin: 0 !important; line-height: 1.4 !important; }
         }
     </style>
 </head>
