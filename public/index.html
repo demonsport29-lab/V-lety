@@ -16,7 +16,6 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
     <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
-    <script src="https://unpkg.com/easyqrcodejs@4.6.1/dist/easy.qrcode.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
@@ -319,88 +318,7 @@
         ::-webkit-scrollbar{width:5px;}
         ::-webkit-scrollbar-track{background:transparent;}
         ::-webkit-scrollbar-thumb{background:var(--gbd2);border-radius:99px;}
-        /* 🖨️ ABSOLUTNÍ MINIMALISMUS (Bílý papír, černý text, QR vpravo nahoře) */
-        @media print {
-            /* 1. Skryjeme ÚPLNĚ VŠECHNO na celém webu */
-            body * { display: none !important; }
-            
-            /* 2. Bílý papír a zrušení okrajů */
-            body, html { background: #fff !important; margin: 0 !important; padding: 0 !important; }
-            
-            /* 3. Zviditelníme JEN hlavní kartu s výsledkem a její obsah */
-            #resCard, #resCard * { 
-                display: block !important; 
-                visibility: visible !important; 
-                color: #000 !important; 
-                background: transparent !important; 
-                border: none !important; 
-                box-shadow: none !important; 
-            }
-            
-            /* Umístění hlavní karty na formát A4 */
-            #resCard {
-                position: absolute !important;
-                top: 0 !important;
-                left: 0 !important;
-                width: 100% !important;
-                padding: 15px !important;
-                box-sizing: border-box !important;
-            }
-
-            /* 4. HLAVIČKA (Nadpis vlevo, QR kód vpravo nahoře) */
-            #printHeader {
-                position: relative !important;
-                margin-bottom: 30px !important;
-                border-bottom: 2px solid #000 !important;
-                padding-bottom: 15px !important;
-            }
-            
-            #resTitle { 
-                font-size: 24pt !important; 
-                font-weight: bold !important; 
-                margin: 0 !important; 
-                max-width: 75% !important; /* Nechá místo pro QR kód */
-            }
-            
-            /* Přišpendlení QR kódu do pravého horního rohu hlavičky */
-            #mojeQR {
-                position: absolute !important;
-                top: 0 !important;
-                right: 0 !important;
-                width: 90px !important;
-                height: 90px !important;
-                padding: 0 !important;
-            }
-            #mojeQR img, #mojeQR svg, #mojeQR canvas { 
-                width: 100% !important; 
-                height: 100% !important; 
-            }
-
-            /* 5. SKRYTÍ ZBYTEČNOSTÍ (Tlačítka, textíky pod nadpisem, bublinky, čáry) */
-            #resDiffText, #resTopRating, .no-print, .btn, .hr, .ait, .td, .tr-line, #printHeader p, #printHeader div > div:first-child { 
-                display: none !important; 
-            }
-
-            /* 6. ČISTÝ TEXTOVÝ ITINERÁŘ */
-            .tl { display: block !important; }
-            .tr { 
-                display: flex !important; 
-                flex-direction: row !important; 
-                margin-bottom: 15px !important; 
-                page-break-inside: avoid !important; /* Zákaz rozříznutí odstavce */
-            }
-            .t-left { 
-                width: 70px !important; 
-                font-weight: bold !important; 
-                font-size: 12pt !important; 
-                flex-shrink: 0 !important;
-            }
-            .tt { font-size: 12pt !important; }
-            
-            .tc { padding: 0 !important; margin: 0 !important; }
-            .tc h4 { font-size: 14pt !important; margin: 0 0 5px 0 !important; font-weight: bold !important; }
-            .tc p { font-size: 11pt !important; margin: 0 !important; line-height: 1.4 !important; }
-        }
+        
     </style>
 </head>
 <body>
@@ -713,20 +631,7 @@
                     
                     <div class="no-print" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
                         <button class="btn bg" onclick="ulozitNovyAI()" id="btnSaveAI">Uložit do deníku</button>
-                        <div style="display:flex;gap:8px;align-items:center;">
-                            <button class="btn bgh bi" id="btnEditTrip" onclick="toggleEditTrip()" title="Upravit texty">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
-                            </button>
-                            <button class="btn bg bi" id="btnShareTrip" onclick="sdiletVylet(curOpenTripId, document.getElementById('resTitle').innerText)" title="Sdílet s přáteli" style="display:none;">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
-                            </button>
-                            <button class="btn bgh bi" onclick="tiskniVylet()" title="Exportovat PDF / Tisk">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
-                            </button>
-                            
-                            <input type="date" id="dateIn" class="f" style="width:auto;margin:0;">
-                            <button class="btn bgh" onclick="doKalendare()">Do kalendáře</button>
-                        </div>
+                        
                     </div>
 
                     
@@ -1475,43 +1380,7 @@ function vykresliMedaile(medaile) {
         `;
     }).join('');
 }
-// 🖨️ FUNKCE PRO TISK A EXPORT DO PDF (Nová rychlá verze pro mobily a správný odkaz)
-function tiskniVylet() {
-    // 1. Zajištění správného odkazu s ID konkrétního výletu
-    const baseUrl = 'https://veronaapp.eu';
-    let url = baseUrl;
-    
-    if (curOpenTripId) {
-        url = baseUrl + '/?vylet=' + curOpenTripId;
-        
-        // Důležité upozornění pro uživatele
-        if (curDraft && !curDraft.verejny) {
-            alert('Tisknete soukromý výlet! Aby QR kód po naskenování z papíru fungoval i ostatním, nezapomeňte výlet v deníku přepnout na "Veřejný".');
-        }
-    }
 
-    const box = document.getElementById("mojeQR");
-    box.innerHTML = ""; 
-    
-    // 2. Kreslíme QR jako SVG vektor (Instantní operace - NEBLOKUJE MOBILY!)
-    new QRCode(box, {
-        text: url,
-        width: 65,
-        height: 65,
-        colorDark: "#000000",
-        colorLight: "#ffffff",
-        logo: "/ikona.svg",      
-        logoWidth: 16,
-        logoHeight: 16,
-        logoBackgroundColor: "#ffffff",
-        logoBackgroundTransparent: false,
-        correctLevel: QRCode.CorrectLevel.H,
-        drawer: 'svg' // TOTO ZACHRÁNÍ TISK NA MOBILU A TABLETU
-    });
-    
-    // 3. Okamžité spuštění tisku (bez čekání, které mobilní prohlížeče blokují)
-    window.print();
-}
 
 // ✏️ FUNKCE PRO ÚPRAVU VÝLETU (Edit-in-place)
 let isEditingTrip = false;
