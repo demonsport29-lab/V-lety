@@ -77,7 +77,7 @@
 
         /* NAV */
         .nav{position:sticky !important;top:0;z-index:4000 !important;}
-        .nav-in{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:0 28px;height:62px;background:var(--gb);backdrop-filter:blur(28px) saturate(180%);-webkit-backdrop-filter:blur(28px) saturate(180%);border-bottom:1px solid var(--gbd);}
+        .nav-in{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:0 28px;height:62px;background:var(--bg);border-bottom:1px solid var(--gbd); z-index:4000;}
         .logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--t1);flex-shrink:0;}
         .logo-gem{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--a1),var(--a3));display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 0 18px var(--aglow);flex-shrink:0;}
         .logo-wm{font-size:1.05rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;}
@@ -640,12 +640,15 @@
                             </button>
                         </div>
 
-                        <div style="display:flex; align-items:center; background:var(--gb); border:1px solid var(--gbd2); border-radius:12px; padding:4px; transition:border-color 0.3s;" onmouseover="this.style.borderColor='var(--a1)'" onmouseout="this.style.borderColor='var(--gbd2)'">
-                            <input type="date" id="dateIn" style="background:transparent; border:none; color:var(--t1); font-family:var(--fm); font-size:0.8rem; padding:0 10px; outline:none; cursor:pointer;" title="Vyberte datum výletu">
-                            <button class="btn bp" style="border:none; font-size:0.75rem; padding:6px 14px; border-radius:8px; box-shadow:none;" onclick="doKalendare()">
-                                <span style="margin-right:4px;">📅</span> Do kalendáře
-                            </button>
-                        </div>
+                        <div style="display:flex; align-items:center; gap:10px;">
+    <div style="position:relative; display:flex; align-items:center;">
+        <i class="ph ph-calendar-blank" style="position:absolute; left:12px; color:var(--t2); font-size:1.1rem; pointer-events:none;"></i>
+        <input type="date" id="dateIn" class="f" style="margin:0; padding-left:38px; padding-right:12px; width:155px; cursor:pointer; font-family:var(--fm); font-size:0.75rem;" title="Vyberte datum">
+    </div>
+    <button class="btn bp" style="font-size:0.8rem; padding:11px 18px;" onclick="doKalendare()">
+        <i class="ph ph-calendar-plus" style="font-size:1.1rem;"></i> <span>Do kalendáře</span>
+    </button>
+</div>
                     </div>
 
                     
