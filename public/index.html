@@ -629,9 +629,23 @@
                     <div id="resBody" class="tl" style="transition:all 0.2s;"></div>
                     <div class="hr no-print"></div>
                     
-                    <div class="no-print" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
-                        <button class="btn bg" onclick="ulozitNovyAI()" id="btnSaveAI">Uložit do deníku</button>
-                        
+                    <div class="no-print" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+                        <div style="display:flex; gap:8px; align-items:center;">
+                            <button class="btn bg" onclick="ulozitNovyAI()" id="btnSaveAI">Uložit do deníku</button>
+                            <button class="btn bgh bi" id="btnEditTrip" onclick="toggleEditTrip()" title="Upravit texty">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+                            </button>
+                            <button class="btn bg bi" id="btnShareTrip" onclick="sdiletVylet(curOpenTripId, document.getElementById('resTitle').innerText)" style="display:none;" title="Sdílet s přáteli">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                            </button>
+                        </div>
+
+                        <div style="display:flex; align-items:center; background:var(--gb); border:1px solid var(--gbd2); border-radius:12px; padding:4px; transition:border-color 0.3s;" onmouseover="this.style.borderColor='var(--a1)'" onmouseout="this.style.borderColor='var(--gbd2)'">
+                            <input type="date" id="dateIn" style="background:transparent; border:none; color:var(--t1); font-family:var(--fm); font-size:0.8rem; padding:0 10px; outline:none; cursor:pointer;" title="Vyberte datum výletu">
+                            <button class="btn bp" style="border:none; font-size:0.75rem; padding:6px 14px; border-radius:8px; box-shadow:none;" onclick="doKalendare()">
+                                <span style="margin-right:4px;">📅</span> Do kalendáře
+                            </button>
+                        </div>
                     </div>
 
                     
