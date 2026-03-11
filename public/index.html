@@ -395,7 +395,7 @@
         
         <input type="date" id="dateIn" class="f" style="margin-bottom:20px; cursor:pointer; font-family:var(--fm); font-size:1.1rem; text-align:center; padding: 14px; border-radius: 12px;" title="Vyberte datum">
         
-        <button class="btn bp bf blg" onclick="spustitExportKalendare()">Uložit do Google Kalendáře</button>
+        <button class="btn bp bf blg" onclick="doKalendare()" id="btnKalendarModal">Uložit do Google Kalendáře</button>
     </div>
 </div>
 
@@ -657,9 +657,9 @@
                             </button>
                         </div>
 
-                        <button class="btn bp" style="display:flex; align-items:center; justify-content:center; gap:8px; line-height:1; font-size:0.8rem; padding:11px 18px;" onclick="document.getElementById('calendarModal').style.display='flex'">
-    <i class="ph ph-calendar-plus" style="font-size:1.15rem; display:block; margin-top:-1px;"></i>
-    <span style="display:block; transform:translateY(1px);">Přidat do kalendáře</span>
+                        <button class="btn bp" onclick="document.getElementById('calendarModal').style.display='flex'" style="padding:10px 18px; display:inline-flex; align-items:center; justify-content:center;">
+    <i class="ph ph-calendar-plus" style="font-size:1.2rem; margin-right:6px; display:flex;"></i>
+    <span style="font-size:0.85rem; font-weight:700; display:flex;">Přidat do kalendáře</span>
 </button>
                     </div>
 
@@ -1038,33 +1038,24 @@ function otevritGoogleMaps(id) {
 }
 
 function openGallery(s){document.getElementById('lightboxImg').src=s;document.getElementById('lightbox').style.display='flex';}
-function spustitExportKalendare() {
-    const d = document.getElementById('dateIn').value;
-    if (!d) {
-        alert('Vyberte prosím datum výletu.');
-        return;
-    }
-    // Zavolá se tvoje původní funkční logika
-    doKalendare(); 
-    // Jakmile se otevře nová záložka s kalendářem, vyskakovací okno se ve Veroně zavře
-    document.getElementById('calendarModal').style.display = 'none';
-}
 async function doKalendare() {
     const d = document.getElementById('dateIn').value;
-    if (!d) return alert('Vyberte datum.');
+    if (!d) return alert('Vyberte prosím datum.');
+
+    const btn = document.getElementById('btnKalendarModal');
+    const origText = btn.innerText;
+    btn.innerText = 'Zpracovávám...';
 
     let ml = '';
     let polohaStartu = '';
     
-    if (curDraft?.etapy && curDraft.etapy.length > 0) {
+    if (typeof curDraft !== 'undefined' && curDraft?.etapy && curDraft.etapy.length > 0) {
         polohaStartu = curDraft.etapy[0].misto;
-        
         if (curDraft.etapy[0].lat) {
             const o = `${curDraft.etapy[0].lat},${curDraft.etapy[0].lng}`;
             const d2 = `${curDraft.etapy[curDraft.etapy.length - 1].lat},${curDraft.etapy[curDraft.etapy.length - 1].lng}`;
             const wp = curDraft.etapy.length > 2 ? '&waypoints=' + curDraft.etapy.slice(1, -1).map(e => `${e.lat},${e.lng}`).join('|') : '';
             
-            // Chytrá detekce módu dopravy
             let tm = 'driving';
             const text = (document.getElementById('resTitle').innerText + ' ' + document.getElementById('resBody').innerText).toLowerCase();
             if (text.includes('kolo') || text.includes('cyklistika') || text.includes('mtb') || text.includes('cyklo')) tm = 'bicycling';
@@ -1075,12 +1066,12 @@ async function doKalendare() {
     }
 
     let detailniPopis = `Itinerář výletu: ${document.getElementById('resTitle').innerText}\n\n`;
-    if (curDraft?.etapy) {
+    if (typeof curDraft !== 'undefined' && curDraft?.etapy) {
         curDraft.etapy.forEach(e => {
             detailniPopis += `🕒 ${e.cas} — ${e.misto}\n📝 ${e.popis}\n\n`;
         });
     }
-    if (curDraft?.doporuceni) {
+    if (typeof curDraft !== 'undefined' && curDraft?.doporuceni) {
         detailniPopis += `💡 Tip architekta: ${curDraft.doporuceni}\n\n`;
     }
 
@@ -1097,12 +1088,20 @@ async function doKalendare() {
             })
         });
         const data = await r.json();
+        btn.innerText = origText;
+        
         if (data.uspech && data.url) {
-            window.open(data.url, '_blank');
+            document.getElementById('calendarModal').style.display = 'none';
+            
+            let noveOkno = window.open(data.url, '_blank');
+            if (!noveOkno || noveOkno.closed || typeof noveOkno.closed === 'undefined') {
+                window.location.href = data.url;
+            }
         } else {
-            alert(data.chyba || 'Chyba kalendáře.');
+            alert(data.chyba || 'Došlo k chybě při vytváření kalendáře.');
         }
     } catch (e) {
+        btn.innerText = origText;
         alert('Chyba: ' + e.message);
     }
 }
