@@ -382,8 +382,7 @@
     </div>
 </div>
 
-<div id="manualModal" class="overlay" onclick="if(event.target===this)this.style.display='none'">
-    <div id="calendarModal" class="overlay" onclick="if(event.target===this)this.style.display='none'">
+<div id="calendarModal" class="overlay" onclick="if(event.target===this)this.style.display='none'">
     <div class="mb" style="text-align:center; max-width: 400px;">
         <button class="btnx" style="position:absolute;top:20px;right:20px;" onclick="document.getElementById('calendarModal').style.display='none'">✕</button>
         
@@ -399,6 +398,8 @@
         <button class="btn bp bf blg" onclick="spustitExportKalendare()">Uložit do Google Kalendáře</button>
     </div>
 </div>
+
+<div id="manualModal" class="overlay" onclick="if(event.target===this)this.style.display='none'">
     <div class="mb">
         <div class="mh"><h2 class="mt">Vlastní plán</h2><button class="btnx" onclick="document.getElementById('manualModal').style.display='none'">✕</button></div>
         <input type="text" id="manLokace" class="f" placeholder="Název výletu (např. Sněžka)">
@@ -656,8 +657,9 @@
                             </button>
                         </div>
 
-                        <button class="btn bp" style="font-size:0.8rem; padding:11px 18px;" onclick="document.getElementById('calendarModal').style.display='flex'">
-    <i class="ph ph-calendar-plus" style="font-size:1.1rem;"></i> <span>Přidat do kalendáře</span>
+                        <button class="btn bp" style="display:flex; align-items:center; justify-content:center; gap:8px; line-height:1; font-size:0.8rem; padding:11px 18px;" onclick="document.getElementById('calendarModal').style.display='flex'">
+    <i class="ph ph-calendar-plus" style="font-size:1.15rem; display:block; margin-top:-1px;"></i>
+    <span style="display:block; transform:translateY(1px);">Přidat do kalendáře</span>
 </button>
                     </div>
 
