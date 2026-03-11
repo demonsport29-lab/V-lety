@@ -383,6 +383,22 @@
 </div>
 
 <div id="manualModal" class="overlay" onclick="if(event.target===this)this.style.display='none'">
+    <div id="calendarModal" class="overlay" onclick="if(event.target===this)this.style.display='none'">
+    <div class="mb" style="text-align:center; max-width: 400px;">
+        <button class="btnx" style="position:absolute;top:20px;right:20px;" onclick="document.getElementById('calendarModal').style.display='none'">✕</button>
+        
+        <div style="width:64px; height:64px; border-radius:50%; background:linear-gradient(135deg, var(--a1), var(--a3)); color:#fff; font-size:1.8rem; display:flex; align-items:center; justify-content:center; margin:0 auto 16px; box-shadow: 0 0 20px rgba(99,102,241,0.4);">
+            <i class="ph ph-calendar-plus"></i>
+        </div>
+        
+        <h2 style="font-size:1.6rem; font-weight:800; margin-bottom:12px; letter-spacing:-0.02em;">Kdy vyrazíme?</h2>
+        <p style="color:var(--t2); font-size:0.92rem; line-height:1.6; margin-bottom:24px;">Vyberte si datum, kdy chcete tento výlet podniknout. Založíme vám událost rovnou v Google Kalendáři.</p>
+        
+        <input type="date" id="dateIn" class="f" style="margin-bottom:20px; cursor:pointer; font-family:var(--fm); font-size:1.1rem; text-align:center; padding: 14px; border-radius: 12px;" title="Vyberte datum">
+        
+        <button class="btn bp bf blg" onclick="spustitExportKalendare()">Uložit do Google Kalendáře</button>
+    </div>
+</div>
     <div class="mb">
         <div class="mh"><h2 class="mt">Vlastní plán</h2><button class="btnx" onclick="document.getElementById('manualModal').style.display='none'">✕</button></div>
         <input type="text" id="manLokace" class="f" placeholder="Název výletu (např. Sněžka)">
@@ -640,15 +656,9 @@
                             </button>
                         </div>
 
-                        <div style="display:flex; align-items:center; gap:10px;">
-    <div style="position:relative; display:flex; align-items:center;">
-        <i class="ph ph-calendar-blank" style="position:absolute; left:12px; color:var(--t2); font-size:1.1rem; pointer-events:none;"></i>
-        <input type="date" id="dateIn" class="f" style="margin:0; padding-left:38px; padding-right:12px; width:155px; cursor:pointer; font-family:var(--fm); font-size:0.75rem;" title="Vyberte datum">
-    </div>
-    <button class="btn bp" style="font-size:0.8rem; padding:11px 18px;" onclick="doKalendare()">
-        <i class="ph ph-calendar-plus" style="font-size:1.1rem;"></i> <span>Do kalendáře</span>
-    </button>
-</div>
+                        <button class="btn bp" style="font-size:0.8rem; padding:11px 18px;" onclick="document.getElementById('calendarModal').style.display='flex'">
+    <i class="ph ph-calendar-plus" style="font-size:1.1rem;"></i> <span>Přidat do kalendáře</span>
+</button>
                     </div>
 
                     
@@ -1026,7 +1036,17 @@ function otevritGoogleMaps(id) {
 }
 
 function openGallery(s){document.getElementById('lightboxImg').src=s;document.getElementById('lightbox').style.display='flex';}
-
+function spustitExportKalendare() {
+    const d = document.getElementById('dateIn').value;
+    if (!d) {
+        alert('Vyberte prosím datum výletu.');
+        return;
+    }
+    // Zavolá se tvoje původní funkční logika
+    doKalendare(); 
+    // Jakmile se otevře nová záložka s kalendářem, vyskakovací okno se ve Veroně zavře
+    document.getElementById('calendarModal').style.display = 'none';
+}
 async function doKalendare() {
     const d = document.getElementById('dateIn').value;
     if (!d) return alert('Vyberte datum.');
