@@ -802,6 +802,81 @@ async function prepnoutStav(id, stav) {
         alert('Chyba spojení.');
     }
 }
+
+// 5. FRIENDLY-CODE a PŘÁTELÉ HUB
+function kopirovatMujKod() {
+    const input = document.getElementById('mujFriendlyCode');
+    input.select();
+    input.setSelectionRange(0, 99999);
+    navigator.clipboard.writeText(input.value);
+    
+    const btn = input.nextElementSibling;
+    const origHtml = btn.innerHTML;
+    btn.innerHTML = '<i class="ti ti-check" style="color:#10b981;"></i>';
+    setTimeout(() => { btn.innerHTML = origHtml; }, 2000);
+}
+
+async function pridatPriteleKod() {
+    const input = document.getElementById('inputFriendCode');
+    const kod = input.value.trim();
+    if(!kod) return;
+    
+    const btn = input.nextElementSibling;
+    const origHtml = btn.innerHTML;
+    btn.innerHTML = '<div class="spin" style="width:16px;height:16px;border-width:2px;border-color:rgba(255,255,255,0.3);border-top-color:#fff;"></div>';
+    
+    try {
+        const res = await (await fetch('/api/pridat-pritele-kod', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ kod }) })).json();
+        if(res.uspech) {
+            btn.innerHTML = '<i class="ti ti-check" style="color:#fff;"></i>';
+            btn.className = 'btn bg';
+            input.value = '';
+            setTimeout(() => { btn.innerHTML = origHtml; btn.className = 'btn bp'; }, 2000);
+            if (document.getElementById('viewKomunita').classList.contains('hidden') === false) {
+                vykreslitFriendHub();
+            }
+        } else {
+            alert(res.chyba || "Chyba při přidávání.");
+            btn.innerHTML = origHtml;
+        }
+    } catch(e) { 
+        alert("Došlo k chybě. Kód je neplatný."); 
+        btn.innerHTML = origHtml;
+    }
+}
+
+async function vykreslitFriendHub() {
+    if(!prihlaseno) return;
+    try {
+        const res = await (await fetch('/api/moji-pratele')).json();
+        const hubCont = document.getElementById('friendsHubContainer');
+        const hub = document.getElementById('friendsHub');
+        
+        if(!res.uspech || !res.data || res.data.length === 0) {
+            hubCont.style.display = 'none';
+            return;
+        }
+        
+        hubCont.style.display = 'block';
+        hub.innerHTML = res.data.map(p => {
+            const av = p.avatar ? `background-image:url(${p.avatar});color:transparent;` : '';
+            return `
+            <div style="display:flex; flex-direction:column; align-items:center; cursor:pointer; min-width:60px;" onclick="otevritChatZHubu('${p.id}', '${p.jmeno}', '${p.avatar || ''}')">
+                <div class="av" style="${av} width:48px; height:48px; border-radius:50%; border:2px solid var(--a1); margin-bottom:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">${p.jmeno.charAt(0).toUpperCase()}</div>
+                <span style="font-size:0.65rem; font-family:var(--fm); color:var(--t2); text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; width:64px;">${p.jmeno.split(' ')[0]}</span>
+            </div>
+            `;
+        }).join('');
+    } catch(e) { console.error(e); }
+}
+
+window.otevritChatZHubu = function(id, jmeno, avatar) {
+    window.aktualniCiziProfilId = id;
+    window.aktualniCiziProfilJmeno = jmeno;
+    window.aktualniCiziProfilAvatar = avatar;
+    otevritChat();
+};
+
 // AKTUALIZOVANÁ FUNKCE PRO PŘEPÍNÁNÍ TABŮ (Nyní zná záložku 'akce')
 function prepniTab(tab, updateUrl = true){
     ['landing', 'planovac', 'verejne', 'akce', 'komunita'].forEach(t=>{
@@ -825,6 +900,8 @@ function prepniTab(tab, updateUrl = true){
     const activeViewId = tab === 'landing' ? 'viewLanding' : tab === 'planovac' ? 'viewPlanovac' : tab === 'verejne' ? 'viewVerejne' : tab === 'akce' ? 'viewAkce' : 'viewKomunita';
     const activeView = document.getElementById(activeViewId);
     if(activeView) activeView.classList.remove('hidden');
+    
+    if (tab === 'komunita') vykreslitFriendHub();
     
     if(tab==='planovac'&&mainMap)setTimeout(()=>mainMap.invalidateSize(),200);
 
@@ -896,6 +973,7 @@ let mujChart = null; // Proměnná pro uchování grafu, aby se nenačítal pře
 async function otevritMujProfil() {
     // 1. Zobrazíme okno
     document.getElementById('profileModal').style.display = 'flex';
+    document.getElementById('mujFriendlyCode').value = mujProfil._id;
     
     // 2. Stáhneme data ze serveru
     try {

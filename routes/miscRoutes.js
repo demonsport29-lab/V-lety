@@ -101,6 +101,48 @@ router.post('/api/pridat-pritele', async (req, res) => {
     } catch (e) { res.json({ uspech: false, chyba: e.message }); }
 });
 
+router.post('/api/pridat-pritele-kod', async (req, res) => {
+    if (!req.session.userId) return res.json({ uspech: false, chyba: "Nepřihlášen" });
+    try {
+        const { kod } = req.body;
+        if (!kod) return res.json({ uspech: false, chyba: "Kód chybí" });
+        if (kod === req.session.userId) return res.json({ uspech: false, chyba: "Nemůžete si přidat sami sebe." });
+
+        const target = await User.findById(kod);
+        if (!target) return res.json({ uspech: false, chyba: "Uživatel s tímto kódem neexistuje." });
+
+        const me = await User.findById(req.session.userId);
+        if (!me.pratele) me.pratele = [];
+        
+        if (me.pratele.includes(kod)) {
+            return res.json({ uspech: false, chyba: "Tento uživatel už ve vašich přátelích je." });
+        }
+        
+        me.pratele.push(kod);
+        await me.save();
+        res.json({ uspech: true, profil: { id: target._id, jmeno: target.prezdivka || `${target.jmeno} ${target.prijmeni}`, avatar: target.avatar } });
+    } catch (e) { res.json({ uspech: false, chyba: "Neplatný kód." }); }
+});
+
+router.get('/api/moji-pratele', async (req, res) => {
+    if (!req.session.userId) return res.json({ uspech: false, chyba: "Nepřihlášen" });
+    try {
+        const user = await User.findById(req.session.userId);
+        if (!user || !user.pratele || user.pratele.length === 0) return res.json({ uspech: true, data: [] });
+        
+        const prateleIds = user.pratele;
+        const prateleData = await User.find({ '_id': { $in: prateleIds } }, '_id jmeno prijmeni prezdivka avatar');
+        
+        const data = prateleData.map(p => ({
+            id: p._id,
+            jmeno: p.prezdivka || `${p.jmeno} ${p.prijmeni}`,
+            avatar: p.avatar
+        }));
+        
+        res.json({ uspech: true, data });
+    } catch (e) { res.json({ uspech: false, chyba: e.message }); }
+});
+
 // SOUKROMÉ ZPRÁVY (DM)
 router.get('/api/zpravy/:prijemceId', async (req, res) => {
     if (!req.session.userId) return res.json({ uspech: false, chyba: "Nepřihlášen" });
