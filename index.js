@@ -1,14 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const session = require('express-session');
-const { GoogleGenerativeAI } = require('@google/generative-ai');
-const { google } = require('googleapis');
 const mongoose = require('mongoose');
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY); 
-const path = require('path');
-
-// Fix pro fetch (aby to fungovalo i na starších verzích Node.js)
-const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -22,6 +15,10 @@ app.use(session({
     saveUninitialized: false,
     cookie: { secure: false, maxAge: 1000 * 60 * 60 * 24 * 30 }
 }));
+
+mongoose.connect(process.env.MONGODB_URI)
+  .then(() => console.log('✅ MongoDB Připojeno!'))
+  .catch(err => console.error('❌ Chyba DB:', err));
 
 
 
