@@ -3,6 +3,7 @@ const router = express.Router();
 const User = require('../models/User');
 const Vylet = require('../models/Vylet');
 const Komentar = require('../models/Komentar');
+const Notifikace = require('../models/Notifikace');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
@@ -123,15 +124,34 @@ router.post('/api/ulozit-cizi-vylet', async (req, res) => {
 router.post('/api/pridat-komentar', async (req, res) => {
     if (!req.session.userId) return res.json({ uspech: false });
     const user = await User.findById(req.session.userId);
+    const textKomentare = req.body.text;
+    
     await new Komentar({
         vyletId: req.body.idVyletu,
         oldId: Date.now().toString(),
         autorId: user._id.toString(),
         autor: user.prezdivka || `${user.jmeno} ${user.prijmeni}`,
         avatar: user.avatar || '',
-        text: req.body.text,
+        text: textKomentare,
         datum: new Date().toLocaleDateString('cs-CZ') + ' ' + new Date().toLocaleTimeString('cs-CZ', {hour: '2-digit', minute:'2-digit'})
     }).save();
+    
+    // Spuštení Notifikace (Oznámení majiteli výletu)
+    try {
+        const vylet = await Vylet.findById(req.body.idVyletu);
+        if (vylet && vylet.vlastnikId && vylet.vlastnikId !== req.session.userId) { // Nesmí upozorňovat sám na sebe
+            const zkrText = textKomentare.length > 30 ? textKomentare.substring(0, 27) + '...' : textKomentare;
+            await new Notifikace({
+                prijemceId: vylet.vlastnikId,
+                odesilatelId: user._id.toString(),
+                odesilatelJmeno: user.prezdivka || `${user.jmeno} ${user.prijmeni}`,
+                odesilatelAvatar: user.avatar,
+                typ: 'komentar',
+                textPochoutka: zkrText
+            }).save();
+        }
+    } catch(e) { console.error("Chyba tvorby notifikace při komentáři:", e); }
+
     res.json({ uspech: true });
 });
 

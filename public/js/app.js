@@ -10,8 +10,13 @@ async function init(){
             document.getElementById('btnGoogle').innerHTML='<span>Přihlášen</span><span class="m-ico"><i class="ph ph-check-circle"></i></span>';
             document.getElementById('btnGoogle').onclick=e=>e.preventDefault();
             document.getElementById('btnProfil').style.display='inline-flex';
+            document.getElementById('btnNotif').style.display='inline-flex';
             document.getElementById('navTabsContainer').style.display='flex';
             if(window.innerWidth <= 768) document.getElementById('mobileTabsContainer').style.display='flex';
+            
+            // Nahodit notifikační systém pro přihlášeného klienta
+            spustitNotifikace();
+            
             // Zobrazení Newsletter okna s mírným zpožděním
             if(!localStorage.getItem('verona_news')) {
                 setTimeout(() => {
@@ -998,81 +1003,6 @@ function vykresliGraf(staty) {
 
     const barvaTextu = document.documentElement.getAttribute('data-theme') === 'light' ? '#333' : '#a5b4fc';
 
-// ---- 6. ADMIN CMS PRO AKCE ----
-async function otevritAdminAkce() {
-    document.getElementById('profileModal').style.display = 'none';
-    document.getElementById('adminAkceModal').style.display = 'flex';
-    nactiAdminAkceVypis();
-}
-
-async function nactiAdminAkceVypis() {
-    const list = document.getElementById('adminAkceList');
-    list.innerHTML = '<div class="spin" style="margin: 20px auto;"></div>';
-    
-    try {
-        const res = await (await fetch('/api/akce')).json();
-        if (res.uspech) {
-            if (res.data.length === 0) {
-                list.innerHTML = '<p class="es" style="font-size:0.85rem;">Zatím nejsou v databázi žádné akce.</p>';
-                return;
-            }
-            list.innerHTML = res.data.map(x => `
-                <div style="background:rgba(0,0,0,0.15); border:1px solid var(--gbd); border-radius:8px; padding:12px; display:flex; justify-content:space-between; align-items:center;">
-                    <div>
-                        <strong style="font-family:var(--fs); display:block; margin-bottom:4px;">${x.nazev}</strong>
-                        <span style="font-size:0.75rem; color:var(--t2);">${x.datum} | ${x.misto}</span>
-                    </div>
-                    <button class="btn bgh" style="color:#ef4444; border:1px solid rgba(239,68,68,0.2); padding:6px 10px;" onclick="smazatAkci('${x._id}')" title="Smazat akci"><i class="ti ti-trash"></i></button>
-                </div>
-            `).join('');
-        } else {
-            list.innerHTML = '<p>Chyba načítání databáze.</p>';
-        }
-    } catch(e) { list.innerHTML = '<p>Chyba spojení.</p>'; }
-}
-
-async function ulozitNovouAkci() {
-    const data = {
-        nazev: document.getElementById('akceNazev').value.trim(),
-        datum: document.getElementById('akceDatum').value.trim(),
-        misto: document.getElementById('akceMisto').value.trim(),
-        popis: document.getElementById('akcePopis').value.trim(),
-        logoUrl: document.getElementById('akceLogo').value.trim(),
-        vstupenkyUrl: document.getElementById('akceVstupenky').value.trim()
-    };
-    
-    if (!data.nazev || !data.datum || !data.popis) return alert('Doplňte alespoň Název, Datum a Popis.');
-    
-    const btn = event.target;
-    const oldHtml = btn.innerHTML;
-    btn.innerHTML = '<div class="spin" style="width:16px;height:16px;border-width:2px;"></div>';
-    
-    try {
-        const res = await (await fetch('/api/admin/akce', { method: 'POST', headers: { 'Content-Type':'application/json' }, body: JSON.stringify(data) })).json();
-        if (res.uspech) {
-            // Vyčištění formuláře
-            ['akceNazev','akceDatum','akceMisto','akcePopis','akceLogo','akceVstupenky'].forEach(id => document.getElementById(id).value = '');
-            nactiAdminAkceVypis();
-            nactiAkce(); // Aktualizuj frontend pro lidi rovnou v pozadí
-            btn.innerHTML = oldHtml;
-        } else {
-            alert(res.chyba || 'Aplikace neschválila vložení.');
-            btn.innerHTML = oldHtml;
-        }
-    } catch(e) { alert('Chyba spojení.'); btn.innerHTML = oldHtml; }
-}
-
-window.smazatAkci = async function(id) {
-    if (!confirm('Opravdu smazat z databáze tuto akci? Klientům zmizí z nabídky.')) return;
-    try {
-        const res = await (await fetch('/api/admin/akce/' + id, { method: 'DELETE' })).json();
-        if (res.uspech) {
-            nactiAdminAkceVypis();
-            nactiAkce(); // Aktualizuj backend frontendu
-        } else alert(res.chyba || 'Chyba mazání.');
-    } catch(e) { alert('Nelze kontaktovat server.'); }
-};
-
     mujChart = new Chart(ctx, {
         type: 'bar',
         data: {
@@ -1099,6 +1029,7 @@ window.smazatAkci = async function(id) {
 function vykresliMedaile(medaile) {
     const kontejner = document.getElementById('profilMedaile');
     
+
     kontejner.innerHTML = medaile.map(m => {
         // Pokud je medaile získaná, svítí barevně. Pokud ne, je zašedlá a průhledná.
         const vzhled = m.ziskana 
@@ -1114,6 +1045,80 @@ function vykresliMedaile(medaile) {
         `;
     }).join('');
 }
+
+// ---- 6. ADMIN CMS PRO AKCE ----
+window.otevritAdminAkce = async function() {
+    document.getElementById('profileModal').style.display = 'none';
+    document.getElementById('adminAkceModal').style.display = 'flex';
+    nactiAdminAkceVypis();
+};
+
+window.nactiAdminAkceVypis = async function() {
+    const list = document.getElementById('adminAkceList');
+    list.innerHTML = '<div class="spin" style="margin: 20px auto;"></div>';
+    
+    try {
+        const res = await (await fetch('/api/akce')).json();
+        if (res.uspech) {
+            if (res.data.length === 0) {
+                list.innerHTML = '<p class="es" style="font-size:0.85rem;">Zatím nejsou v databázi žádné akce.</p>';
+                return;
+            }
+            list.innerHTML = res.data.map(x => `
+                <div style="background:rgba(0,0,0,0.15); border:1px solid var(--gbd); border-radius:8px; padding:12px; display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <strong style="font-family:var(--fs); display:block; margin-bottom:4px;">${x.nazev}</strong>
+                        <span style="font-size:0.75rem; color:var(--t2);">${x.datum} | ${x.misto}</span>
+                    </div>
+                    <button class="btn bgh" style="color:#ef4444; border:1px solid rgba(239,68,68,0.2); padding:6px 10px;" onclick="smazatAkci('${x._id}')" title="Smazat akci"><i class="ti ti-trash"></i></button>
+                </div>
+            `).join('');
+        } else {
+            list.innerHTML = '<p>Chyba načítání databáze.</p>';
+        }
+    } catch(e) { list.innerHTML = '<p>Chyba spojení.</p>'; }
+};
+
+window.ulozitNovouAkci = async function() {
+    const data = {
+        nazev: document.getElementById('akceNazev').value.trim(),
+        datum: document.getElementById('akceDatum').value.trim(),
+        misto: document.getElementById('akceMisto').value.trim(),
+        popis: document.getElementById('akcePopis').value.trim(),
+        logoUrl: document.getElementById('akceLogo').value.trim(),
+        vstupenkyUrl: document.getElementById('akceVstupenky').value.trim()
+    };
+    
+    if (!data.nazev || !data.datum || !data.popis) return alert('Doplňte alespoň Název, Datum a Popis.');
+    
+    const btn = event.target;
+    const oldHtml = btn.innerHTML;
+    btn.innerHTML = '<div class="spin" style="width:16px;height:16px;border-width:2px;"></div>';
+    
+    try {
+        const res = await (await fetch('/api/admin/akce', { method: 'POST', headers: { 'Content-Type':'application/json' }, body: JSON.stringify(data) })).json();
+        if (res.uspech) {
+            ['akceNazev','akceDatum','akceMisto','akcePopis','akceLogo','akceVstupenky'].forEach(id => document.getElementById(id).value = '');
+            nactiAdminAkceVypis();
+            nactiAkce();
+            btn.innerHTML = oldHtml;
+        } else {
+            alert(res.chyba || 'Aplikace neschválila vložení.');
+            btn.innerHTML = oldHtml;
+        }
+    } catch(e) { alert('Chyba spojení.'); btn.innerHTML = oldHtml; }
+};
+
+window.smazatAkci = async function(id) {
+    if (!confirm('Opravdu smazat z databáze tuto akci? Klientům zmizí z nabídky.')) return;
+    try {
+        const res = await (await fetch('/api/admin/akce/' + id, { method: 'DELETE' })).json();
+        if (res.uspech) {
+            nactiAdminAkceVypis();
+            nactiAkce(); 
+        } else alert(res.chyba || 'Chyba mazání.');
+    } catch(e) { alert('Nelze kontaktovat server.'); }
+};
 
 
 // ✏️ FUNKCE PRO ÚPRAVU VÝLETU (Edit-in-place)
@@ -1182,4 +1187,83 @@ if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW chyba:', err));
     });
+}
+
+// ---- 7. NOTIFIKACE A TOASTY ----
+let znameNotifikace = new Set();
+let timerNotifikaci = null;
+
+async function spustitNotifikace() {
+    await kontrolaNotifikaci(true);
+    if(timerNotifikaci) clearInterval(timerNotifikaci);
+    timerNotifikaci = setInterval(() => kontrolaNotifikaci(false), 10000); // 10 sekund polling
+}
+
+async function kontrolaNotifikaci(prvniStart) {
+    try {
+        const res = await (await fetch('/api/notifikace')).json();
+        if(!res.uspech) return;
+        
+        const badge = document.getElementById('notifBadge');
+        if(res.neprectenoLita > 0) {
+            badge.style.display = 'flex';
+            badge.innerText = res.neprectenoLita > 9 ? '9+' : res.neprectenoLita;
+        } else {
+            badge.style.display = 'none';
+        }
+        
+        const c = document.getElementById('notifikaceList');
+        if(res.data.length === 0) {
+            c.innerHTML = '<div class="es"><p>Zatím žádná upozornění.</p></div>';
+        } else {
+            c.innerHTML = res.data.map(n => `
+                <div style="background:rgba(0,0,0,0.2); border-left:3px solid ${n.precteno ? 'var(--gbd)' : 'var(--a1)'}; border-radius:8px; padding:12px; display:flex; gap:12px; align-items:center;">
+                    <div style="width:40px;height:40px;flex-shrink:0;border-radius:50%;background:url(${n.odesilatelAvatar||''}) center/cover var(--gb3);"><span style="display:${n.odesilatelAvatar?'none':'block'};color:#fff;text-align:center;line-height:40px;">${n.odesilatelJmeno.charAt(0)}</span></div>
+                    <div>
+                        <strong style="font-family:var(--fs);font-size:.9rem;color:var(--t1);">${n.odesilatelJmeno}</strong>
+                        <span style="font-size:.75rem;color:var(--t2);"> ${n.typ === 'zprava' ? 'vám poslal zprávu' : 'okomentoval váš výlet'}</span>
+                        <p style="font-size:.85rem;color:var(--t2);margin-top:4px;font-style:italic;">"${n.textPochoutka}"</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        if(prvniStart) {
+            res.data.forEach(n => znameNotifikace.add(n._id));
+            return;
+        }
+        
+        res.data.forEach(n => {
+            if(!znameNotifikace.has(n._id)) {
+                znameNotifikace.add(n._id);
+                const msg = n.typ === 'zprava' ? 'Nová zpráva od ' + n.odesilatelJmeno : n.odesilatelJmeno + ' píše komentář:';
+                ukazToast(msg, n.textPochoutka);
+            }
+        });
+    } catch(e) {}
+}
+
+window.otevritNotifikaceModal = async function() {
+    document.getElementById('notifikaceModal').style.display = 'flex';
+    document.getElementById('notifBadge').style.display = 'none';
+    await fetch('/api/precteno-notifikace', {method:'POST'});
+    kontrolaNotifikaci(true);
+};
+
+function ukazToast(titulek, text) {
+    const c = document.getElementById('toastContainer');
+    if(!c) return;
+    const t = document.createElement('div');
+    t.style.cssText = 'background:linear-gradient(135deg,var(--gb2),var(--gb3)); border:1px solid var(--gbd); border-left:3px solid var(--a1); padding:16px 20px; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,0.5); min-width:280px; transform:translateY(100px); opacity:0; transition:all 0.4s cubic-bezier(0.175,0.885,0.32,1.275);';
+    t.innerHTML = `
+        <strong style="display:block; font-size:.9rem; margin-bottom:4px; color:var(--a1); font-family:var(--fs); letter-spacing:-0.02em;">${titulek}</strong>
+        <span style="display:block; font-size:.8rem; color:var(--t1); line-height:1.4;">${text}</span>
+    `;
+    c.appendChild(t);
+    setTimeout(() => { t.style.transform = 'translateY(0)'; t.style.opacity = '1'; }, 50);
+    setTimeout(() => {
+        t.style.transform = 'translateY(20px)';
+        t.style.opacity = '0';
+        setTimeout(() => t.remove(), 400);
+    }, 4500);
 }

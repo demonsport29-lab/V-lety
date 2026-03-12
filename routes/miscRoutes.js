@@ -6,6 +6,7 @@ const FeedPost = require('../models/FeedPost');
 const Komentar = require('../models/Komentar');
 const Zprava = require('../models/Zprava');
 const Akce = require('../models/Akce');
+const Notifikace = require('../models/Notifikace');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY); 
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 
@@ -167,8 +168,41 @@ router.post('/api/poslat-zpravu', async (req, res) => {
         if(!text.trim()) return res.json({ uspech: false, chyba: "Prázdná zpráva" });
         const zprava = new Zprava({ odesilatelId: req.session.userId, prijemceId, text });
         await zprava.save();
+        
+        // Vytvoření notifikace
+        const user = await User.findById(req.session.userId);
+        if (user) {
+            const zkrPochoutka = text.length > 30 ? text.substring(0,27)+'...' : text;
+            await new Notifikace({
+                prijemceId: prijemceId,
+                odesilatelId: req.session.userId,
+                odesilatelJmeno: user.prezdivka || `${user.jmeno} ${user.prijmeni}`,
+                odesilatelAvatar: user.avatar,
+                typ: 'zprava',
+                textPochoutka: zkrPochoutka
+            }).save();
+        }
+        
         res.json({ uspech: true, zprava });
     } catch (e) { res.json({ uspech: false, chyba: e.message }); }
+});
+
+// NOTIFIKACE (Čtení + Označení přečtených)
+router.get('/api/notifikace', async (req, res) => {
+    if (!req.session.userId) return res.json({ uspech: false });
+    try {
+        const d = await Notifikace.find({ prijemceId: req.session.userId }).sort({_id: -1}).limit(20);
+        const nepS = d.filter(x => !x.precteno).length;
+        res.json({ uspech: true, data: d, neprectenoLita: nepS });
+    } catch (e) { res.json({ uspech: false }); }
+});
+
+router.post('/api/precteno-notifikace', async (req, res) => {
+    if (!req.session.userId) return res.json({ uspech: false });
+    try {
+        await Notifikace.updateMany({ prijemceId: req.session.userId, precteno: false }, { precteno: true });
+        res.json({ uspech: true });
+    } catch (e) { res.json({ uspech: false }); }
 });
 
 
