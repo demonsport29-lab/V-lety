@@ -602,7 +602,7 @@ async function nactiFeed(){
             <p class="pt">${p.text}</p>${fh}${th}
             <div style="display:flex; justify-content:flex-end; margin-top:8px;">
                 <button class="btnx" style="display:inline-flex; align-items:center; justify-content:center; gap:6px; font-size:.85rem; padding:4px 10px; width:auto; border-radius:12px; transition:all .2s; cursor:pointer; background:rgba(0,0,0,0.1); border:1px solid rgba(255,255,255,0.05); ${hl}" onclick="toggleLike('${p._id}', this)">
-                    <i class="${hi}" style="transition:transform .2s; font-size:1.05rem; display:block;"></i> 
+                    <i class="${hi}" style="transition:transform .2s; font-size:1.05rem; display:block; margin-top:2px;"></i> 
                     <span class="lc" style="font-weight:700; display:block; line-height:1;">${p.likes?.length || 0}</span>
                 </button>
             </div>
