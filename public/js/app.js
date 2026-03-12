@@ -940,7 +940,6 @@ async function nactiAkce() {
             <div style="padding:20px; display:flex; flex-direction:column; flex-grow:1;">
                 <div style="margin-bottom:14px;">
                     <div style="display:inline-flex; align-items:center; gap:8px; background:linear-gradient(135deg,var(--a1),var(--a2)); color:#fff; padding:7px 14px; border-radius:8px; font-weight:800; font-size:.9rem; margin-bottom:12px; box-shadow:0 4px 14px rgba(99,102,241,.3); line-height:1;">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:block; margin-top:-1px;"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
                         <span style="display:block; transform:translateY(1px);">${x.datum}</span>
                     </div>
                     
@@ -952,7 +951,6 @@ async function nactiAkce() {
                 <p style="font-size:.85rem; color:var(--t2); margin-bottom:18px; line-height:1.6;">${x.popis}</p>
                 
                 <a href="${x.vstupenkyUrl}" target="_blank" class="btn bp bf" style="text-decoration:none; margin-top:auto; display:flex; align-items:center; justify-content:center; gap:8px; line-height:1; padding:12px;">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block; margin-top:-1px;"><path d="M4 6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-4V6z"></path><line x1="9" y1="8" x2="15" y2="8"></line><line x1="9" y1="16" x2="15" y2="16"></line></svg>
                     <span style="display:block; transform:translateY(1px);">Koupit vstupenky</span>
                 </a>
             </div>
@@ -975,6 +973,13 @@ async function otevritMujProfil() {
     document.getElementById('profileModal').style.display = 'flex';
     document.getElementById('mujFriendlyCode').value = mujProfil._id;
     
+    // Zobrazení tlačítka pro speciální administrátorskou sekci
+    if (mujProfil.isAdmin || (mujProfil.email && mujProfil.email === 'demonsport29@gmail.com')) {
+        document.getElementById('adminPanelWrapper').style.display = 'block';
+    } else {
+        document.getElementById('adminPanelWrapper').style.display = 'none';
+    }
+    
     // 2. Stáhneme data ze serveru
     try {
         const res = await (await fetch('/api/moje-staty')).json();
@@ -992,6 +997,81 @@ function vykresliGraf(staty) {
     if (mujChart) mujChart.destroy();
 
     const barvaTextu = document.documentElement.getAttribute('data-theme') === 'light' ? '#333' : '#a5b4fc';
+
+// ---- 6. ADMIN CMS PRO AKCE ----
+async function otevritAdminAkce() {
+    document.getElementById('profileModal').style.display = 'none';
+    document.getElementById('adminAkceModal').style.display = 'flex';
+    nactiAdminAkceVypis();
+}
+
+async function nactiAdminAkceVypis() {
+    const list = document.getElementById('adminAkceList');
+    list.innerHTML = '<div class="spin" style="margin: 20px auto;"></div>';
+    
+    try {
+        const res = await (await fetch('/api/akce')).json();
+        if (res.uspech) {
+            if (res.data.length === 0) {
+                list.innerHTML = '<p class="es" style="font-size:0.85rem;">Zatím nejsou v databázi žádné akce.</p>';
+                return;
+            }
+            list.innerHTML = res.data.map(x => `
+                <div style="background:rgba(0,0,0,0.15); border:1px solid var(--gbd); border-radius:8px; padding:12px; display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <strong style="font-family:var(--fs); display:block; margin-bottom:4px;">${x.nazev}</strong>
+                        <span style="font-size:0.75rem; color:var(--t2);">${x.datum} | ${x.misto}</span>
+                    </div>
+                    <button class="btn bgh" style="color:#ef4444; border:1px solid rgba(239,68,68,0.2); padding:6px 10px;" onclick="smazatAkci('${x._id}')" title="Smazat akci"><i class="ti ti-trash"></i></button>
+                </div>
+            `).join('');
+        } else {
+            list.innerHTML = '<p>Chyba načítání databáze.</p>';
+        }
+    } catch(e) { list.innerHTML = '<p>Chyba spojení.</p>'; }
+}
+
+async function ulozitNovouAkci() {
+    const data = {
+        nazev: document.getElementById('akceNazev').value.trim(),
+        datum: document.getElementById('akceDatum').value.trim(),
+        misto: document.getElementById('akceMisto').value.trim(),
+        popis: document.getElementById('akcePopis').value.trim(),
+        logoUrl: document.getElementById('akceLogo').value.trim(),
+        vstupenkyUrl: document.getElementById('akceVstupenky').value.trim()
+    };
+    
+    if (!data.nazev || !data.datum || !data.popis) return alert('Doplňte alespoň Název, Datum a Popis.');
+    
+    const btn = event.target;
+    const oldHtml = btn.innerHTML;
+    btn.innerHTML = '<div class="spin" style="width:16px;height:16px;border-width:2px;"></div>';
+    
+    try {
+        const res = await (await fetch('/api/admin/akce', { method: 'POST', headers: { 'Content-Type':'application/json' }, body: JSON.stringify(data) })).json();
+        if (res.uspech) {
+            // Vyčištění formuláře
+            ['akceNazev','akceDatum','akceMisto','akcePopis','akceLogo','akceVstupenky'].forEach(id => document.getElementById(id).value = '');
+            nactiAdminAkceVypis();
+            nactiAkce(); // Aktualizuj frontend pro lidi rovnou v pozadí
+            btn.innerHTML = oldHtml;
+        } else {
+            alert(res.chyba || 'Aplikace neschválila vložení.');
+            btn.innerHTML = oldHtml;
+        }
+    } catch(e) { alert('Chyba spojení.'); btn.innerHTML = oldHtml; }
+}
+
+window.smazatAkci = async function(id) {
+    if (!confirm('Opravdu smazat z databáze tuto akci? Klientům zmizí z nabídky.')) return;
+    try {
+        const res = await (await fetch('/api/admin/akce/' + id, { method: 'DELETE' })).json();
+        if (res.uspech) {
+            nactiAdminAkceVypis();
+            nactiAkce(); // Aktualizuj backend frontendu
+        } else alert(res.chyba || 'Chyba mazání.');
+    } catch(e) { alert('Nelze kontaktovat server.'); }
+};
 
     mujChart = new Chart(ctx, {
         type: 'bar',

@@ -80,7 +80,42 @@
                         <div class="spin" style="margin: 20px auto;"></div>
                     </div>
                 </div>
+                
+                <div id="adminPanelWrapper" style="display:none; margin-top:10px;">
+                    <p class="ey" style="margin-bottom:8px;"><i class="ti ti-shield-lock" style="color:#ef4444;"></i> Speciální sekce</p>
+                    <button class="btn bg" style="width:100%; justify-content:center; border:1px solid #ef4444;" onclick="otevritAdminAkce()">
+                        <i class="ti ti-settings" style="margin-right:8px;"></i> Správa akcí a událostí (CMS)
+                    </button>
+                </div>
             </div>
+        </div>
+    </div>
+</div>
+
+<div id="adminAkceModal" class="overlay" onclick="if(event.target===this)this.style.display='none'">
+    <div class="mb" style="max-width: 600px; padding: 24px;">
+        <div class="mh" style="margin-bottom: 20px;">
+            <h2 class="mt" style="display:flex; align-items:center; gap:8px;"><i class="ti ti-shield-lock" style="color:#ef4444;"></i> Správa Akcí</h2>
+            <button class="btnx" onclick="document.getElementById('adminAkceModal').style.display='none'">✕</button>
+        </div>
+        
+        <p class="ey" style="margin-bottom:12px;">Přidat novou událost</p>
+        <div style="background:rgba(0,0,0,0.2); padding:16px; border-radius:var(--rsm); border:1px solid var(--gbd); margin-bottom:24px;">
+            <input type="text" id="akceNazev" class="f" placeholder="Název akce (např. OKTAGON 87)">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                <input type="text" id="akceDatum" class="f" placeholder="Datum (např. 25. Dubna 2026)" style="margin:0;">
+                <input type="text" id="akceMisto" class="f" placeholder="Místo (např. Liberec)" style="margin:0;">
+            </div>
+            <div style="height:8px;"></div>
+            <textarea id="akcePopis" class="f" rows="2" placeholder="Krátký popis"></textarea>
+            <input type="text" id="akceLogo" class="f" placeholder="URL obrázku/loga">
+            <input type="text" id="akceVstupenky" class="f" placeholder="URL do prodejní sítě vstupenek">
+            <button class="btn bp bf" onclick="ulozitNovouAkci()">Přidat do databáze</button>
+        </div>
+        
+        <p class="ey" style="margin-bottom:12px;">Seznam spravovaných akcí</p>
+        <div id="adminAkceList" style="max-height: 300px; overflow-y: auto; display:flex; flex-direction:column; gap:8px; padding-right:6px;">
+            <div class="spin" style="margin: 20px auto;"></div>
         </div>
     </div>
 </div>

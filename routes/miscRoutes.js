@@ -5,6 +5,7 @@ const Vylet = require('../models/Vylet');
 const FeedPost = require('../models/FeedPost');
 const Komentar = require('../models/Komentar');
 const Zprava = require('../models/Zprava');
+const Akce = require('../models/Akce');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY); 
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 
@@ -211,15 +212,42 @@ router.get('/api/moje-staty', async (req, res) => {
     } catch (e) { res.json({ uspech: false, chyba: e.message }); }
 });
 
-const seznamAkci = [
-    { nazev: "Majáles 2026", datum: "24. Května 2026", misto: "Letňany, Praha", popis: "Největší studentský festival.", logoUrl: "https://praha.majales.cz/static/img/favicons/OG.jpg", vstupenkyUrl: "https://praha.majales.cz/program-vstupenky/" },
-    { nazev: "PORSCHE DAY", datum: "19. Dubna 2026", misto: "Autodrom, Most", popis: "Sraz fanoušků vozů Porsche.", logoUrl: "https://sttpczprodcdn.azureedge.net////images/podujatie/1206609/orig_2025124132024_PORSCHE_DAY.jpg?tag=10F686AC2C2CB613114660346CEF049D&tag=0286B4CD20444748C3C0121F891E510B", vstupenkyUrl: "https://www.ticketportal.cz/event/PORSCHE-DAY?imedium=timeline" },
-    { nazev: "OKTAGON 87", datum: "25. Dubna 2026", misto: "Home Credit Arena, Liberec", popis: "OKTAGON se vrací.", logoUrl: "https://sttpczprodcdn.azureedge.net////images/podujatie/-13699798/orig_2026218162632_OKTAGON_87_.jpg?tag=C9C4893EDBE45CF7904342D185732A95&tag=29F989C096512F133BF8C7AF12B55261", vstupenkyUrl: "https://www.ticketportal.cz/event/OKTAGON-87?imedium=timeline" },
-    { nazev: "Cyklohráček", datum: "7. Března 2026", misto: "Praha - Zlonice", popis: "Zaměřen na rodiny s dětmi.", logoUrl: "https://cdn.kudyznudy.cz/files/d6/d6f37ee3-a214-4709-a35b-5445596cdf41.webp?v=20260209152021", vstupenkyUrl: "https://www.cd.cz/nase-vlaky/cyklohracek" },
-    { nazev: "OBŘI OCEÁNŮ", datum: "11. Dubna 2026", misto: "Westfield Černý Most", popis: "Impozantní podmořská výstava.", logoUrl: "https://static.ticketportal.cz//images/podujatie/1208824/orig_OBRI_OCEANU___IMPOZANTNI_VYSTAVA_shakeexhibitions2025_2026_202634.jpg?tag=547131A3BE56C8E57ADBFCF84F8F90B4&tag=103A2D0EA302821116E5377B4E902866", vstupenkyUrl: "https://www.ticketportal.cz" },
-    { nazev: "Nesem vám noviny", datum: "18. Března 2026", misto: "Rock Café, Praha", popis: "Komici Underground Comedy.", logoUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS9dd3qF9UJeO4NsNtZx5RK6X0zn6I0tEDqdw&s", vstupenkyUrl: "https://goout.net" }
-];
+router.get('/api/akce', async (req, res) => { 
+    try {
+        const akce = await Akce.find().sort({ vytvoreno: -1 });
+        res.json({ uspech: true, data: akce });
+    } catch (e) {
+        res.json({ uspech: false, chyba: e.message });
+    } 
+});
 
-router.get('/api/akce', (req, res) => { res.json({ uspech: true, data: seznamAkci }); });
+router.post('/api/admin/akce', async (req, res) => {
+    if (!req.session.userId) return res.json({ uspech: false, chyba: "Nepřihlášen" });
+    try {
+        const user = await User.findById(req.session.userId);
+        if (!user || user.email !== process.env.ADMIN_EMAIL) return res.json({ uspech: false, chyba: "Nedostatečná oprávnění" });
+        
+        const novaAkce = new Akce({
+            nazev: req.body.nazev,
+            datum: req.body.datum,
+            misto: req.body.misto,
+            popis: req.body.popis,
+            logoUrl: req.body.logoUrl,
+            vstupenkyUrl: req.body.vstupenkyUrl
+        });
+        await novaAkce.save();
+        res.json({ uspech: true, data: novaAkce });
+    } catch (e) { res.json({ uspech: false, chyba: e.message }); }
+});
 
+router.delete('/api/admin/akce/:id', async (req, res) => {
+    if (!req.session.userId) return res.json({ uspech: false, chyba: "Nepřihlášen" });
+    try {
+        const user = await User.findById(req.session.userId);
+        if (!user || user.email !== process.env.ADMIN_EMAIL) return res.json({ uspech: false, chyba: "Nedostatečná oprávnění" });
+        
+        await Akce.findByIdAndDelete(req.params.id);
+        res.json({ uspech: true });
+    } catch (e) { res.json({ uspech: false, chyba: e.message }); }
+});
 module.exports = router;
