@@ -12,14 +12,38 @@ const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 router.post('/api/vylet', async (req, res) => {
   try {
     const { misto, specifikace, vybraneFiltry } = req.body;
+    
+    // 1. Zjištění počasí z Open-Meteo (Volné API bez klíče)
+    let pocasiInfo = "Data o počasí nejsou nyní k dispozici.";
+    try {
+        const geoReq = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(misto)}&count=1&language=cs`);
+        const geoRes = await geoReq.json();
+        if (geoRes.results && geoRes.results.length > 0) {
+            const loc = geoRes.results[0];
+            const weatherReq = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${loc.latitude}&longitude=${loc.longitude}&current_weather=true`);
+            const weatherRes = await weatherReq.json();
+            if (weatherRes.current_weather) {
+                pocasiInfo = `[Aktuálně v ${loc.name}] Teplota: ${weatherRes.current_weather.temperature}°C, Vítr: ${weatherRes.current_weather.windspeed} km/h (WMO kód oblohy: ${weatherRes.current_weather.weathercode}). Navrhni program a vybavení přesně na toto počasí!`;
+            }
+        }
+    } catch (err) {
+        console.error("Open-Meteo selhalo:", err.message);
+    }
+    
+    // 2. Modifikace promptu pro Gemini
     const filtryText = vybraneFiltry && vybraneFiltry.length > 0 ? `STRIKTNĚ DODRŽ FILTRY A SPORT: ${vybraneFiltry.join(', ')}.` : "";
     const prompt = `Jsi architekt výletů VERONA. Navrhni výlet pro: ${misto}. Styl: ${specifikace}. ${filtryText}
-    Vrať POUZE JSON: {"lokace": "Název", "etapy": [{"cas": "09:00", "misto": "Název", "popis": "Info", "lat": 50.08, "lng": 14.42}], "doporuceni": "Tip", "typ": "mesto", "obtiznost": 2}
-    VŽDY vyplň reálné GPS souřadnice lat a lng!`;
+    ${pocasiInfo}
+    Vrať POUZE VALIDNÍ JSON formát: {"lokace": "Název", "etapy": [{"cas": "09:00", "misto": "Název zastávky", "popis": "Co tam dělat", "lat": 50.08, "lng": 14.42}], "doporuceni": "Zde vypiš stručný tip Architekta na cestu (včetně upozornění na zjištěné počasí a vhodné oblečení).", "typ": "mesto", "obtiznost": 2}
+    VŽDY vyplň reálné GPS souřadnice lat a lng pro vykreslení trasy mape! Smaž veškeré formátování textu (ani zpětné uvozovky). JSON musí jít ihned parsovat!`;
+    
     let text = (await model.generateContent(prompt)).response.text();
     const match = text.match(/\{[\s\S]*\}/); if (match) text = match[0];
     res.json({ uspech: true, data: JSON.parse(text) });
-  } catch (e) { res.json({ uspech: false, chyba: e.message }); }
+  } catch (e) {
+      console.error(e);
+      res.json({ uspech: false, chyba: e.message }); 
+  }
 });
 
 // DENÍK A VÝLETY
@@ -71,6 +95,27 @@ router.delete('/api/smazat-vylet/:id', async (req, res) => {
     } catch (e) {
         console.error(e); res.json({ uspech: false, chyba: e.message });
     }
+});
+
+router.post('/api/ulozit-cizi-vylet', async (req, res) => {
+    if (!req.session.userId) return res.json({ uspech: false, chyba: 'Nejste přihlášeni.' });
+    try {
+        const { idVyletu } = req.body;
+        const org = await Vylet.findById(idVyletu);
+        if (!org || !org.verejny) return res.json({ uspech: false, chyba: 'Výlet nelze zkopírovat.' });
+        
+        const novy = new Vylet({
+            verejny: false, vastnikId: req.session.userId,
+            lokace: org.lokace, popis: org.popis, obtiznost: org.obtiznost, typ: org.typ,
+            etapy: org.etapy, dokonceno: false, fotky: [], hodnoceni: 0, 
+            datumUlozeni: new Date().toLocaleDateString('cs-CZ')
+        });
+        // Pozor override vlastnikId v obj
+        novy.vlastnikId = req.session.userId;
+        await novy.save();
+        
+        res.json({ uspech: true, newId: novy._id });
+    } catch (e) { res.json({ uspech: false, chyba: e.message }); }
 });
 
 // KOMENTÁŘE K VÝLETŮM (Zcela refaktorováno)

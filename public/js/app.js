@@ -1,4 +1,4 @@
-﻿let curDraft=null,curOpenTripId=null,prihlaseno=false,mainMap=null,markerCluster=null,mujProfil=null,pripraveneFotky=[],curPolyline=null
+let curDraft=null,curOpenTripId=null,prihlaseno=false,mainMap=null,markerCluster=null,mujProfil=null,pripraveneFotky=[],curPolyline=null
 
 function toggleContact(){const w=document.getElementById('contactWin');if(w.style.display==='flex'){w.style.display='none';return;}w.style.display='flex';w.style.flexDirection='column';}
 
@@ -410,6 +410,21 @@ function otevritDetailVyletu(v){
     document.getElementById('resTitle').innerText=v.lokace;
     document.getElementById('resDiffText').innerText='Uloženo: '+(v.datumUlozeni||'');
     document.getElementById('btnSaveAI').style.display='none';
+    
+    // Novinka: Tlačítko pro kopírování cizích výletů a schování úpravy
+    const bpub = document.getElementById('btnSavePublic');
+    const bedit = document.getElementById('btnEditTrip');
+    const bgpx = document.getElementById('btnUploadGPX');
+    if (v.vlastnikId && mujProfil && v.vlastnikId !== mujProfil._id) {
+        if(bpub) bpub.style.display = 'inline-flex';
+        if(bedit) bedit.style.display = 'none';
+        if(bgpx) bgpx.style.display = 'none';
+    } else {
+        if(bpub) bpub.style.display = 'none';
+        if(bedit) bedit.style.display = 'inline-flex';
+        if(bgpx) bgpx.style.display = 'inline-flex';
+    }
+
     document.getElementById('resBody').innerHTML=v.popis;
     vykresliHvezdicky(v.id,v.hodnoceni||0);
     vykresliKomentare(v.komentare||[]);
@@ -421,26 +436,94 @@ function otevritDetailVyletu(v){
     vykresliTrasuNaMape(v);
 }
 
+async function ulozitCiziVylet() {
+    if (!prihlaseno) return alert('Musíte být přihlášeni.');
+    if (!curOpenTripId) return;
+    const btn = document.getElementById('btnSavePublic');
+    btn.innerHTML = '<div class="spin"></div> Kopíruji...';
+    try {
+        const res = await (await fetch('/api/ulozit-cizi-vylet', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({idVyletu: curOpenTripId})})).json();
+        if (res.uspech) {
+            alert('Výlet úspěšně uložen do vašeho sekce Můj Deník!');
+            nactiDnik();
+            btn.innerHTML = 'Uloženo <i class="ph-fill ph-check"></i>';
+            setTimeout(() => btn.style.display = 'none', 3000);
+        } else {
+            alert('Chyba: ' + res.chyba);
+            btn.innerHTML = 'Uložit do mého deníku <i class="ph-fill ph-bookmark-simple" style="margin-left:5px;"></i>';
+        }
+    } catch(e) { 
+        alert('Spojení selhalo.'); 
+        btn.innerHTML = 'Uložit do mého deníku <i class="ph-fill ph-bookmark-simple" style="margin-left:5px;"></i>';
+    }
+}
+
 // 2. ZCELA NOVÁ FUNKCE - Kreslí polyline trasu na mapu
 function vykresliTrasuNaMape(v) {
     if (!mainMap) return;
-    if (curPolyline) { mainMap.removeLayer(curPolyline); curPolyline = null; } // Smaže předchozí trasu
+    if (curPolyline) { mainMap.removeLayer(curPolyline); curPolyline = null; } 
     
-    const pts = [];
-    if (v.etapy && v.etapy.length > 0) {
+    let pts = [];
+    if (v.gpxTrasa && v.gpxTrasa.length > 0) {
+        pts = v.gpxTrasa.map(p => [p.lat, p.lng]);
+    } else if (v.etapy && v.etapy.length > 0) {
         v.etapy.forEach(e => {
             if (e.lat && e.lng) pts.push([e.lat, e.lng]);
         });
     }
     
     if (pts.length > 1) {
-        // Vykreslí fialovou, přerušovanou, tlustou čáru
-        curPolyline = L.polyline(pts, {color: '#6366f1', weight: 4, opacity: 0.9, dashArray: '8, 8'}).addTo(mainMap);
-        // Odzoomuje mapu tak, aby byla vidět celá trasa
+        const isGpx = v.gpxTrasa && v.gpxTrasa.length > 0;
+        const opt = isGpx 
+           ? {color: '#3b82f6', weight: 5, opacity: 0.9} 
+           : {color: '#6366f1', weight: 4, opacity: 0.9, dashArray: '8, 8'};
+           
+        curPolyline = L.polyline(pts, opt).addTo(mainMap);
         mainMap.fitBounds(curPolyline.getBounds(), {padding: [40, 40]});
     } else if (pts.length === 1) {
         mainMap.setView(pts[0], 12);
     }
+}
+
+async function zpracovatGPX(input) {
+    if(!input.files || !input.files[0] || !curOpenTripId) return;
+    const btn = document.getElementById('btnUploadGPX');
+    const origHtml = btn.innerHTML;
+    btn.innerHTML = '<div class="spin" style="width:14px;height:14px;border-width:2px;margin:2px;"></div>';
+    
+    const file = input.files[0];
+    const reader = new FileReader();
+    reader.onload = async function(e) {
+        try {
+            const parser = new DOMParser();
+            const xml = parser.parseFromString(e.target.result, "text/xml");
+            const trkpts = xml.getElementsByTagName("trkpt");
+            
+            let path = [];
+            // Omezení bodů trasy na max 300 bodů pro záchranu db kvót
+            let step = Math.ceil(trkpts.length / 300);
+            if (step < 1) step = 1;
+
+            for (let i = 0; i < trkpts.length; i += step) {
+                path.push({ lat: parseFloat(trkpts[i].getAttribute("lat")), lng: parseFloat(trkpts[i].getAttribute("lon")) });
+            }
+            if(path.length) path.push({ lat: parseFloat(trkpts[trkpts.length-1].getAttribute("lat")), lng: parseFloat(trkpts[trkpts.length-1].getAttribute("lon")) });
+
+            const res = await (await fetch('/api/upravit-vylet', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({id: curOpenTripId, gpxTrasa: path})
+            })).json();
+            
+            if(res.uspech) {
+                curDraft.gpxTrasa = path; 
+                vykresliTrasuNaMape(curDraft); 
+                btn.innerHTML = '<i class="ph-fill ph-check-circle" style="color:#10b981;font-size:1.1rem;"></i>';
+                setTimeout(() => btn.innerHTML = origHtml, 3000);
+            } else alert("Chyba DB uložení: " + res.chyba);
+        } catch(err) { alert("Chyba při čtení XML souboru GPX."); btn.innerHTML = origHtml; }
+    };
+    reader.readAsText(file);
 }
 
 // 3. UPRAVENÝ FEED - Dělá jména a avatary klikací
@@ -459,6 +542,10 @@ async function nactiFeed(){
             ? 'margin-left:auto; background: linear-gradient(135deg, rgba(99,102,241,0.1), rgba(139,92,246,0.05)); border-color: rgba(99,102,241,0.25);' 
             : 'margin-right:auto;';
 
+        const likedByMe = prihlaseno && mujProfil && p.likes && p.likes.includes(mujProfil._id.toString());
+        const hl = likedByMe ? 'color:#ef4444;' : 'color:var(--t2);';
+        const hi = likedByMe ? 'ph-fill ph-heart' : 'ph ph-heart';
+
         const av=p.autorAvatar?`background-image:url(${p.autorAvatar});color:transparent;`:'';
         const fh=p.fotky?.length?`<div class="ps" style="margin-bottom:10px;">${p.fotky.map(img=>`<img src="${img}" class="pt2" style="width:110px;height:80px;" onclick="openGallery('${img}')">`).join('')}</div>`:'';
         const th=p.pripojenyVyletId?`<div class="lt"><div><p class="ll">Sdílený výlet</p><p class="ln">${p.pripojenyVyletLokace}</p></div><button class="btn bp" style="font-size:.76rem;padding:7px 13px;" onclick="otevritGoogleMaps('${p.pripojenyVyletId}')">Mapa</button></div>`:'';
@@ -467,8 +554,29 @@ async function nactiFeed(){
         return `<div class="fp" style="max-width:85%; ${chatStyle} animation-delay:${i*.06}s;">
             <div class="ph"><div class="pa" style="cursor:pointer;" onclick="otevritVerejnyProfil('${p.autorId}')" title="Zobrazit profil"><div class="av" style="${av}">${p.autorJmeno?.charAt(0).toUpperCase()||'U'}</div><div><p class="an" style="transition:color .2s;" onmouseover="this.style.color='var(--a1)'" onmouseout="this.style.color='currentColor'">${p.autorJmeno}</p><p class="pd">${p.datum}</p></div></div>${ak}</div>
             <p class="pt">${p.text}</p>${fh}${th}
+            <div style="display:flex; justify-content:flex-end; margin-top:8px;">
+                <button class="btnx" style="display:flex; align-items:center; gap:5px; font-size:.85rem; padding:4px 8px; border-radius:12px; transition:all .2s; cursor:pointer; background:rgba(0,0,0,0.1); border:1px solid rgba(255,255,255,0.05); ${hl}" onclick="toggleLike('${p._id}', this)">
+                    <i class="${hi}" style="transition:transform .2s;"></i> <span class="lc">${p.likes?.length || 0}</span>
+                </button>
+            </div>
         </div>`;
     }).join('');
+}
+
+async function toggleLike(postId, btn) {
+    if(!prihlaseno) return alert('Pro lajkování se musíte přihlásit.');
+    const icon = btn.querySelector('i');
+    const countSpan = btn.querySelector('.lc');
+    icon.style.transform = 'scale(1.4)';
+    setTimeout(() => icon.style.transform = 'scale(1)', 200);
+    try {
+        const res = await (await fetch('/api/feed-zmena-lajku', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({postId})})).json();
+        if(res.uspech) {
+            countSpan.innerText = res.count;
+            if(res.isActive) { btn.style.color = '#ef4444'; icon.className = 'ph-fill ph-heart'; } 
+            else { btn.style.color = 'var(--t2)'; icon.className = 'ph ph-heart'; }
+        }
+    } catch(e) {}
 }
 
 // 4. ZCELA NOVÉ FUNKCE PRO VEŘEJNÉ PROFILY

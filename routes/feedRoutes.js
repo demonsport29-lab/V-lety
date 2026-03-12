@@ -46,4 +46,21 @@ router.post('/api/upravit-feed', async (req, res) => {
     } catch (e) { res.json({ uspech: false, chyba: e.message }); }
 });
 
+router.post('/api/feed-zmena-lajku', async (req, res) => {
+    if (!req.session.userId) return res.json({ uspech: false });
+    try {
+        const { postId } = req.body;
+        const post = await FeedPost.findById(postId);
+        if (!post) return res.json({ uspech: false, chyba: 'Příspěvek nenalezen.' });
+        
+        const index = post.likes.indexOf(req.session.userId.toString());
+        let l = false;
+        if (index > -1) { post.likes.splice(index, 1); l = false; }
+        else { post.likes.push(req.session.userId.toString()); l = true; }
+        
+        await post.save();
+        res.json({ uspech: true, isActive: l, count: post.likes.length });
+    } catch (e) { res.json({ uspech: false, chyba: e.message }); }
+});
+
 module.exports = router;
