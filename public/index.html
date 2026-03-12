@@ -177,15 +177,11 @@
             <div><span class="logo-wm">Verona</span><span class="logo-tag">Trip Architect</span></div>
         </a>
         <div class="tabs" id="navTabsContainer" style="display:none;">
-            <button class="btn bgh" onclick="prepniTab('tab-denik',this)">
-              <i class="ti ti-notebook m-ico"></i><span>Můj Deník</span>
-          </button>
-          <button class="btn bgh" onclick="prepniTab('tab-feed',this)">
-              <i class="ti ti-users m-ico"></i><span>Inspirace</span>
-          </button>
-          <button class="btn bp" onclick="novaAI()">
-              <i class="ti ti-sparkles m-ico" style="font-size:1.15rem;"></i><span>Nová Cesta</span>
-          </button>
+            <button class="tab" id="t-landing" onclick="prepniTab('landing')">Domů</button>
+            <button class="tab" id="t-planovac" onclick="prepniTab('planovac')">Můj deník</button>
+            <button class="tab" id="t-verejne" onclick="prepniTab('verejne')">Inspirace</button>
+            <button class="tab" id="t-akce" onclick="prepniTab('akce')">Akce</button>
+            <button class="tab" id="t-komunita" onclick="prepniTab('komunita')">Chat</button>
         </div>
         <div class="nav-act">
             <button class="btn bg" onclick="document.getElementById('donateModal').style.display='flex'"><span>Podpořit</span><span class="m-ico"><i class="ti ti-coffee"></i></span></button>
@@ -197,15 +193,11 @@
 </nav>
 
 <div class="mnav" id="mobileTabsContainer" style="display:none;">
-    <button class="btn bgh" onclick="prepniTab('tab-denik',this)">
-        <i class="ti ti-notebook m-ico"></i><span>Deník</span>
-    </button>
-    <button class="btn bgh" onclick="prepniTab('tab-feed',this)">
-        <i class="ti ti-users m-ico"></i><span>Inspirace</span>
-    </button>
-    <button class="btn bp" onclick="novaAI()">
-        <i class="ti ti-sparkles m-ico" style="font-size:1.15rem;"></i><span>Nová Cesta</span>
-    </button>
+    <button class="tab" id="mt-landing" onclick="prepniTab('landing')">Domů</button>
+    <button class="tab" id="mt-planovac" onclick="prepniTab('planovac')">Deník</button>
+    <button class="tab" id="mt-verejne" onclick="prepniTab('verejne')">Inspirace</button>
+    <button class="tab" id="mt-akce" onclick="prepniTab('akce')">Akce</button>
+    <button class="tab" id="mt-komunita" onclick="prepniTab('komunita')">Chat</button>
 </div>
 
 <div id="viewLanding" class="wrap view au">
