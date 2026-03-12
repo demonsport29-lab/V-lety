@@ -23,7 +23,8 @@ router.post('/api/vylet', async (req, res) => {
             const weatherReq = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${loc.latitude}&longitude=${loc.longitude}&current_weather=true`);
             const weatherRes = await weatherReq.json();
             if (weatherRes.current_weather) {
-                pocasiInfo = `[Aktuálně v ${loc.name}] Teplota: ${weatherRes.current_weather.temperature}°C, Vítr: ${weatherRes.current_weather.windspeed} km/h (WMO kód oblohy: ${weatherRes.current_weather.weathercode}). Navrhni program a vybavení přesně na toto počasí!`;
+                const cw = weatherRes.current_weather;
+                pocasiInfo = `Tvá JSON odpověď pro klíč pocasi MUSÍ mít tento striktní formát: {"teplota": ${cw.temperature}, "vitr": ${cw.windspeed}, "wmo": ${cw.weathercode}}. Vygeneruj zbytek JSONu podle toho s ohledem na navržený itinerář.`;
             }
         }
     } catch (err) {
@@ -34,7 +35,7 @@ router.post('/api/vylet', async (req, res) => {
     const filtryText = vybraneFiltry && vybraneFiltry.length > 0 ? `STRIKTNĚ DODRŽ FILTRY A SPORT: ${vybraneFiltry.join(', ')}.` : "";
     const prompt = `Jsi architekt výletů VERONA. Navrhni výlet pro: ${misto}. Styl: ${specifikace}. ${filtryText}
     ${pocasiInfo}
-    Vrať POUZE VALIDNÍ JSON formát: {"lokace": "Název", "etapy": [{"cas": "09:00", "misto": "Název zastávky", "popis": "Co tam dělat", "lat": 50.08, "lng": 14.42}], "doporuceni": "Zde vypiš stručný tip Architekta na cestu (včetně upozornění na zjištěné počasí a vhodné oblečení).", "typ": "mesto", "obtiznost": 2}
+    Vrať POUZE VALIDNÍ JSON formát: {"lokace": "Název", "etapy": [{"cas": "09:00", "misto": "Název zastávky", "popis": "Co tam dělat", "lat": 50.08, "lng": 14.42}], "doporuceni": "Tip Architekta na cestu (oblečení apod.)", "pocasi": {"teplota": 15, "vitr": 5, "wmo": 0}, "typ": "mesto", "obtiznost": 2}
     VŽDY vyplň reálné GPS souřadnice lat a lng pro vykreslení trasy mape! Smaž veškeré formátování textu (ani zpětné uvozovky). JSON musí jít ihned parsovat!`;
     
     let text = (await model.generateContent(prompt)).response.text();

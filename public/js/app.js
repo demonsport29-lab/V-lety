@@ -256,6 +256,30 @@ async function generovat(){
             document.getElementById('resTitle').innerText=curDraft.lokace;
             document.getElementById('resDiffText').innerText='AI Koncept — Náročnost '+(curDraft.obtiznost||2);
             document.getElementById('resTopRating').innerHTML='<span style="font-family:var(--fm);font-size:.65rem;color:var(--t2);">Pro hodnocení nejprve uložte</span>';
+            
+            // Render Widgetu Počasí
+            const wBox = document.getElementById('resWeather');
+            if (curDraft.pocasi && curDraft.pocasi.teplota !== undefined) {
+                const wmoKody = {
+                    0: {i:'ph-sun', t:'Jasno'}, 1: {i:'ph-cloud-sun', t:'Polojasno'}, 2: {i:'ph-cloud', t:'Oblačno'}, 3: {i:'ph-clouds', t:'Zataženo'},
+                    45: {i:'ph-cloud-fog', t:'Mlha'}, 48: {i:'ph-cloud-fog', t:'Námrazová mlha'},
+                    51:{i:'ph-cloud-drizzle', t:'Slabé mrholení'}, 53:{i:'ph-cloud-drizzle', t:'Mrholení'}, 55:{i:'ph-cloud-drizzle', t:'Silné mrholení'},
+                    61:{i:'ph-cloud-rain', t:'Slabý déšť'}, 63:{i:'ph-cloud-rain', t:'Déšť'}, 65:{i:'ph-cloud-rain', t:'Silný déšť'},
+                    71:{i:'ph-cloud-snow', t:'Slabé sněžení'}, 73:{i:'ph-cloud-snow', t:'Sněžení'}, 75:{i:'ph-cloud-snow', t:'Silné sněžení'},
+                    80:{i:'ph-cloud-lightning', t:'Přeháňky'}, 81:{i:'ph-cloud-lightning', t:'Silné přeháňky'}, 82:{i:'ph-cloud-lightning', t:'Přívalové srážky'},
+                    95:{i:'ph-cloud-lightning', t:'Bouřka'}, 96:{i:'ph-cloud-lightning', t:'Silná bouřka'}, 99:{i:'ph-cloud-lightning', t:'Bouřka a kroupy'}
+                };
+                const wip = wmoKody[curDraft.pocasi.wmo] || {i:'ph-cloud-sun', t:'Neznámé'};
+                wBox.innerHTML = `
+                    <div style="display:flex; align-items:center; gap:16px; background:rgba(255,255,255,0.06); padding:12px 18px; border-radius:18px; border:1px solid rgba(255,255,255,0.1); width:max-content; margin-top:14px; box-shadow:0 8px 32px rgba(0,0,0,0.15);">
+                        <i class="ph ${wip.i}" style="font-size:2.4rem; color:var(--a3); filter:drop-shadow(0 0 12px rgba(6,182,212,0.4));"></i>
+                        <div>
+                            <div style="font-size:1.6rem; font-weight:800; font-family:var(--fm); line-height:1; margin-bottom:4px;">${curDraft.pocasi.teplota}°C</div>
+                            <div style="font-size:0.75rem; color:var(--t2); font-weight:600;">${wip.t} &nbsp;•&nbsp; Vítr ${curDraft.pocasi.vitr} km/h</div>
+                        </div>
+                    </div>`;
+                wBox.style.display = 'block';
+            } else { wBox.style.display = 'none'; }
             document.getElementById('commentsSection').style.display='none';
             document.getElementById('btnSaveAI').style.display='inline-flex';
             let h='<div class="tl">';
@@ -425,7 +449,29 @@ function otevritDetailVyletu(v){
         if(bgpx) bgpx.style.display = 'inline-flex';
     }
 
-    document.getElementById('resBody').innerHTML=v.popis;
+    const wBox = document.getElementById('resWeather');
+    if (v.pocasi && v.pocasi.teplota !== undefined) {
+        const wmoKody = {
+            0: {i:'ph-sun', t:'Jasno'}, 1: {i:'ph-cloud-sun', t:'Polojasno'}, 2: {i:'ph-cloud', t:'Oblačno'}, 3: {i:'ph-clouds', t:'Zataženo'},
+            45: {i:'ph-cloud-fog', t:'Mlha'}, 48: {i:'ph-cloud-fog', t:'Námrazová mlha'},
+            51:{i:'ph-cloud-drizzle', t:'Slabé mrholení'}, 53:{i:'ph-cloud-drizzle', t:'Mrholení'}, 55:{i:'ph-cloud-drizzle', t:'Silné mrholení'},
+            61:{i:'ph-cloud-rain', t:'Slabý déšť'}, 63:{i:'ph-cloud-rain', t:'Déšť'}, 65:{i:'ph-cloud-rain', t:'Silný déšť'},
+            71:{i:'ph-cloud-snow', t:'Slabé sněžení'}, 73:{i:'ph-cloud-snow', t:'Sněžení'}, 75:{i:'ph-cloud-snow', t:'Silné sněžení'},
+            80:{i:'ph-cloud-lightning', t:'Přeháňky'}, 81:{i:'ph-cloud-lightning', t:'Silné přeháňky'}, 82:{i:'ph-cloud-lightning', t:'Přívalové srážky'},
+            95:{i:'ph-cloud-lightning', t:'Bouřka'}, 96:{i:'ph-cloud-lightning', t:'Silná bouřka'}, 99:{i:'ph-cloud-lightning', t:'Bouřka a kroupy'}
+        };
+        const wip = wmoKody[v.pocasi.wmo] || {i:'ph-cloud-sun', t:'Neznámé'};
+        wBox.innerHTML = `
+            <div style="display:flex; align-items:center; gap:16px; background:rgba(255,255,255,0.06); padding:12px 18px; border-radius:18px; border:1px solid rgba(255,255,255,0.1); width:max-content; margin-top:14px; box-shadow:0 8px 32px rgba(0,0,0,0.15);">
+                <i class="ph ${wip.i}" style="font-size:2.4rem; color:var(--a3); filter:drop-shadow(0 0 12px rgba(6,182,212,0.4));"></i>
+                <div>
+                    <div style="font-size:1.6rem; font-weight:800; font-family:var(--fm); line-height:1; margin-bottom:4px;">${v.pocasi.teplota}°C</div>
+                    <div style="font-size:0.75rem; color:var(--t2); font-weight:600;">${wip.t} &nbsp;•&nbsp; Vítr ${v.pocasi.vitr} km/h</div>
+                </div>
+            </div>`;
+        wBox.style.display = 'block';
+    } else { wBox.style.display = 'none'; }
+
     vykresliHvezdicky(v.id,v.hodnoceni||0);
     vykresliKomentare(v.komentare||[]);
     curDraft=v;
@@ -557,7 +603,7 @@ async function nactiFeed(){
             <div style="display:flex; justify-content:flex-end; margin-top:8px;">
                 <button class="btnx" style="display:inline-flex; align-items:center; justify-content:center; gap:6px; font-size:.85rem; padding:4px 10px; width:auto; border-radius:12px; transition:all .2s; cursor:pointer; background:rgba(0,0,0,0.1); border:1px solid rgba(255,255,255,0.05); ${hl}" onclick="toggleLike('${p._id}', this)">
                     <i class="${hi}" style="transition:transform .2s; font-size:1.05rem; display:block;"></i> 
-                    <span class="lc" style="font-weight:700; display:block; padding-top:1px;">${p.likes?.length || 0}</span>
+                    <span class="lc" style="font-weight:700; display:block; line-height:1;">${p.likes?.length || 0}</span>
                 </button>
             </div>
         </div>`;
