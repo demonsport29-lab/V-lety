@@ -1,4 +1,4 @@
-﻿        :root {
+        :root {
             --fh: 'Bricolage Grotesque', sans-serif;
             --fm: 'Space Mono', monospace;
             --a1: #6366f1;
@@ -99,7 +99,8 @@
 
         /* FIELDS */
         .f{width:100%;padding:12px 15px;background-color:rgba(0,0,0,.2);border:1px solid var(--gbd2);border-radius:var(--rsm);color:var(--t1);font-family:var(--fh);font-size:.88rem;font-weight:500;transition:all .2s;margin-bottom:10px;}
-        [data-theme="light"] .f{background-color:rgba(255,255,255,.5);}
+        [data-theme="light"] .f{background-color:rgba(255,255,255,.5); color: #000; border: 1px solid rgba(0,0,0,.2);}
+        [data-theme="light"] select.f option { color: #000; background: #fff; }
         .f::placeholder{color:var(--t3);}
         .f:focus{outline:none;border-color:var(--a1);background-color:rgba(99,102,241,.08);box-shadow:0 0 0 3px rgba(99,102,241,.15);}
         textarea.f{resize:vertical;min-height:80px;}
@@ -247,12 +248,37 @@
         .custom-map-marker{background:var(--a1);width:11px;height:11px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 10px var(--a1);}
         .leaflet-popup-content-wrapper,.leaflet-popup-tip{background:#0d1117;color:#fff;border:1px solid rgba(99,102,241,.35);border-radius:14px;}
         .marker-cluster-small div,.marker-cluster-medium div,.marker-cluster-large div{background:linear-gradient(135deg,var(--a1),var(--a2))!important;color:#fff!important;font-weight:800;border-radius:50%;font-family:var(--fm);font-size:.68rem;}
+        [data-theme="light"] .leaflet-popup-content-wrapper, [data-theme="light"] .leaflet-popup-tip {background: #fff; color: #0a0a14; border-color: rgba(0,0,0,.15); box-shadow: 0 4px 20px rgba(0,0,0,.15); }
 
         /* RESULT */
         .rc{margin-bottom:22px;}
         .rtop{padding:28px 28px 22px;background:linear-gradient(135deg,rgba(99,102,241,.12),rgba(6,182,212,.06));border-radius:var(--rlg) var(--rlg) 0 0;border:1px solid var(--gbd);border-bottom:none;position:relative;overflow:hidden;}
         .rtop::after{content:'';position:absolute;top:-60px;right:-60px;width:220px;height:220px;background:radial-gradient(circle,rgba(99,102,241,.25),transparent 70%);pointer-events:none;}
         .rbody{padding:28px;background:var(--gb);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid var(--gbd);border-top:none;border-radius:0 0 var(--rlg) var(--rlg);}
+
+        /* SHIMMER TEXT */
+        @keyframes shimmer {
+            0% { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+        .shimmer-text {
+            background: linear-gradient(90deg, #a5b4fc 20%, var(--a3) 50%, #a5b4fc 80%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: shimmer 4s linear infinite;
+            display: inline-block;
+        }
+        [data-theme="light"] .shimmer-text {
+            background: linear-gradient(90deg, #4f46e5 20%, var(--a3) 50%, #4f46e5 80%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: shimmer 4s linear infinite;
+            display: inline-block;
+        }
 
         /* 📱 EXTREME MOBILE OPTIMIZATION */
         .m-ico { display: none; } /* Defaultně skryté ikony na PC */
