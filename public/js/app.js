@@ -414,7 +414,7 @@ function otevritDetailVyletu(v){
     // Novinka: Tlačítko pro kopírování cizích výletů a schování úpravy
     const bpub = document.getElementById('btnSavePublic');
     const bedit = document.getElementById('btnEditTrip');
-    const bgpx = document.getElementById('btnUploadGPX');
+    const bgpx = document.getElementById('btnUploadStrava');
     if (v.vlastnikId && mujProfil && v.vlastnikId !== mujProfil._id) {
         if(bpub) bpub.style.display = 'inline-flex';
         if(bedit) bedit.style.display = 'none';
@@ -487,7 +487,7 @@ function vykresliTrasuNaMape(v) {
 
 async function zpracovatGPX(input) {
     if(!input.files || !input.files[0] || !curOpenTripId) return;
-    const btn = document.getElementById('btnUploadGPX');
+    const btn = document.getElementById('btnUploadStrava');
     const origHtml = btn.innerHTML;
     btn.innerHTML = '<div class="spin" style="width:14px;height:14px;border-width:2px;margin:2px;"></div>';
     
@@ -555,8 +555,9 @@ async function nactiFeed(){
             <div class="ph"><div class="pa" style="cursor:pointer;" onclick="otevritVerejnyProfil('${p.autorId}')" title="Zobrazit profil"><div class="av" style="${av}">${p.autorJmeno?.charAt(0).toUpperCase()||'U'}</div><div><p class="an" style="transition:color .2s;" onmouseover="this.style.color='var(--a1)'" onmouseout="this.style.color='currentColor'">${p.autorJmeno}</p><p class="pd">${p.datum}</p></div></div>${ak}</div>
             <p class="pt">${p.text}</p>${fh}${th}
             <div style="display:flex; justify-content:flex-end; margin-top:8px;">
-                <button class="btnx" style="display:flex; align-items:center; gap:5px; font-size:.85rem; padding:4px 8px; border-radius:12px; transition:all .2s; cursor:pointer; background:rgba(0,0,0,0.1); border:1px solid rgba(255,255,255,0.05); ${hl}" onclick="toggleLike('${p._id}', this)">
-                    <i class="${hi}" style="transition:transform .2s;"></i> <span class="lc">${p.likes?.length || 0}</span>
+                <button class="btnx" style="display:inline-flex; align-items:center; justify-content:center; gap:6px; font-size:.85rem; padding:4px 10px; width:auto; border-radius:12px; transition:all .2s; cursor:pointer; background:rgba(0,0,0,0.1); border:1px solid rgba(255,255,255,0.05); ${hl}" onclick="toggleLike('${p._id}', this)">
+                    <i class="${hi}" style="transition:transform .2s; font-size:1.05rem; display:block;"></i> 
+                    <span class="lc" style="font-weight:700; display:block; padding-top:1px;">${p.likes?.length || 0}</span>
                 </button>
             </div>
         </div>`;
