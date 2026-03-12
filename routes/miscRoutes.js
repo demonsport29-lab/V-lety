@@ -4,6 +4,7 @@ const User = require('../models/User');
 const Vylet = require('../models/Vylet');
 const FeedPost = require('../models/FeedPost');
 const Komentar = require('../models/Komentar');
+const Zprava = require('../models/Zprava');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY); 
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 
@@ -66,12 +67,67 @@ router.get('/api/sdileny-vylet/:id', async (req, res) => {
 
 router.get('/api/profil/:id', async (req, res) => {
     try {
-        const user = await User.findById(req.params.id, 'jmeno prijmeni prezdivka avatar bio');
+        const user = await User.findById(req.params.id, 'jmeno prijmeni prezdivka avatar bio pratele');
         if (!user) return res.json({ uspech: false, chyba: 'Uživatel nenalezen.' });
         const verejneVylety = await Vylet.find({ vlastnikId: req.params.id, verejny: true }).sort({_id: -1});
-        res.json({ uspech: true, profil: { jmeno: user.prezdivka || `${user.jmeno} ${user.prijmeni}`, avatar: user.avatar, bio: user.bio }, vylety: verejneVylety.map(doc => ({ ...doc._doc, id: doc._id })) });
+        
+        let jePritel = false;
+        if (req.session.userId) {
+            const me = await User.findById(req.session.userId);
+            if (me && me.pratele && me.pratele.includes(req.params.id)) jePritel = true;
+        }
+
+        res.json({ uspech: true, profil: { jmeno: user.prezdivka || `${user.jmeno} ${user.prijmeni}`, avatar: user.avatar, bio: user.bio, jePritel }, vylety: verejneVylety.map(doc => ({ ...doc._doc, id: doc._id })) });
     } catch (e) { res.json({ uspech: false, chyba: e.message }); }
 });
+
+// PŘÁTELSTVÍ
+router.post('/api/pridat-pritele', async (req, res) => {
+    if (!req.session.userId) return res.json({ uspech: false, chyba: "Nepřihlášen" });
+    try {
+        const user = await User.findById(req.session.userId);
+        const { targetId } = req.body;
+        if (!user.pratele) user.pratele = [];
+        
+        if (user.pratele.includes(targetId)) {
+            user.pratele = user.pratele.filter(id => id !== targetId);
+            await user.save();
+            res.json({ uspech: true, akce: 'odebrano' });
+        } else {
+            user.pratele.push(targetId);
+            await user.save();
+            res.json({ uspech: true, akce: 'pridano' });
+        }
+    } catch (e) { res.json({ uspech: false, chyba: e.message }); }
+});
+
+// SOUKROMÉ ZPRÁVY (DM)
+router.get('/api/zpravy/:prijemceId', async (req, res) => {
+    if (!req.session.userId) return res.json({ uspech: false, chyba: "Nepřihlášen" });
+    try {
+        const mojeId = req.session.userId;
+        const jehoId = req.params.prijemceId;
+        const zpravy = await Zprava.find({
+            $or: [
+                { odesilatelId: mojeId, prijemceId: jehoId },
+                { odesilatelId: jehoId, prijemceId: mojeId }
+            ]
+        }).sort({ _id: 1 }); // od nejstarší po nejnovější
+        res.json({ uspech: true, data: zpravy });
+    } catch (e) { res.json({ uspech: false, chyba: e.message }); }
+});
+
+router.post('/api/poslat-zpravu', async (req, res) => {
+    if (!req.session.userId) return res.json({ uspech: false, chyba: "Nepřihlášen" });
+    try {
+        const { prijemceId, text } = req.body;
+        if(!text.trim()) return res.json({ uspech: false, chyba: "Prázdná zpráva" });
+        const zprava = new Zprava({ odesilatelId: req.session.userId, prijemceId, text });
+        await zprava.save();
+        res.json({ uspech: true, zprava });
+    } catch (e) { res.json({ uspech: false, chyba: e.message }); }
+});
+
 
 router.get('/api/verejne-vylety', async (req, res) => {
     try {

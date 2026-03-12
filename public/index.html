@@ -9,7 +9,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <link rel="icon" type="image/svg+xml" href="/ikona.svg">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -119,12 +119,40 @@
         <button class="btn bp bf blg" onclick="ulozitVlastni()">Uložit do deníku</button>
     </div>
 </div>
+
+<div id="chatModal" class="overlay" onclick="if(event.target===this)this.style.display='none'">
+    <div class="mb" style="max-width: 540px; padding: 24px; display:flex; flex-direction:column; height: 80vh;">
+        <div class="mh" style="margin-bottom:12px;">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <div class="av" id="chatAvatar" style="width:36px; height:36px; border-radius:12px;">U</div>
+                <div>
+                    <h2 class="mt" id="chatName" style="font-size:1.2rem; margin-bottom:0;">Chat</h2>
+                    <p class="pd" style="color:var(--t2); font-size:0.7rem;">Soukromé zprávy</p>
+                </div>
+            </div>
+            <button class="btnx" onclick="document.getElementById('chatModal').style.display='none'">✕</button>
+        </div>
+        <div class="hr" style="margin:8px 0;"></div>
+        <div id="chatHistory" style="flex:1; overflow-y:auto; padding-right:8px; display:flex; flex-direction:column; gap:12px;">
+            <!-- Bubliny zpráv -->
+        </div>
+        <div class="hr" style="margin:12px 0;"></div>
+        <div style="display:flex; gap:10px;">
+            <input type="text" id="chatInput" class="f" placeholder="Napište zprávu..." style="margin:0; flex:1;" onkeypress="if(event.key==='Enter') poslatZpravu()">
+            <button class="btn bp" style="padding:10px 18px;" onclick="poslatZpravu()"><i class="ti ti-send"></i></button>
+        </div>
+    </div>
+</div>
 <div id="publicProfileModal" class="overlay" onclick="if(event.target===this)this.style.display='none'">
     <div class="mb" style="max-width: 500px;">
         <div class="mh"><h2 class="mt" id="pubName">Profil</h2><button class="btnx" onclick="document.getElementById('publicProfileModal').style.display='none'">✕</button></div>
         <div style="text-align:center;margin-bottom:22px;">
             <div class="pa2" id="pubAvatar" style="cursor:default;">U</div>
             <p id="pubBio" style="font-size:.85rem;color:var(--t2);margin-top:14px;line-height:1.6;"></p>
+            <div id="pubActions" style="display:none; justify-content:center; gap:8px; margin-top:20px;">
+                <button class="btn bgh" id="btnPridatPritele" onclick="pridatOdebratPritele()"><i class="ti ti-user-plus" style="margin-right:4px;"></i> <span>Přidat</span></button>
+                <button class="btn bp" onclick="otevritChat()"><i class="ti ti-message-circle" style="margin-right:4px;"></i> Napsat zprávu</button>
+            </div>
         </div>
         <div class="hr"></div>
         <p class="ey" style="margin-bottom:12px;">Veřejný deník cestovatele</p>
@@ -149,27 +177,35 @@
             <div><span class="logo-wm">Verona</span><span class="logo-tag">Trip Architect</span></div>
         </a>
         <div class="tabs" id="navTabsContainer" style="display:none;">
-            <button class="tab" id="t-landing" onclick="prepniTab('landing')">Domů</button>
-            <button class="tab" id="t-planovac" onclick="prepniTab('planovac')">Můj deník</button>
-            <button class="tab" id="t-verejne" onclick="prepniTab('verejne')">Inspirace</button>
-            <button class="tab" id="t-akce" onclick="prepniTab('akce')">Akce</button>
-            <button class="tab" id="t-komunita" onclick="prepniTab('komunita')">Chat</button>
+            <button class="btn bgh" onclick="prepniTab('tab-denik',this)">
+              <i class="ti ti-notebook m-ico"></i><span>Můj Deník</span>
+          </button>
+          <button class="btn bgh" onclick="prepniTab('tab-feed',this)">
+              <i class="ti ti-users m-ico"></i><span>Inspirace</span>
+          </button>
+          <button class="btn bp" onclick="novaAI()">
+              <i class="ti ti-sparkles m-ico" style="font-size:1.15rem;"></i><span>Nová Cesta</span>
+          </button>
         </div>
         <div class="nav-act">
-            <button class="btn bg" onclick="document.getElementById('donateModal').style.display='flex'"><span>Podpořit</span><span class="m-ico"><i class="ph ph-coffee"></i></span></button>
-            <button class="btn bgh" id="btnGoogle" onclick="location.href='/auth/google'"><span>Přihlásit</span><span class="m-ico"><i class="ph ph-user"></i></span></button>
-            <button class="btn bg" id="btnProfil" onclick="otevritMujProfil()" style="display:none;"><span>Profil</span><span class="m-ico"><i class="ph ph-gear"></i></span></button>
-            <button class="btn bgh bi" style="font-size: 0.75rem; letter-spacing: 0.05em; width: auto; padding: 0 12px;" onclick="prepniRezim()"><span>Režim</span><span class="m-ico"><i class="ph ph-moon"></i></span></button>
+            <button class="btn bg" onclick="document.getElementById('donateModal').style.display='flex'"><span>Podpořit</span><span class="m-ico"><i class="ti ti-coffee"></i></span></button>
+            <button class="btn bgh" id="btnGoogle" onclick="location.href='/auth/google'"><span>Přihlásit</span><span class="m-ico"><i class="ti ti-user"></i></span></button>
+            <button class="btn bg" id="btnProfil" onclick="otevritMujProfil()" style="display:none;"><span>Profil</span><span class="m-ico"><i class="ti ti-settings"></i></span></button>
+            <button class="btn bgh bi" style="font-size: 0.75rem; letter-spacing: 0.05em; width: auto; padding: 0 12px;" onclick="prepniRezim()"><span>Režim</span><span class="m-ico"><i class="ti ti-moon"></i></span></button>
         </div>
     </div>
 </nav>
 
 <div class="mnav" id="mobileTabsContainer" style="display:none;">
-    <button class="tab" id="mt-landing" onclick="prepniTab('landing')">Domů</button>
-    <button class="tab" id="mt-planovac" onclick="prepniTab('planovac')">Deník</button>
-    <button class="tab" id="mt-verejne" onclick="prepniTab('verejne')">Inspirace</button>
-    <button class="tab" id="mt-akce" onclick="prepniTab('akce')">Akce</button>
-    <button class="tab" id="mt-komunita" onclick="prepniTab('komunita')">Chat</button>
+    <button class="btn bgh" onclick="prepniTab('tab-denik',this)">
+        <i class="ti ti-notebook m-ico"></i><span>Deník</span>
+    </button>
+    <button class="btn bgh" onclick="prepniTab('tab-feed',this)">
+        <i class="ti ti-users m-ico"></i><span>Inspirace</span>
+    </button>
+    <button class="btn bp" onclick="novaAI()">
+        <i class="ti ti-sparkles m-ico" style="font-size:1.15rem;"></i><span>Nová Cesta</span>
+    </button>
 </div>
 
 <div id="viewLanding" class="wrap view au">
@@ -351,7 +387,7 @@
                             <button class="btn bg" onclick="ulozitNovyAI()" id="btnSaveAI">Uložit do deníku</button>
                             <button class="btn bg" onclick="ulozitCiziVylet()" id="btnSavePublic" style="display:none; color:#10b981; border-color:#10b98133;">
                                 <span style="display:block;">Uložit do mého deníku</span>
-                                <i class="ph-fill ph-bookmark-simple" style="display:block; font-size:1rem;"></i>
+                                <i class="ti ti-bookmark-filled" style="display:block; font-size:1.1rem;"></i>
                             </button>
                             <button class="btn bgh bi" id="btnEditTrip" onclick="toggleEditTrip()" title="Upravit texty">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block;"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
@@ -381,7 +417,7 @@
                             <div class="av" id="myMiniAvatar">V</div>
                             <div style="flex:1;">
                                 <textarea id="newCommentText" class="f" rows="2" placeholder="Napište komentář k trase…" style="margin-bottom:8px;"></textarea>
-                                <button class="btn bp" style="font-size:.8rem;padding:8px 16px;" onclick="odeslatKomentar()">Odeslat komentář</button>
+                                <button class="btn bp" style="font-size:.8rem;padding:8px 16px; border-radius:10px;" onclick="odeslatKomentar()">Odeslat komentář <i class="ti ti-send" style="margin-left:4px;"></i></button>
                             </div>
                         </div>
                     </div>

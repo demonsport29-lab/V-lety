@@ -206,8 +206,14 @@ window._smazatAPI = async function(id) {
 };
 
 function otevritDetailVyletu(v){curOpenTripId=v.id;document.getElementById('resTitle').innerText=v.lokace;document.getElementById('resDiffText').innerText='Uloženo: '+(v.datumUlozeni||'');document.getElementById('btnSaveAI').style.display='none';document.getElementById('resBody').innerHTML=v.popis;vykresliHvezdicky(v.id,v.hodnoceni||0);vykresliKomentare(v.komentare||[]);curDraft=v;document.getElementById('resCard').style.display='block';window.scrollTo({top:document.getElementById('resCard').offsetTop-80,behavior:'smooth'});}
-function vykresliHvezdicky(id,h){document.getElementById('resTopRating').innerHTML=Array.from({length:5},(_,i)=>`<span class="star${i<h?' lit':''}" onclick="ohodnotitVylet('${id}',${i+1})">★</span>`).join('');}
-async function ohodnotitVylet(id,h){await fetch('/api/upravit-vylet',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,hodnoceni:h})});vykresliHvezdicky(id,h);nactiDnik();}
+async function hodnoceniVyletu(id, val){
+    await fetch('/api/upravit-vylet',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,hodnoceni:val})});
+    vykresliHvezdicky(id,val);nactiDB();
+}
+function vykresliHvezdicky(id, cur=0){
+    let h='';for(let i=1;i<=5;i++){h+=`<i class="ti ti-star${i<=cur?' ti-star-filled':''} star ${i<=cur?'lit':''}" onclick="hodnoceniVyletu('${id}',${i})"></i>`;}
+    document.getElementById('resTopRating').innerHTML=h;
+}
 
 function vykresliKomentare(k){
     document.getElementById('commentsSection').style.display='block';
@@ -452,18 +458,18 @@ function otevritDetailVyletu(v){
     const wBox = document.getElementById('resWeather');
     if (v.pocasi && v.pocasi.teplota !== undefined) {
         const wmoKody = {
-            0: {i:'ph-sun', t:'Jasno'}, 1: {i:'ph-cloud-sun', t:'Polojasno'}, 2: {i:'ph-cloud', t:'Oblačno'}, 3: {i:'ph-clouds', t:'Zataženo'},
-            45: {i:'ph-cloud-fog', t:'Mlha'}, 48: {i:'ph-cloud-fog', t:'Námrazová mlha'},
-            51:{i:'ph-cloud-drizzle', t:'Slabé mrholení'}, 53:{i:'ph-cloud-drizzle', t:'Mrholení'}, 55:{i:'ph-cloud-drizzle', t:'Silné mrholení'},
-            61:{i:'ph-cloud-rain', t:'Slabý déšť'}, 63:{i:'ph-cloud-rain', t:'Déšť'}, 65:{i:'ph-cloud-rain', t:'Silný déšť'},
-            71:{i:'ph-cloud-snow', t:'Slabé sněžení'}, 73:{i:'ph-cloud-snow', t:'Sněžení'}, 75:{i:'ph-cloud-snow', t:'Silné sněžení'},
-            80:{i:'ph-cloud-lightning', t:'Přeháňky'}, 81:{i:'ph-cloud-lightning', t:'Silné přeháňky'}, 82:{i:'ph-cloud-lightning', t:'Přívalové srážky'},
-            95:{i:'ph-cloud-lightning', t:'Bouřka'}, 96:{i:'ph-cloud-lightning', t:'Silná bouřka'}, 99:{i:'ph-cloud-lightning', t:'Bouřka a kroupy'}
+            0: {i:'ti-sun', t:'Jasno'}, 1: {i:'ti-cloud', t:'Polojasno'}, 2: {i:'ti-cloud', t:'Oblačno'}, 3: {i:'ti-cloud', t:'Zataženo'},
+            45: {i:'ti-mist', t:'Mlha'}, 48: {i:'ti-mist', t:'Námrazová mlha'},
+            51:{i:'ti-cloud-rain', t:'Slabé mrholení'}, 53:{i:'ti-cloud-rain', t:'Mrholení'}, 55:{i:'ti-cloud-rain', t:'Silné mrholení'},
+            61:{i:'ti-cloud-rain', t:'Slabý déšť'}, 63:{i:'ti-cloud-rain', t:'Déšť'}, 65:{i:'ti-cloud-rain', t:'Silný déšť'},
+            71:{i:'ti-snowflake', t:'Slabé sněžení'}, 73:{i:'ti-snowflake', t:'Sněžení'}, 75:{i:'ti-snowflake', t:'Silné sněžení'},
+            80:{i:'ti-cloud-storm', t:'Přeháňky'}, 81:{i:'ti-cloud-storm', t:'Silné přeháňky'}, 82:{i:'ti-cloud-storm', t:'Přívalové srážky'},
+            95:{i:'ti-cloud-storm', t:'Bouřka'}, 96:{i:'ti-cloud-storm', t:'Silná bouřka'}, 99:{i:'ti-cloud-storm', t:'Bouřka a kroupy'}
         };
-        const wip = wmoKody[v.pocasi.wmo] || {i:'ph-cloud-sun', t:'Neznámé'};
+        const wip = wmoKody[v.pocasi.wmo] || {i:'ti-cloud', t:'Neznámé'};
         wBox.innerHTML = `
             <div style="display:flex; align-items:center; gap:16px; background:rgba(255,255,255,0.06); padding:12px 18px; border-radius:18px; border:1px solid rgba(255,255,255,0.1); width:max-content; margin-top:14px; box-shadow:0 8px 32px rgba(0,0,0,0.15);">
-                <i class="ph ${wip.i}" style="font-size:2.4rem; color:var(--a3); filter:drop-shadow(0 0 12px rgba(6,182,212,0.4));"></i>
+                <i class="ti ${wip.i}" style="font-size:2.4rem; color:var(--a3); filter:drop-shadow(0 0 12px rgba(6,182,212,0.4));"></i>
                 <div>
                     <div style="font-size:1.6rem; font-weight:800; font-family:var(--fm); line-height:1; margin-bottom:4px;">${v.pocasi.teplota}°C</div>
                     <div style="font-size:0.75rem; color:var(--t2); font-weight:600;">${wip.t} &nbsp;•&nbsp; Vítr ${v.pocasi.vitr} km/h</div>
@@ -564,7 +570,7 @@ async function zpracovatGPX(input) {
             if(res.uspech) {
                 curDraft.gpxTrasa = path; 
                 vykresliTrasuNaMape(curDraft); 
-                btn.innerHTML = '<i class="ph-fill ph-check-circle" style="color:#10b981;font-size:1.1rem;"></i>';
+                btn.innerHTML = '<i class="ti ti-circle-check-filled" style="color:#10b981;font-size:1.1rem;"></i>';
                 setTimeout(() => btn.innerHTML = origHtml, 3000);
             } else alert("Chyba DB uložení: " + res.chyba);
         } catch(err) { alert("Chyba při čtení XML souboru GPX."); btn.innerHTML = origHtml; }
@@ -590,7 +596,7 @@ async function nactiFeed(){
 
         const likedByMe = prihlaseno && mujProfil && p.likes && p.likes.includes(mujProfil._id.toString());
         const hl = likedByMe ? 'color:#ef4444;' : 'color:var(--t2);';
-        const hi = likedByMe ? 'ph-fill ph-heart' : 'ph ph-heart';
+        const hi = likedByMe ? 'ti ti-heart-filled' : 'ti ti-heart';
 
         const av=p.autorAvatar?`background-image:url(${p.autorAvatar});color:transparent;`:'';
         const fh=p.fotky?.length?`<div class="ps" style="margin-bottom:10px;">${p.fotky.map(img=>`<img src="${img}" class="pt2" style="width:110px;height:80px;" onclick="openGallery('${img}')">`).join('')}</div>`:'';
@@ -620,8 +626,8 @@ async function toggleLike(postId, btn) {
         const res = await (await fetch('/api/feed-zmena-lajku', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({postId})})).json();
         if(res.uspech) {
             countSpan.innerText = res.count;
-            if(res.isActive) { btn.style.color = '#ef4444'; icon.className = 'ph-fill ph-heart'; } 
-            else { btn.style.color = 'var(--t2)'; icon.className = 'ph ph-heart'; }
+            if(res.isActive) { btn.style.color = '#ef4444'; icon.className = 'ti ti-heart-filled'; } 
+            else { btn.style.color = 'var(--t2)'; icon.className = 'ti ti-heart'; }
         }
     } catch(e) {}
 }
@@ -641,10 +647,27 @@ async function otevritVerejnyProfil(id) {
             
             document.getElementById('pubName').innerText = p.jmeno;
             document.getElementById('pubBio').innerText = p.bio || 'Tento cestovatel o sobě zatím nic nenapsal.';
-            
             const avDiv = document.getElementById('pubAvatar');
             if (p.avatar) { avDiv.style.backgroundImage = `url(${p.avatar})`; avDiv.innerText = ''; } 
             else { avDiv.style.backgroundImage = 'linear-gradient(135deg,var(--a1),var(--a3))'; avDiv.innerText = p.jmeno.charAt(0).toUpperCase(); }
+            
+            // Logika přátelství a Chat zobrazení pouze pro přihlášeného klienta (Ne na svém vlastním profilu)
+            const pubActions = document.getElementById('pubActions');
+            if (prihlaseno && mujProfil && mujProfil._id !== id) {
+                pubActions.style.display = 'flex';
+                window.aktualniCiziProfilId = id;
+                window.aktualniCiziProfilJmeno = p.jmeno;
+                window.aktualniCiziProfilAvatar = p.avatar;
+                
+                const btnFriend = document.getElementById('btnPridatPritele');
+                if (p.jePritel) {
+                    btnFriend.innerHTML = '<i class="ti ti-user-minus" style="margin-right:4px;"></i> <span>Odebrat</span>';
+                    btnFriend.className = 'btn bgh';
+                } else {
+                    btnFriend.innerHTML = '<i class="ti ti-user-plus" style="margin-right:4px;"></i> <span>Přidat přítele</span>';
+                    btnFriend.className = 'btn bg';
+                }
+            } else { pubActions.style.display = 'none'; }
             
             const c = document.getElementById('pubTrips');
             if (!window.pubTripsData.length) {
@@ -674,6 +697,74 @@ window.otevritDetailVerejnehoVyletu = function(id) {
         otevritDetailVyletu(trip); // A vykreslíme cizí trasu i s čárou!
     }
 };
+
+// --- CHAT A PŘÁTELÉ LOGIKA ---
+async function pridatOdebratPritele() {
+    if(!window.aktualniCiziProfilId) return;
+    try {
+        const res = await (await fetch('/api/pridat-pritele', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ targetId: window.aktualniCiziProfilId }) })).json();
+        if(res.uspech) { otevritVerejnyProfil(window.aktualniCiziProfilId); } // Znovu vyrenderuje tlačítka
+    } catch(e) { console.error(e); }
+}
+
+window.chatRefreshInterval = null;
+async function otevritChat() {
+    document.getElementById('publicProfileModal').style.display='none';
+    document.getElementById('chatModal').style.display='flex';
+    document.getElementById('chatName').innerText = window.aktualniCiziProfilJmeno;
+    
+    const av = document.getElementById('chatAvatar');
+    if(window.aktualniCiziProfilAvatar) { av.style.backgroundImage = `url(${window.aktualniCiziProfilAvatar})`; av.innerText = ''; }
+    else { av.style.backgroundImage = 'linear-gradient(135deg,var(--a1),var(--a3))'; av.innerText = window.aktualniCiziProfilJmeno.charAt(0).toUpperCase(); }
+    
+    nactiChat();
+    // Auto-refresh chatu
+    if(window.chatRefreshInterval) clearInterval(window.chatRefreshInterval);
+    window.chatRefreshInterval = setInterval(nactiChat, 4000);
+}
+
+// Při zavření chatu vypnout ping
+document.querySelector('#chatModal .btnx').addEventListener('click', () => { clearInterval(window.chatRefreshInterval); });
+
+async function nactiChat() {
+    if(document.getElementById('chatModal').style.display === 'none') return;
+    try {
+        const res = await (await fetch('/api/zpravy/' + window.aktualniCiziProfilId)).json();
+        if(res.uspech) {
+            const hist = document.getElementById('chatHistory');
+            // Zjištění zda jsme byli vespod
+            const isScrolledToBottom = hist.scrollHeight - hist.clientHeight <= hist.scrollTop + 20;
+
+            if(res.data.length === 0) hist.innerHTML = '<div class="es"><p>Zatím žádné zprávy. Začněte konverzaci!</p></div>';
+            else {
+                hist.innerHTML = res.data.map((z, i) => {
+                    const isMine = z.odesilatelId === mujProfil._id;
+                    const bSty = isMine ? 'background: linear-gradient(135deg, var(--a1), var(--a2)); color: white; margin-left: auto; border-bottom-right-radius: 4px;' : 'background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.05); margin-right: auto; border-bottom-left-radius: 4px;';
+                    return `
+                    <div style="max-width:75%; padding:10px 15px; border-radius:16px; font-size:0.9rem; line-height:1.5; ${bSty} animation: fadeIn 0.3s ease;">
+                        ${z.text}
+                        <div style="font-size:0.55rem; opacity:0.6; text-align:${isMine?'right':'left'}; margin-top:4px;">${z.datum}</div>
+                    </div>`;
+                }).join('');
+            }
+            if(isScrolledToBottom) hist.scrollTop = hist.scrollHeight;
+        }
+    } catch(e) {}
+}
+
+async function poslatZpravu() {
+    const inp = document.getElementById('chatInput');
+    const text = inp.value;
+    if(!text.trim() || !window.aktualniCiziProfilId) return;
+    inp.value = '';
+    
+    try {
+        await fetch('/api/poslat-zpravu', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ prijemceId: window.aktualniCiziProfilId, text }) });
+        nactiChat();
+        setTimeout(() => { const h=document.getElementById('chatHistory'); h.scrollTop=h.scrollHeight; }, 100);
+    } catch(e) {}
+}
+
 // Změna soukromí výletu (Veřejný <-> Soukromý)
 async function prepnoutSoukromi(id, stav) {
     try {
