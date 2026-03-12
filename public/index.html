@@ -344,16 +344,16 @@
                 <!-- Dynamické bubliny přátel -->
             </div>
         </div>
-        <div class="composer">
+        <div class="composer" id="communityComposer">
             <p class="clabel">// Nový příspěvek</p>
             <textarea id="feedText" class="f" rows="4" placeholder="Podělte se o zážitky, tipy nebo fotografie z cest…"></textarea>
             <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
-                <button class="btn bg" onclick="document.getElementById('feedPhotoUpload').click()" style="font-size:.8rem;">Přidat fotky</button>
+                <button class="btn bg" onclick="if(vyzadujePrihlaseni()) document.getElementById('feedPhotoUpload').click()" style="font-size:.8rem;">Přidat fotky</button>
                 <input type="file" id="feedPhotoUpload" multiple accept="image/*" style="display:none;" onchange="nactiFotkyDoFeedu(this)">
                 <select id="feedTripSelect" class="f" style="margin:0;flex:1;min-width:160px;font-size:.8rem;"><option value="">Bez navázaného výletu</option></select>
             </div>
             <div id="feedPhotoPreview" style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px;"></div>
-            <button class="btn bp bf" onclick="odeslatDoFeedu()" id="btnOdeslatFeed">Publikovat v komunitě</button>
+            <button class="btn bp bf" onclick="if(vyzadujePrihlaseni()) odeslatDoFeedu()" id="btnOdeslatFeed">Publikovat v komunitě</button>
         </div>
         <div id="feedStream">
             <div style="text-align:center;padding:48px;color:var(--t2);">
@@ -416,8 +416,8 @@
                     </div></div>
                 </div>
 
-                <button class="btn bp bf blg" id="genBtn" onclick="generovat()" style="margin-top:14px;">Sestavit itinerář AI</button>
-                <button class="btn bgh bf" onclick="document.getElementById('manualModal').style.display='flex'" style="margin-top:7px;border-radius:var(--rsm);">Vytvořit vlastní plán</button>
+                <button class="btn bp bf blg" id="genBtn" onclick="if(vyzadujePrihlaseni()) generovat()" style="margin-top:14px;">Sestavit itinerář AI</button>
+                <button class="btn bgh bf" onclick="if(vyzadujePrihlaseni()) document.getElementById('manualModal').style.display='flex'" style="margin-top:7px;border-radius:var(--rsm);">Vytvořit vlastní plán</button>
             </div>
         </aside>
 

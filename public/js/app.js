@@ -2,89 +2,140 @@ let curDraft=null,curOpenTripId=null,prihlaseno=false,mainMap=null,markerCluster
 
 function toggleContact(){const w=document.getElementById('contactWin');if(w.style.display==='flex'){w.style.display='none';return;}w.style.display='flex';w.style.flexDirection='column';}
 
+// --- HELPER: Ochranná funkce pro akce vyžadující přihlášení ---
+function vyzadujePrihlaseni() {
+    if (prihlaseno) return true;
+    const modal = document.createElement('div');
+    modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:99998;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);';
+    modal.innerHTML = `
+        <div style="background:linear-gradient(160deg,var(--gb2),var(--gb3));border:1px solid var(--gbd);border-radius:20px;padding:40px;max-width:360px;text-align:center;">
+            <div style="font-size:2.5rem;margin-bottom:16px;">🔐</div>
+            <h3 style="font-size:1.3rem;font-weight:800;margin-bottom:10px;">Pro tuto akci je potřeba účet</h3>
+            <p style="color:var(--t2);font-size:.9rem;line-height:1.6;margin-bottom:24px;">Přihlaste se zdarma přes Google a odemkněte plnou funkčnost — deník výletů, AI plánovač, chat a mnohem více.</p>
+            <button class="btn bp bf" onclick="location.href='/auth/google'" style="width:100%;margin-bottom:10px;">Přihlásit se přes Google</button>
+            <button class="btn bgh" onclick="this.closest('[style*=fixed]').remove()" style="width:100%;border:none;">Pokračovat jako host</button>
+        </div>
+    `;
+    document.body.appendChild(modal);
+    modal.addEventListener('click', e => { if(e.target === modal) modal.remove(); });
+    return false;
+}
+
 async function init(){
+    // Záložky a data dostupná ihned pro všechny (i hosty)
+    document.getElementById('navTabsContainer').style.display='flex';
+    if(window.innerWidth <= 768) document.getElementById('mobileTabsContainer').style.display='flex';
+
     try{
         const data=await(await fetch('/api/auth-status')).json();
         if(data.prihlaseno){
             prihlaseno=true;mujProfil=data.profil;
-            document.getElementById('btnGoogle').innerHTML='<span>Přihlášen</span><span class="m-ico"><i class="ph ph-check-circle"></i></span>';
+            document.getElementById('btnGoogle').innerHTML='<span>Přihlášen</span><span class="m-ico"><i class="ti ti-check"></i></span>';
             document.getElementById('btnGoogle').onclick=e=>e.preventDefault();
             document.getElementById('btnProfil').style.display='inline-flex';
             document.getElementById('btnNotif').style.display='inline-flex';
-            document.getElementById('navTabsContainer').style.display='flex';
-            if(window.innerWidth <= 768) document.getElementById('mobileTabsContainer').style.display='flex';
-            
-            // Nahodit notifikační systém pro přihlášeného klienta
+
+            // Notifikace jen pro přihlášené
             spustitNotifikace();
-            
-            // Zobrazení Newsletter okna s mírným zpožděním
+
+            // Newsletter
             if(!localStorage.getItem('verona_news')) {
-                setTimeout(() => {
-                    document.getElementById('newsletterModal').style.display='flex';
-                }, 1500);
+                setTimeout(() => { document.getElementById('newsletterModal').style.display='flex'; }, 1500);
             }
-            
-            // Dynamická změna úvodní obrazovky (Rozcestník)
+
+            // Rozcestník pro přihlášeného
             document.getElementById('landingActionBtns').innerHTML = `
                 <button class="btn bp blg" onclick="prepniTab('planovac')">Otevřít můj deník</button>
                 <button class="btn bg blg" onclick="prepniTab('verejne')">Procházet inspiraci</button>
                 <button class="btn bg blg" onclick="prepniTab('komunita')">Komunitní chat</button>
             `;
-            
-            const hash = window.location.hash.replace('#', '');
-            prepniTab(['komunita', 'planovac', 'verejne'].includes(hash) ? hash : 'landing', false);
         } else {
-            prepniTab('landing');
+            // Host: Rozcestník se zachovanou možností prohlížení
+            document.getElementById('landingActionBtns').innerHTML = `
+                <button class="btn bp blg" onclick="location.href='/auth/google'">Přihlásit se a začít</button>
+                <button class="btn bg blg" onclick="prepniTab('verejne')">Procházet výlety</button>
+                <button class="btn bg blg" onclick="prepniTab('akce')">Zobrazit akce</button>
+            `;
         }
-    }catch(e){
-        prepniTab('landing');
+    }catch(e){console.error('Auth status chyba:', e);}
+
+    // Hash routing funguje pro všechny
+    const hash = window.location.hash.replace('#', '');
+    const validniTaby = ['komunita', 'planovac', 'verejne', 'akce'];
+    if (validniTaby.includes(hash)) {
+        prepniTab(hash, false);
+    } else {
+        prepniTab('landing', false);
     }
-    await nactiDnik(); await nactiFeed(); await nactiVerejneVylety(); await nactiAkce();
-    // --- NOVÉ: Zpracování odkazu ze sdílení (Deep Linking) ---
+
+    // Načíst veřejná data (pro všechny)
+    await nactiVerejneVylety();
+    await nactiAkce();
+    await nactiFeed(); // Feed je veřejný, vidí ho i hosté
+    // Načíst privátní data jen pokud přihlášen
+    if (prihlaseno) {
+        await nactiDnik();
+    }
+
+    // Deep Linking
     const urlParams = new URLSearchParams(window.location.search);
     const sdilenyId = urlParams.get('vylet');
     if (sdilenyId) {
         try {
             const res = await (await fetch('/api/sdileny-vylet/' + sdilenyId)).json();
             if (res.uspech) {
-                setTimeout(() => {
-                    prepniTab('planovac'); // Přepne na záložku s mapou
-                    otevritDetailVyletu(res.data); // Vykreslí trasu a itinerář
-                }, 500);
+                setTimeout(() => { prepniTab('planovac'); otevritDetailVyletu(res.data); }, 500);
             } else {
                 alert('Odkaz na výlet nefunguje: ' + res.chyba);
             }
-            // Vyčistí URL adresu (aby po případném obnovení stránky odkaz zmizel)
             window.history.replaceState({}, document.title, window.location.pathname);
         } catch(e) {}
     }
-    // ---------------------------------------------------------
 }
-
 function prepniTab(tab, updateUrl = true){
-    ['landing', 'planovac', 'verejne', 'komunita'].forEach(t=>{
+    ['landing', 'planovac', 'verejne', 'komunita', 'akce'].forEach(t=>{
         const btn = document.getElementById(`t-${t}`);
         if(btn) btn.classList.remove('active');
         const m = document.getElementById(`mt-${t}`);
         if(m) m.classList.remove('active');
         
-        const viewId = t === 'landing' ? 'viewLanding' : t === 'planovac' ? 'viewPlanovac' : t === 'verejne' ? 'viewVerejne' : 'viewKomunita';
+        const viewId = t === 'landing' ? 'viewLanding' : t === 'planovac' ? 'viewPlanovac' : t === 'verejne' ? 'viewVerejne' : t === 'akce' ? 'viewAkce' : 'viewKomunita';
         const view = document.getElementById(viewId);
         if(view) view.classList.add('hidden');
     });
     
-    if (tab !== 'landing' || prihlaseno) {
-        const activeBtn = document.getElementById(`t-${tab}`);
-        if(activeBtn) activeBtn.classList.add('active');
-        const activeM = document.getElementById(`mt-${tab}`);
-        if(activeM) activeM.classList.add('active');
+    // Záložka Plánování/Deník: pro hosty zobrazit výzvu k přihlášení
+    if (tab === 'planovac' && !prihlaseno) {
+        const v = document.getElementById('viewPlanovac');
+        if(v) {
+            v.classList.remove('hidden');
+            const diary = document.getElementById('diary');
+            if(diary) diary.innerHTML = `<div class="es" style="text-align:center;padding:40px 20px;">
+                <div style="font-size:3rem;margin-bottom:16px;">🗺️</div>
+                <h3 style="margin-bottom:10px;">Váš osobní deník výletů</h3>
+                <p style="color:var(--t2);margin-bottom:20px;">Přihlaste se a začněte budovat svůj digitální cestovatelský deník s AI plánovačem.</p>
+                <button class="btn bp bf" onclick="location.href='/auth/google'">Přihlásit se přes Google</button>
+            </div>`;
+        }
+        if(updateUrl) history.pushState(null, '', '#planovac');
+        const btn = document.getElementById('t-planovac'); if(btn) btn.classList.add('active');
+        const m = document.getElementById('mt-planovac'); if(m) m.classList.add('active');
+        if(mainMap) setTimeout(()=>mainMap.invalidateSize(),200);
+        return;
     }
+
+    const activeBtn = document.getElementById(`t-${tab}`);
+    if(activeBtn) activeBtn.classList.add('active');
+    const activeM = document.getElementById(`mt-${tab}`);
+    if(activeM) activeM.classList.add('active');
     
-    const activeViewId = tab === 'landing' ? 'viewLanding' : tab === 'planovac' ? 'viewPlanovac' : tab === 'verejne' ? 'viewVerejne' : 'viewKomunita';
+    const activeViewId = tab === 'landing' ? 'viewLanding' : tab === 'planovac' ? 'viewPlanovac' : tab === 'verejne' ? 'viewVerejne' : tab === 'akce' ? 'viewAkce' : 'viewKomunita';
     const activeView = document.getElementById(activeViewId);
     if(activeView) activeView.classList.remove('hidden');
     
     if(tab==='planovac'&&mainMap)setTimeout(()=>mainMap.invalidateSize(),200);
+
+    if (tab === 'komunita' && prihlaseno) nactiFeed();
 
     if (updateUrl) {
         history.pushState(null, '', tab === 'landing' ? '/' : '#' + tab);
@@ -92,9 +143,8 @@ function prepniTab(tab, updateUrl = true){
 }
 
 window.addEventListener('popstate', () => {
-    if (!prihlaseno) return;
     const hash = window.location.hash.replace('#', '');
-    prepniTab(['komunita', 'planovac', 'verejne'].includes(hash) ? hash : 'landing', false);
+    prepniTab(['komunita', 'planovac', 'verejne', 'akce'].includes(hash) ? hash : 'landing', false);
 });
 async function nactiVerejneVylety() {
     const res = await fetch('/api/verejne-vylety');
