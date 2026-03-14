@@ -9,9 +9,9 @@ function vyzadujePrihlaseni() {
     modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:99998;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);';
     modal.innerHTML = `
         <div style="background:linear-gradient(160deg,var(--gb2),var(--gb3));border:1px solid var(--gbd);border-radius:20px;padding:40px;max-width:360px;text-align:center;">
-            <div style="font-size:2.5rem;margin-bottom:16px;">đź”</div>
+            <div style="font-size:2.5rem;margin-bottom:16px;">🔍</div>
             <h3 style="font-size:1.3rem;font-weight:800;margin-bottom:10px;">Pro tuto akci je potřeba účet</h3>
-            <p style="color:var(--t2);font-size:.9rem;line-height:1.6;margin-bottom:24px;">Přihlaste se zdarma přes Google a odemkněte plnou funkčnost â€” deník výletů, AI plánovač, chat a mnohem více.</p>
+            <p style="color:var(--t2);font-size:.9rem;line-height:1.6;margin-bottom:24px;">Přihlaste se zdarma přes Google a odemkněte plnou funkčnost — deník výletů, AI plánovač, chat a mnohem více.</p>
             <button class="btn bp bf" onclick="location.href='/auth/google'" style="width:100%;margin-bottom:10px;">Přihlásit se přes Google</button>
             <button class="btn bgh" onclick="this.closest('[style*=fixed]').remove()" style="width:100%;border:none;">Pokračovat jako host</button>
         </div>
@@ -103,14 +103,14 @@ async function nactiVerejneVylety() {
     if (!c) return;
     
     if (!data.uspech || !data.data.length) {
-        c.innerHTML = '<div class="es"><p>Zatím zde nejsou žádné veřejné výlety. BuÄŹte první!</p></div>';
+        c.innerHTML = '<div class="es"><p>Zatím zde nejsou žádné veřejné výlety. Buďte první!</p></div>';
         return;
     }
     
     window.verejneVyletyData = data.data; // Uložení pro prokliky
     
     c.innerHTML = data.data.map((x, i) => {
-        const sh = Array.from({length:5}, (_,j) => `<span class="star${j<(x.hodnoceni||0)?' lit':''}">â…</span>`).join('');
+        const sh = Array.from({length:5}, (_,j) => `<span class="star${j<(x.hodnoceni||0)?' lit':''}">★</span>`).join('');
         const av = x.autorAvatar ? `background-image:url(${x.autorAvatar});color:transparent;` : '';
         const ini = x.autorJmeno ? x.autorJmeno.charAt(0).toUpperCase() : 'U';
         
@@ -178,7 +178,7 @@ async function nactiDnik(){
     v.forEach((x,i)=>{
         sel.innerHTML+=`<option value="${x.id}">${x.lokace}</option>`;
         const k=document.createElement('div');k.className=`dc au${x.dokonceno?' done':''}`;k.style.animationDelay=`${i*.05}s`;k.dataset.id=x.id;
-        const sh=Array.from({length:5},(_,j)=>`<span class="star${j<(x.hodnoceni||0)?' lit':''}">â…</span>`).join('');
+        const sh=Array.from({length:5},(_,j)=>`<span class="star${j<(x.hodnoceni||0)?' lit':''}">★</span>`).join('');
         const fh=x.fotky?.length?`<div class="ps">${x.fotky.map(f=>`<img src="${f}" class="pt2" onclick="event.stopPropagation();openGallery('${f}')">`).join('')}</div>`:'';
         
         k.innerHTML=`
@@ -288,7 +288,7 @@ async function generovat(){
         if(res.uspech){
             curDraft=res.data;curOpenTripId=null;
             document.getElementById('resTitle').innerText=curDraft.lokace;
-            document.getElementById('resDiffText').innerText='AI Koncept â€” Náročnost '+(curDraft.obtiznost||2);
+            document.getElementById('resDiffText').innerText='AI Koncept — Náročnost '+(curDraft.obtiznost||2);
             document.getElementById('resTopRating').innerHTML='<span style="font-family:var(--fm);font-size:.65rem;color:var(--t2);">Pro hodnocení nejprve uložte</span>';
             
             // Render Widgetu Počasí
@@ -304,14 +304,14 @@ async function generovat(){
                     51:{i:'ti-cloud-rain wa-pulse wa-rain', t:'Slabé mrholení'}, 
                     53:{i:'ti-cloud-rain wa-pulse wa-rain', t:'Mrholení'}, 
                     55:{i:'ti-cloud-rain wa-pulse wa-rain', t:'Silné mrholení'},
-                    61:{i:'ti-cloud-rain wa-pulse wa-rain', t:'Slabý déšĹĄ'}, 
-                    63:{i:'ti-cloud-rain wa-pulse wa-rain', t:'DéšĹĄ'}, 
-                    65:{i:'ti-cloud-rain wa-pulse wa-rain', t:'Silný déšĹĄ'},
+                    61:{i:'ti-cloud-rain wa-pulse wa-rain', t:'Slabý déšť'}, 
+                    63:{i:'ti-cloud-rain wa-pulse wa-rain', t:'Déšť'}, 
+                    65:{i:'ti-cloud-rain wa-pulse wa-rain', t:'Silný déšť'},
                     71:{i:'ti-snowflake wa-spin wa-snow', t:'Slabé sněžení'}, 
                     73:{i:'ti-snowflake wa-spin wa-snow', t:'Sněžení'}, 
                     75:{i:'ti-snowflake wa-spin wa-snow', t:'Silné sněžení'},
-                    80:{i:'ti-cloud-storm wa-pulse wa-bolt', t:'PřeháĹky'}, 
-                    81:{i:'ti-cloud-storm wa-pulse wa-bolt', t:'Silné přeháĹky'}, 
+                    80:{i:'ti-cloud-storm wa-pulse wa-bolt', t:'Přeháňky'}, 
+                    81:{i:'ti-cloud-storm wa-pulse wa-bolt', t:'Silné přeháňky'}, 
                     82:{i:'ti-cloud-storm wa-pulse wa-bolt', t:'Přívalové srážky'},
                     95:{i:'ti-cloud-storm wa-pulse wa-bolt', t:'Bouřka'}, 
                     96:{i:'ti-cloud-storm wa-pulse wa-bolt', t:'Silná bouřka'}, 
@@ -343,7 +343,7 @@ async function generovat(){
             if(curDraft.doporuceni)h+=`<div class="ait"><span class="ait-ico">+</span><span>${curDraft.doporuceni}</span></div>`;
             document.getElementById('resBody').innerHTML=h;
             
-            // BEZPEÄŚNĂ‰ SKRYTĂŤ TLAÄŚĂŤTKA SDĂŤLENĂŤ
+            // BEZPEČNĂ‰ SKRYTĂŤ TLAČĂŤTKA SDĂŤLENĂŤ
             const shareBtn = document.getElementById('btnShareTrip');
             if(shareBtn) shareBtn.style.display = 'none';
             
@@ -379,7 +379,7 @@ function ukazAchievementModal(ach) {
     document.getElementById('achTitle').innerText = ach.nazev;
     document.getElementById('achDesc').innerText = ach.popis;
     document.getElementById('achievementModal').style.display = 'flex';
-    // Spustit konfety (pokud máme libku, nebo aspoĹ visual feedback)
+    // Spustit konfety (pokud máme libku, nebo aspoň visual feedback)
     console.log("Achievement UNLOCKED:", ach.nazev);
 }
 
@@ -410,7 +410,7 @@ async function generovatQRVyletu(shareId) {
 
 async function exportovatNaInstagramZListu(id) {
     // Toto vyžaduje detail výletu k vyrenderování do canvasu (viz existující Instagram export)
-    // Pro jednoduchost teÄŹ otevřeme detail a pak trigger
+    // Pro jednoduchost teď otevřeme detail a pak trigger
     fetch('/api/ulozene-vylety').then(r=>r.json()).then(v=>{
         const x = v.find(t=>t.id===id);
         if(x) {
@@ -476,7 +476,7 @@ async function doKalendare() {
     let detailniPopis = `Itinerář výletu: ${document.getElementById('resTitle').innerText}\n\n`;
     if (typeof curDraft !== 'undefined' && curDraft?.etapy) {
         curDraft.etapy.forEach(e => {
-            detailniPopis += `đź•’ ${e.cas} â€” ${e.misto}\nđź“ť ${e.popis}\n\n`;
+            detailniPopis += `đź•’ ${e.cas} — ${e.misto}\nđź“ť ${e.popis}\n\n`;
         });
     }
     if (typeof curDraft !== 'undefined' && curDraft?.doporuceni) {
@@ -514,12 +514,12 @@ async function doKalendare() {
     }
 }
 
-async function odeslatKontaktV2(){const pe=document.getElementById('kontaktPredmet'),ze=document.getElementById('kontaktZprava');if(!pe.value||!ze.value)return alert('VyplĹte prosím všechna pole.');const btn=event.target,orig=btn.innerText;btn.innerHTML='<div class="spin" style="margin:0 auto"></div>';btn.disabled=true;try{const r=await fetch('https://api.web3forms.com/submit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({access_key:'c8ed8521-b2ea-4c17-ad1a-2379968a739e',subject:`VERONA: ${pe.value}`,from_name:'Uživatel VERONA',message:ze.value})});const res=await r.json();if(res.success){alert('Vaše zpráva byla úspěšně odeslána. Děkujeme.');document.getElementById('contactWin').style.display='none';pe.value='';ze.value='';}else alert('Došlo k chybě: '+res.message);}catch(e){alert('Chyba při komunikaci se serverem.');}btn.innerText=orig;btn.disabled=false;}
-// 1. UPRAVENĂ FUNKCE PRO DETAIL - Zavolá kreslení mapy
+async function odeslatKontaktV2(){const pe=document.getElementById('kontaktPredmet'),ze=document.getElementById('kontaktZprava');if(!pe.value||!ze.value)return alert('Vyplňte prosím všechna pole.');const btn=event.target,orig=btn.innerText;btn.innerHTML='<div class="spin" style="margin:0 auto"></div>';btn.disabled=true;try{const r=await fetch('https://api.web3forms.com/submit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({access_key:'c8ed8521-b2ea-4c17-ad1a-2379968a739e',subject:`VERONA: ${pe.value}`,from_name:'Uživatel VERONA',message:ze.value})});const res=await r.json();if(res.success){alert('Vaše zpráva byla úspěšně odeslána. Děkujeme.');document.getElementById('contactWin').style.display='none';pe.value='';ze.value='';}else alert('Došlo k chybě: '+res.message);}catch(e){alert('Chyba při komunikaci se serverem.');}btn.innerText=orig;btn.disabled=false;}
+// 1. UPRAVENÁ FUNKCE PRO DETAIL - Zavolá kreslení mapy
 function otevritDetailVyletu(v){
     curOpenTripId=v.id;
     
-    // BEZPEÄŚNĂ‰ ZOBRAZENĂŤ TLAÄŚĂŤTKA SDĂŤLENĂŤ
+    // BEZPEČNĂ‰ ZOBRAZENĂŤ TLAČĂŤTKA SDĂŤLENĂŤ
     const shareBtn = document.getElementById('btnShareTrip');
     if(shareBtn) shareBtn.style.display = 'inline-flex';
     
@@ -553,14 +553,14 @@ function otevritDetailVyletu(v){
             51:{i:'ti-cloud-rain wa-pulse wa-rain', t:'Slabé mrholení'}, 
             53:{i:'ti-cloud-rain wa-pulse wa-rain', t:'Mrholení'}, 
             55:{i:'ti-cloud-rain wa-pulse wa-rain', t:'Silné mrholení'},
-            61:{i:'ti-cloud-rain wa-pulse wa-rain', t:'Slabý déšĹĄ'}, 
-            63:{i:'ti-cloud-rain wa-pulse wa-rain', t:'DéšĹĄ'}, 
-            65:{i:'ti-cloud-rain wa-pulse wa-rain', t:'Silný déšĹĄ'},
+            61:{i:'ti-cloud-rain wa-pulse wa-rain', t:'Slabý déšť'}, 
+            63:{i:'ti-cloud-rain wa-pulse wa-rain', t:'Déšť'}, 
+            65:{i:'ti-cloud-rain wa-pulse wa-rain', t:'Silný déšť'},
             71:{i:'ti-snowflake wa-spin wa-snow', t:'Slabé sněžení'}, 
             73:{i:'ti-snowflake wa-spin wa-snow', t:'Sněžení'}, 
             75:{i:'ti-snowflake wa-spin wa-snow', t:'Silné sněžení'},
-            80:{i:'ti-cloud-storm wa-pulse wa-bolt', t:'PřeháĹky'}, 
-            81:{i:'ti-cloud-storm wa-pulse wa-bolt', t:'Silné přeháĹky'}, 
+            80:{i:'ti-cloud-storm wa-pulse wa-bolt', t:'Přeháňky'}, 
+            81:{i:'ti-cloud-storm wa-pulse wa-bolt', t:'Silné přeháňky'}, 
             82:{i:'ti-cloud-storm wa-pulse wa-bolt', t:'Přívalové srážky'},
             95:{i:'ti-cloud-storm wa-pulse wa-bolt', t:'Bouřka'}, 
             96:{i:'ti-cloud-storm wa-pulse wa-bolt', t:'Silná bouřka'}, 
@@ -610,7 +610,7 @@ async function ulozitCiziVylet() {
     }
 }
 
-// 2. ZCELA NOVĂ FUNKCE - Kreslí polyline trasu na mapu
+// 2. ZCELA NOVÁ FUNKCE - Kreslí polyline trasu na mapu
 function vykresliTrasuNaMape(v) {
     if (!mainMap) return;
     if (curPolyline) { mainMap.removeLayer(curPolyline); curPolyline = null; } 
@@ -734,7 +734,7 @@ async function toggleLike(postId, btn) {
     } catch(e) {}
 }
 
-// 4. ZCELA NOVĂ‰ FUNKCE PRO VEĹEJNĂ‰ PROFILY
+// 4. ZCELA NOVĂ‰ FUNKCE PRO VEŘEJNĂ‰ PROFILY
 window.pubTripsData = []; // Záložní úložiště pro prokliky
 async function otevritVerejnyProfil(id) {
     if (!id) return;
@@ -800,7 +800,7 @@ window.otevritDetailVerejnehoVyletu = function(id) {
     }
 };
 
-// --- CHAT A PĹĂTELĂ‰ LOGIKA ---
+// --- CHAT A PŘÁTELĂ‰ LOGIKA ---
 async function pridatOdebratPritele() {
     if(!window.aktualniCiziProfilId) return;
     try {
@@ -905,7 +905,7 @@ async function prepnoutStav(id, stav) {
     }
 }
 
-// 5. FRIENDLY-CODE a PĹĂTELĂ‰ HUB
+// 5. FRIENDLY-CODE a PŘÁTELĂ‰ HUB
 function kopirovatMujKod() {
     const input = document.getElementById('mujFriendlyCode');
     input.select();
@@ -1076,7 +1076,7 @@ async function nactiMujProfil() {
                         <div id="${avId}" class="av" style="width:80px; height:80px; font-size:2rem; border:3px solid var(--a1);"></div>
                         <div style="flex:1;">
                             <h2 style="font-size:1.8rem; font-weight:800; margin-bottom:4px;">${u.prezdivka}</h2>
-                            <p style="color:var(--t2); font-size:0.9rem;">ÄŚlenem od: ${new Date(u.datumRegistrace).toLocaleDateString()}</p>
+                            <p style="color:var(--t2); font-size:0.9rem;">Členem od: ${new Date(u.datumRegistrace).toLocaleDateString()}</p>
                         </div>
                         <button class="btn bgh" onclick="prepniProfilPrihlaseni()" title="Odhlásit se"><i class="ti ti-logout" style="font-size:1.2rem;"></i></button>
                     </div>
@@ -1162,7 +1162,7 @@ async function nactiAkce() {
     `).join('');
 }
 
-// NezapomeĹ přidat `await nactiAkce();` do funkce init() hned vedle `await nactiVerejneVylety();`!
+// Nezapomeň přidat `await nactiAkce();` do funkce init() hned vedle `await nactiVerejneVylety();`!
 function prihlasitNewsletter() {
     const btn = document.getElementById('btnNews');
     btn.innerHTML = 'âś“ Jste na seznamu!';
@@ -1197,7 +1197,7 @@ async function otevritMujProfil() {
 function vykresliGraf(staty) {
     const ctx = document.getElementById('profilGraf').getContext('2d');
     
-    // Pokud už tam starý graf je, zničíme ho, aĹĄ nedělá neplechu
+    // Pokud už tam starý graf je, zničíme ho, ať nedělá neplechu
     if (mujChart) mujChart.destroy();
 
     const barvaTextu = document.documentElement.getAttribute('data-theme') === 'light' ? '#333' : '#a5b4fc';
@@ -1288,7 +1288,7 @@ window.ulozitNovouAkci = async function() {
         vstupenkyUrl: document.getElementById('akceVstupenky').value.trim()
     };
     
-    if (!data.nazev || !data.datum || !data.popis) return alert('DoplĹte alespoĹ Název, Datum a Popis.');
+    if (!data.nazev || !data.datum || !data.popis) return alert('Doplňte alespoň Název, Datum a Popis.');
     
     const btn = event.target;
     const oldHtml = btn.innerHTML;
@@ -1328,7 +1328,7 @@ async function toggleEditTrip() {
     const body = document.getElementById('resBody');
     
     if (!isEditingTrip) {
-        // ZAPNUTĂŤ REĹ˝IMU ĂšPRAV
+        // ZAPNUTĂŤ REŽIMU ĂšPRAV
         isEditingTrip = true;
         title.contentEditable = true;
         body.contentEditable = true;
@@ -1346,7 +1346,7 @@ async function toggleEditTrip() {
         btn.classList.replace("bgh", "bp"); // Zvýraznění tlačítka
         
     } else {
-        // VYPNUTĂŤ A ULOĹ˝ENĂŤ ĂšPRAV
+        // VYPNUTĂŤ A ULOŽENĂŤ ĂšPRAV
         isEditingTrip = false;
         title.contentEditable = false;
         body.contentEditable = false;

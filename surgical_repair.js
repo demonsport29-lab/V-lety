@@ -2,44 +2,12 @@
 const fs = require('fs');
 
 const mapping = {
-    'Ăˇ': 'á',
-    'Ĺˇ': 'š',
-    'ÄŤ': 'č',
-    'Ĺ™': 'ř',
-    'Ĺľ': 'ž',
-    'Ă˝': 'ý',
-    'Ă­': 'í',
-    'Ă©': 'é',
-    'Ä›': 'ě',
-    'Ăş': 'ú',
-    'ĹŻ': 'ů',
-    'Ăł': 'ó',
-    'ďź”': '🔍',
-    'potĹ™eba': 'potřeba',
-    'ĂşÄŤet': 'účet',
-    'pĹ™ihlĂˇĹˇenĂ­': 'přihlášení',
-    'PĹ™ihlaste': 'Přihlaste',
-    'denĂ­k': 'deník',
-    'vĂ˝letĹŻ': 'výletů',
-    'plĂˇnovaÄŤ': 'plánovač',
-    'mnohem': 'mnohem',
-    'PĹ™ihlĂˇĹˇen': 'Přihlášen',
-    'OtevĹ™Ă­t': 'Otevřít',
-    'mĹŻj': 'můj',
-    'vĂ˝lety': 'výlety',
-    'NaÄŤĂ­st': 'Načíst',
-    'veĹ™ejnĂˇ': 'veřejná',
-    'ZĂˇloĹľky': 'Záložky',
-    'ihned': 'ihned',
-    'vĹˇechny': 'všechny',
-    'vyĹľadujĂ­cĂ­': 'vyžadující',
-    'VĂ˝let': 'Výlet',
-    'VĂ˝bornÄ›': 'Výborně',
-    'ĂšSPÄšCH': 'ÚSPĚCH',
-    'ODEMÄŚEN': 'ODEMČEN',
-    'ĂşspÄ›ch': 'úspěch',
-    'zĂ­skal': 'získal',
-    'SkvÄ›lĂ©': 'Skvělé'
+    // Lowercase
+    'Ăˇ': 'á', 'Ĺˇ': 'š', 'ÄŤ': 'č', 'Ĺ™': 'ř', 'Ĺľ': 'ž', 'Ă˝': 'ý', 'Ă­': 'í', 'Ă©': 'é', 'Ä›': 'ě', 'Ăş': 'ú', 'ĹŻ': 'ů', 'Ăł': 'ó', 'ÄŹ': 'ď', 'ĹĄ': 'ť', 'Ĺ': 'ň',
+    // Uppercase
+    'Ă\x81': 'Á', 'ÄŚ': 'Č', 'ÄŽ': 'Ď', 'Ă\x89': 'É', 'Äš': 'Ě', 'Ă\x8D': 'Í', 'Ĺ‡': 'Ň', 'Ă\x93': 'Ó', 'Ĺ\x98': 'Ř', 'Ĺ\xa0': 'Š', 'Ĺ¤': 'Ť', 'Ă\x9A': 'Ú', 'ĹŽ': 'Ů', 'Ă\x9D': 'Ý', 'Ĺ˝': 'Ž',
+    // Symbols/Special
+    'â˜…': '★', 'đź”': '🔍', 'â€”': '—'
 };
 
 function repairFile(filePath) {
@@ -47,9 +15,15 @@ function repairFile(filePath) {
     let content = fs.readFileSync(filePath, 'utf8');
     let original = content;
     
-    for (const [garbage, correct] of Object.entries(mapping)) {
-        content = content.split(garbage).join(correct);
-    }
+    // We need to be careful with overlapping patterns. 
+    // Longer patterns should be replaced first, or we should use a regex that matches any of them.
+    
+    // Create a regex from keys, sorted by length descending
+    const sortedKeys = Object.keys(mapping).sort((a, b) => b.length - a.length);
+    const escapedKeys = sortedKeys.map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+    const regex = new RegExp(escapedKeys.join('|'), 'g');
+    
+    content = content.replace(regex, (matched) => mapping[matched]);
     
     if (content !== original) {
         console.log(`Repaired content in ${filePath}`);
