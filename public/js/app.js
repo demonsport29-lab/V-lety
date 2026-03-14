@@ -260,12 +260,12 @@ async function nactiDnik(){
             <div class="pr"><span class="chip ${x.verejny?'ci':'cm'}">${x.verejny?'Veřejný':'Soukromý'}</span><button class="btn bgh" style="padding:4px 11px;font-size:.7rem;border-radius:8px;" onclick="event.stopPropagation();prepnoutSoukromi('${x.id}',${!x.verejny})">Změnit</button></div>
             <div class="sr"><div></div><div style="text-align:right;"><span class="sl">Komentáře</span><span class="sv">${x.komentare?.length||0}</span></div></div>
             ${fh}
-            <div class="ar-unified" style="display:grid; grid-template-columns: repeat(4, 1fr); gap:8px; margin-top:16px;">
-                <button class="btn bg bi" onclick="event.stopPropagation();otevritGoogleMaps('${x.id}')" style="justify-content:center; border-radius:10px; height:42px;" title="Mapa"><i class="ti ti-map-2"></i></button>
-                <button class="btn bg bi btn-ig" onclick="event.stopPropagation();exportujIGZListu('${x.id}')" style="justify-content:center; border-radius:10px; height:42px;" title="Instagram"><i class="ti ti-brand-instagram"></i></button>
-                <button class="btn bg bi btn-strava" onclick="event.stopPropagation();nahrajStravaZListu('${x.id}')" style="justify-content:center; border-radius:10px; height:42px;" title="Strava"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/></svg></button>
-                <button class="btn bg bi btn-qr" onclick="event.stopPropagation();generovatQRVyletu('${x.shareId}')" style="justify-content:center; border-radius:10px; height:42px;" title="QR Kód"><i class="ti ti-qrcode"></i></button>
-                <button class="btn ${x.dokonceno?'bgh':'bp'}" style="justify-content:center; border-radius:10px; grid-column: span 4; margin-top:4px;" onclick="event.stopPropagation();prepnoutStav('${x.id}',${!x.dokonceno})">${x.dokonceno?'Hotovo':'Splnit'}</button>
+            <div class="ar-unified" style="display:grid; grid-template-columns: repeat(4, 1fr); gap:8px; margin-top:16px; justify-items: center;">
+                <button class="btn bg bi" onclick="event.stopPropagation();otevritGoogleMaps('${x.id}')" style="justify-content:center; border-radius:10px; height:42px; width:100%;" title="Mapa"><i class="ti ti-map-2"></i></button>
+                <button class="btn bg bi btn-ig" onclick="event.stopPropagation();exportujIGZListu('${x.id}', event)" style="justify-content:center; border-radius:10px; height:42px; width:100%;" title="Instagram"><i class="ti ti-brand-instagram"></i></button>
+                <button class="btn bg bi btn-strava" onclick="event.stopPropagation();nahrajStravaZListu('${x.id}')" style="justify-content:center; border-radius:10px; height:42px; width:100%;" title="Strava"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="display:block; margin: 0 auto;"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/></svg></button>
+                <button class="btn bg bi btn-qr" onclick="event.stopPropagation();generovatQRVyletu('${x.shareId}','${x.id}')" style="justify-content:center; border-radius:10px; height:42px; width:100%;" title="QR Kód"><i class="ti ti-qrcode"></i></button>
+                <button class="btn ${x.dokonceno?'bgh':'bp'}" style="justify-content:center; border-radius:10px; grid-column: span 4; margin-top:4px; width:100%;" onclick="event.stopPropagation();prepnoutStav('${x.id}',${!x.dokonceno})">${x.dokonceno?'Hotovo':'Splnit'}</button>
             </div>`;
 
         k.onclick=e=>{if(e.target.closest('button')||e.target.closest('img'))return;otevritDetailVyletu(x);};
@@ -499,19 +499,28 @@ async function generovatQRVyletu(shareId) {
     }
 }
 
-async function exportujIGZListu(id) {
-    const res = await (await fetch('/api/ulozene-vylety')).json();
-    const x = res.find(t=>t.id===id);
+async function exportujIGZListu(id, event) {
+    const x = vListBackup.find(t=>t.id===id);
     if(x) {
-        otevritDetailVyletu(x);
-        setTimeout(() => {
-            const mockEvent = { currentTarget: document.getElementById('btnShareIG') };
-            exportovatNaInstagram(mockEvent);
-        }, 600);
+        exportovatNaInstagram({ currentTarget: event.currentTarget }, x);
     }
 }
-window.nahrajStravaZListu = function(id) {
-    const v = vListBackup.find(t=>t.id===id); // We'll need to store vListBackup
+async function generovatQRVyletu(shareId, id) {
+    let sid = shareId;
+    if(!sid || sid === 'undefined') {
+        const res = await (await fetch('/api/ulozit-vylet-share-id/' + id)).json();
+        sid = res.shareId;
+    }
+    if(!sid) return alert('Tento výlet zatím nemá unikátní odkaz pro QR.');
+    const qrUrl = window.location.origin + '/s/' + sid;
+    const resQR = await (await fetch('/api/generovat-qr?text=' + encodeURIComponent(qrUrl))).json();
+    if(resQR.data) {
+        document.getElementById('lightboxImg').src = resQR.data;
+        document.getElementById('lightbox').style.display = 'flex';
+    }
+}
+ window.nahrajStravaZListu = function(id) {
+    const v = vListBackup.find(t=>t.id===id); 
     if(v) {
         curOpenTripId = id;
         document.getElementById('gpxUpload').click();
@@ -1558,8 +1567,9 @@ function ukazToast(titulek, text) {
     }, 4500);
 }
 // --- INSTAGRAM EXPORT ---
-async function exportovatNaInstagram(event) {
-    if (typeof curDraft === 'undefined' || !curDraft) return alert('Nejdříve musíte mít vygenerovaný výlet.');
+async function exportovatNaInstagram(event, tripOverride = null) {
+    const trip = tripOverride || curDraft;
+    if (!trip) return alert('Nejdříve musíte mít vygenerovaný výlet.');
     
     // 1. Změna tlačítka na loading
     const btn = event.currentTarget;
@@ -1568,12 +1578,12 @@ async function exportovatNaInstagram(event) {
     
     try {
         // 2. Naplnění dat do IG šablony
-        document.getElementById('igExportTitle').innerText = document.getElementById('resTitle').innerText;
+        document.getElementById('igExportTitle').innerText = trip.lokace || 'Můj výlet';
         
         let zastavkyHtml = '';
-        if (curDraft.etapy && curDraft.etapy.length > 0) {
+        if (trip.etapy && trip.etapy.length > 0) {
             // Vezmeme max 4 zastávky, aby se to do obrázku hezky vešlo
-            curDraft.etapy.slice(0, 4).forEach((e, i) => {
+            trip.etapy.slice(0, 4).forEach((e, i) => {
                 zastavkyHtml += `
                 <div style="display:flex; gap:16px; align-items:flex-start;">
                     <div style="width:40px; height:40px; border-radius:14px; background:linear-gradient(135deg, #6366f1, #8b5cf6); color:white; display:flex; align-items:center; justify-content:center; font-weight:bold; font-family:'Space Mono', monospace; flex-shrink:0;">${i+1}</div>
@@ -1583,11 +1593,11 @@ async function exportovatNaInstagram(event) {
                     </div>
                 </div>`;
             });
-            if (curDraft.etapy.length > 4) {
-                zastavkyHtml += `<p style="color:rgba(255,255,255,0.4); font-style:italic; margin-top:8px; font-size:0.95rem;">+ dalších ${curDraft.etapy.length - 4} zastávek v aplikaci...</p>`;
+            if (trip.etapy.length > 4) {
+                zastavkyHtml += `<p style="color:rgba(255,255,255,0.4); font-style:italic; margin-top:8px; font-size:0.95rem;">+ dalších ${trip.etapy.length - 4} zastávek v aplikaci...</p>`;
             }
         } else {
-            zastavkyHtml = '<p style="color:rgba(255,255,255,0.8); font-size:1.1rem; line-height:1.6;">' + (curDraft.popis ? curDraft.popis.replace(/<[^>]*>?/gm, '').substring(0, 200) + '...' : 'Krásný výlet do přírody.') + '</p>';
+            zastavkyHtml = '<p style="color:rgba(255,255,255,0.8); font-size:1.1rem; line-height:1.6;">' + (trip.popis ? trip.popis.replace(/<[^>]*>?/gm, '').substring(0, 200) + '...' : 'Krásný výlet do přírody.') + '</p>';
         }
         document.getElementById('igExportBody').innerHTML = zastavkyHtml;
 
