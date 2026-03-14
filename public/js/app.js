@@ -276,27 +276,27 @@ async function generovat(){
             
             // Render Widgetu Počasí
             const wBox = document.getElementById('resWeather');
-            if (curDraft.pocasi && curDraft.pocasi.teplota !== undefined) {
-                const wmoKody = {
-                    0: {i:'ph-sun', t:'Jasno'}, 1: {i:'ph-cloud-sun', t:'Polojasno'}, 2: {i:'ph-cloud', t:'Oblačno'}, 3: {i:'ph-clouds', t:'Zataženo'},
-                    45: {i:'ph-cloud-fog', t:'Mlha'}, 48: {i:'ph-cloud-fog', t:'Námrazová mlha'},
-                    51:{i:'ph-cloud-drizzle', t:'Slabé mrholení'}, 53:{i:'ph-cloud-drizzle', t:'Mrholení'}, 55:{i:'ph-cloud-drizzle', t:'Silné mrholení'},
-                    61:{i:'ph-cloud-rain', t:'Slabý déšť'}, 63:{i:'ph-cloud-rain', t:'Déšť'}, 65:{i:'ph-cloud-rain', t:'Silný déšť'},
-                    71:{i:'ph-cloud-snow', t:'Slabé sněžení'}, 73:{i:'ph-cloud-snow', t:'Sněžení'}, 75:{i:'ph-cloud-snow', t:'Silné sněžení'},
-                    80:{i:'ph-cloud-lightning', t:'Přeháňky'}, 81:{i:'ph-cloud-lightning', t:'Silné přeháňky'}, 82:{i:'ph-cloud-lightning', t:'Přívalové srážky'},
-                    95:{i:'ph-cloud-lightning', t:'Bouřka'}, 96:{i:'ph-cloud-lightning', t:'Silná bouřka'}, 99:{i:'ph-cloud-lightning', t:'Bouřka a kroupy'}
-                };
-                const wip = wmoKody[curDraft.pocasi.wmo] || {i:'ph-cloud-sun', t:'Neznámé'};
-                wBox.innerHTML = `
-                    <div style="display:flex; align-items:center; gap:16px; background:rgba(255,255,255,0.06); padding:12px 18px; border-radius:18px; border:1px solid rgba(255,255,255,0.1); width:max-content; margin-top:14px; box-shadow:0 8px 32px rgba(0,0,0,0.15);">
-                        <i class="ph ${wip.i}" style="font-size:2.4rem; color:var(--a3); filter:drop-shadow(0 0 12px rgba(6,182,212,0.4));"></i>
-                        <div>
-                            <div style="font-size:1.6rem; font-weight:800; font-family:var(--fm); line-height:1; margin-bottom:4px;">${curDraft.pocasi.teplota}°C</div>
-                            <div style="font-size:0.75rem; color:var(--t2); font-weight:600;">${wip.t} &nbsp;•&nbsp; Vítr ${curDraft.pocasi.vitr} km/h</div>
-                        </div>
-                    </div>`;
-                wBox.style.display = 'block';
-            } else { wBox.style.display = 'none'; }
+    if (v.pocasi && v.pocasi.teplota !== undefined) {
+        const wmoKody = {
+            0: {i:'ph-sun', t:'Jasno'}, 1: {i:'ph-cloud-sun', t:'Polojasno'}, 2: {i:'ph-cloud', t:'Oblačno'}, 3: {i:'ph-clouds', t:'Zataženo'},
+            45: {i:'ph-cloud-fog', t:'Mlha'}, 48: {i:'ph-cloud-fog', t:'Námrazová mlha'},
+            51:{i:'ph-cloud-drizzle', t:'Slabé mrholení'}, 53:{i:'ph-cloud-drizzle', t:'Mrholení'}, 55:{i:'ph-cloud-drizzle', t:'Silné mrholení'},
+            61:{i:'ph-cloud-rain', t:'Slabý déšť'}, 63:{i:'ph-cloud-rain', t:'Déšť'}, 65:{i:'ph-cloud-rain', t:'Silný déšť'},
+            71:{i:'ph-cloud-snow', t:'Slabé sněžení'}, 73:{i:'ph-cloud-snow', t:'Sněžení'}, 75:{i:'ph-cloud-snow', t:'Silné sněžení'},
+            80:{i:'ph-cloud-lightning', t:'Přeháňky'}, 81:{i:'ph-cloud-lightning', t:'Silné přeháňky'}, 82:{i:'ph-cloud-lightning', t:'Přívalové srážky'},
+            95:{i:'ph-cloud-lightning', t:'Bouřka'}, 96:{i:'ph-cloud-lightning', t:'Silná bouřka'}, 99:{i:'ph-cloud-lightning', t:'Bouřka a kroupy'}
+        };
+        const wip = wmoKody[v.pocasi.wmo] || {i:'ph-cloud-sun', t:'Neznámé'};
+        wBox.innerHTML = `
+            <div style="display:flex; align-items:center; gap:16px; background:rgba(255,255,255,0.06); padding:12px 18px; border-radius:18px; border:1px solid rgba(255,255,255,0.1); width:max-content; margin-top:14px; box-shadow:0 8px 32px rgba(0,0,0,0.15);">
+                <i class="ph ${wip.i}" style="font-size:2.4rem; color:var(--a3); filter:drop-shadow(0 0 12px rgba(6,182,212,0.4)); display:block;"></i>
+                <div>
+                    <div style="font-size:1.6rem; font-weight:800; font-family:var(--fm); line-height:1; margin-bottom:4px;">${v.pocasi.teplota}°C</div>
+                    <div style="font-size:0.75rem; color:var(--t2); font-weight:600;">${wip.t} &nbsp;•&nbsp; Vítr ${v.pocasi.vitr} km/h</div>
+                </div>
+            </div>`;
+        wBox.style.display = 'block';
+    } else { wBox.style.display = 'none'; }
             document.getElementById('commentsSection').style.display='none';
             document.getElementById('btnSaveAI').style.display='inline-flex';
             let h='<div class="tl">';
@@ -1272,4 +1272,65 @@ function ukazToast(titulek, text) {
         t.style.opacity = '0';
         setTimeout(() => t.remove(), 400);
     }, 4500);
+}
+// --- INSTAGRAM EXPORT ---
+async function exportovatNaInstagram(event) {
+    if (typeof curDraft === 'undefined' || !curDraft) return alert('Nejdříve musíte mít vygenerovaný výlet.');
+    
+    // 1. Změna tlačítka na loading
+    const btn = event.currentTarget;
+    const origHtml = btn.innerHTML;
+    btn.innerHTML = '<div class="spin" style="width:16px;height:16px;border-width:2px;border-top-color:#d946ef;"></div>';
+    
+    try {
+        // 2. Naplnění dat do IG šablony
+        document.getElementById('igExportTitle').innerText = document.getElementById('resTitle').innerText;
+        
+        let zastavkyHtml = '';
+        if (curDraft.etapy && curDraft.etapy.length > 0) {
+            // Vezmeme max 4 zastávky, aby se to do obrázku hezky vešlo
+            curDraft.etapy.slice(0, 4).forEach((e, i) => {
+                zastavkyHtml += `
+                <div style="display:flex; gap:16px; align-items:flex-start;">
+                    <div style="width:40px; height:40px; border-radius:14px; background:linear-gradient(135deg, #6366f1, #8b5cf6); color:white; display:flex; align-items:center; justify-content:center; font-weight:bold; font-family:'Space Mono', monospace; flex-shrink:0;">${i+1}</div>
+                    <div style="padding-top:2px;">
+                        <h4 style="font-size:1.2rem; font-weight:700; margin:0 0 4px 0;">${e.misto}</h4>
+                        <p style="font-size:0.95rem; color:rgba(255,255,255,0.6); margin:0;">${e.cas}</p>
+                    </div>
+                </div>`;
+            });
+            if (curDraft.etapy.length > 4) {
+                zastavkyHtml += `<p style="color:rgba(255,255,255,0.4); font-style:italic; margin-top:8px; font-size:0.95rem;">+ dalších ${curDraft.etapy.length - 4} zastávek v aplikaci...</p>`;
+            }
+        } else {
+            zastavkyHtml = '<p style="color:rgba(255,255,255,0.8); font-size:1.1rem; line-height:1.6;">' + (curDraft.popis ? curDraft.popis.replace(/<[^>]*>?/gm, '').substring(0, 200) + '...' : 'Krásný výlet do přírody.') + '</p>';
+        }
+        document.getElementById('igExportBody').innerHTML = zastavkyHtml;
+
+        // 3. Počkáme chvilku na vykreslení DOMu
+        await new Promise(r => setTimeout(r, 100));
+
+        // 4. Vyrenderování obrázku přes html2canvas
+        const exportFrame = document.getElementById('igExportFrame');
+        const canvas = await html2canvas(exportFrame, {
+            scale: 2, // 2x rozlišení pro hezkou ostrost
+            backgroundColor: '#060810',
+            logging: false,
+            useCORS: true
+        });
+        
+        // 5. Stažení obrázku
+        const imgData = canvas.toDataURL('image/png');
+        const link = document.createElement('a');
+        link.download = `Verona_Story_${document.getElementById('igExportTitle').innerText.replace(/\s+/g, '_')}.png`;
+        link.href = imgData;
+        link.click();
+        
+        ukazToast('Export dokončen', 'Obrázek byl stažen! Nyní ho můžete nahrát do Instagram Stories.');
+    } catch (err) {
+        alert('Chyba při exportu: ' + err.message);
+    }
+    
+    // 6. Vrácení tlačítka do původního stavu
+    btn.innerHTML = origHtml;
 }

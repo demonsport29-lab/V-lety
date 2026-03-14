@@ -17,13 +17,33 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
     <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
 
 <!-- Toast Kontejner na vyskakovací hlásičky -->
 <div id="toastContainer" style="position:fixed; bottom:24px; right:24px; z-index:99999; display:flex; flex-direction:column; gap:12px; pointer-events:none;"></div>
-
+<div id="igExportFrame" style="position:fixed; top:-9999px; left:-9999px; width:450px; height:800px; background:#060810; color:white; padding:40px; display:flex; flex-direction:column; overflow:hidden; font-family:'Bricolage Grotesque', sans-serif; z-index:-10;">
+    <div style="position:absolute; top:-100px; left:-100px; width:300px; height:300px; background:#6366f1; filter:blur(80px); opacity:0.6;"></div>
+    <div style="position:absolute; bottom:-100px; right:-100px; width:300px; height:300px; background:#06b6d4; filter:blur(80px); opacity:0.6;"></div>
+    
+    <div style="position:relative; z-index:2; flex:1; display:flex; flex-direction:column;">
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:30px;">
+            <div style="width:40px; height:40px; border-radius:12px; background:linear-gradient(135deg, #6366f1, #06b6d4); display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:20px; font-family:'Space Mono', monospace;">V</div>
+            <div style="font-weight:800; letter-spacing:0.1em; font-size:1.2rem; text-transform:uppercase;">Verona Trip</div>
+        </div>
+        
+        <h1 id="igExportTitle" style="font-size:2.8rem; font-weight:800; line-height:1.1; margin-bottom:24px; text-shadow:0 4px 20px rgba(0,0,0,0.5);">Název výletu</h1>
+        
+        <div style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); backdrop-filter:blur(20px); border-radius:24px; padding:24px; flex:1; display:flex; flex-direction:column; gap:16px;" id="igExportBody">
+            </div>
+        
+        <div style="text-align:center; margin-top:24px;">
+            <p style="font-family:'Space Mono', monospace; color:#06b6d4; font-size:0.9rem; font-weight:700;">@verona.app</p>
+        </div>
+    </div>
+</div>
 
 <div class="aurora" aria-hidden="true">
     <div class="blob"></div><div class="blob"></div>
@@ -476,6 +496,9 @@
                             </button>
                             <input type="file" id="gpxUpload" accept=".gpx" style="display:none;" onchange="zpracovatGPX(this)">
                             <button class="btn bg bi" id="btnShareTrip" onclick="sdiletVylet(curOpenTripId, document.getElementById('resTitle').innerText)" style="display:none;" title="Sdílet s přáteli">
+                            <button class="btn bg bi" onclick="exportovatNaInstagram(event)" title="Exportovat pro Instagram Stories" style="color:#d946ef; border-color:rgba(217,70,239,0.3);">
+    <i class="ti ti-brand-instagram" style="font-size:1.3rem;"></i>
+</button>   
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:block;"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
                             </button>
                         </div>
