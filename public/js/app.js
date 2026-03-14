@@ -239,6 +239,7 @@ function aktualizovatMapu(v){
 
 async function nactiDnik(){
     const v=await(await fetch('/api/ulozene-vylety')).json();
+    vListBackup = v;
     aktualizovatMapu(v);
     const d=document.getElementById('diary'),sel=document.getElementById('feedTripSelect');
     sel.innerHTML='<option value="">Bez navázaného výletu</option>';
@@ -261,8 +262,8 @@ async function nactiDnik(){
             ${fh}
             <div class="ar-unified" style="display:grid; grid-template-columns: repeat(4, 1fr); gap:8px; margin-top:16px;">
                 <button class="btn bg bi" onclick="event.stopPropagation();otevritGoogleMaps('${x.id}')" style="justify-content:center; border-radius:10px; height:42px;" title="Mapa"><i class="ti ti-map-2"></i></button>
-                <button class="btn bg bi btn-ig" onclick="event.stopPropagation();exportovatNaInstagramZListu('${x.id}')" style="justify-content:center; border-radius:10px; height:42px;" title="Instagram"><i class="ti ti-brand-instagram"></i></button>
-                <button class="btn bg bi btn-strava" onclick="event.stopPropagation();upload('${x.id}')" style="justify-content:center; border-radius:10px; height:42px;" title="Strava"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/></svg></button>
+                <button class="btn bg bi btn-ig" onclick="event.stopPropagation();exportujIGZListu('${x.id}')" style="justify-content:center; border-radius:10px; height:42px;" title="Instagram"><i class="ti ti-brand-instagram"></i></button>
+                <button class="btn bg bi btn-strava" onclick="event.stopPropagation();nahrajStravaZListu('${x.id}')" style="justify-content:center; border-radius:10px; height:42px;" title="Strava"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/></svg></button>
                 <button class="btn bg bi btn-qr" onclick="event.stopPropagation();generovatQRVyletu('${x.shareId}')" style="justify-content:center; border-radius:10px; height:42px;" title="QR Kód"><i class="ti ti-qrcode"></i></button>
                 <button class="btn ${x.dokonceno?'bgh':'bp'}" style="justify-content:center; border-radius:10px; grid-column: span 4; margin-top:4px;" onclick="event.stopPropagation();prepnoutStav('${x.id}',${!x.dokonceno})">${x.dokonceno?'Hotovo':'Splnit'}</button>
             </div>`;
@@ -498,19 +499,25 @@ async function generovatQRVyletu(shareId) {
     }
 }
 
-async function exportovatNaInstagramZListu(id) {
-    // Toto vyžaduje detail výletu k vyrenderování do canvasu (viz existující Instagram export)
-    // Pro jednoduchost teď otevřeme detail a pak trigger
-    fetch('/api/ulozene-vylety').then(r=>r.json()).then(v=>{
-        const x = v.find(t=>t.id===id);
-        if(x) {
-            otevritDetailVyletu(x);
-            setTimeout(() => {
-                if (window.exportovatInstagram) window.exportovatInstagram();
-            }, 500);
-        }
-    });
+async function exportujIGZListu(id) {
+    const res = await (await fetch('/api/ulozene-vylety')).json();
+    const x = res.find(t=>t.id===id);
+    if(x) {
+        otevritDetailVyletu(x);
+        setTimeout(() => {
+            const mockEvent = { currentTarget: document.getElementById('btnShareIG') };
+            exportovatNaInstagram(mockEvent);
+        }, 600);
+    }
 }
+window.nahrajStravaZListu = function(id) {
+    const v = vListBackup.find(t=>t.id===id); // We'll need to store vListBackup
+    if(v) {
+        curOpenTripId = id;
+        document.getElementById('gpxUpload').click();
+    }
+};
+let vListBackup = [];
 function otevritGoogleMaps(id) {
     fetch('/api/ulozene-vylety').then(r => r.json()).then(v => {
         const x = v.find(x => x.id === id);
@@ -1400,7 +1407,7 @@ async function toggleEditTrip() {
     const body = document.getElementById('resBody');
     
     if (!isEditingTrip) {
-        // ZAPNUTMĹ¤ REĹ˝IMU MAPUAV
+        // ZAPNUTÍ REŽIMU ÚPRAV
         isEditingTrip = true;
         title.contentEditable = true;
         body.contentEditable = true;
@@ -1412,7 +1419,7 @@ async function toggleEditTrip() {
         body.style.borderRadius = "10px";
         body.style.background = "rgba(0,0,0,0.2)";
         
-        btn.innerHTML = "Ä‘Ĺşâ€™Äľ Uložit úpravy";
+        btn.innerHTML = "💾 Uložit úpravy";
         btn.style.width = "auto";
         btn.style.padding = "0 14px";
         btn.classList.replace("bgh", "bp"); // Zvýraznění tlačítka
