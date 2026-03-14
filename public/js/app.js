@@ -1,4 +1,4 @@
-let curDraft=null,curOpenTripId=null,prihlaseno=false,mainMap=null,markerCluster=null,mujProfil=null,pripraveneFotky=[],curPolyline=null,lastSocNeprecteno=0
+let curDraft=null,curOpenTripId=null,prihlaseno=false,mainMap=null,markerCluster=null,mujProfil=null,pripraveneFotky=[],curPolyline=null,lastSocNeprecteno=0,vListBackup=[];
 
 function toggleContact(){const w=document.getElementById('contactWin');if(w.style.display==='flex'){w.style.display='none';return;}w.style.display='flex';w.style.flexDirection='column';}
 
@@ -496,9 +496,11 @@ async function exportujIGZListu(id, event) {
         exportovatNaInstagram({ currentTarget: event.currentTarget }, x);
     }
 }
+window.exportujIGZListu = exportujIGZListu;
+
 async function generovatQRVyletu(shareId, id) {
     let sid = shareId;
-    if(!sid || sid === 'undefined' || sid === '') {
+    if(!sid || sid === 'undefined' || sid === 'null' || sid === '') {
         const res = await (await fetch('/api/ulozit-vylet-share-id/' + id)).json();
         sid = res.shareId;
     }
@@ -511,6 +513,7 @@ async function generovatQRVyletu(shareId, id) {
     }
 }
 window.generovatQRVyletu = generovatQRVyletu;
+
  window.nahrajStravaZListu = function(id) {
     const v = vListBackup.find(t=>t.id===id); 
     if(v) {
@@ -518,7 +521,6 @@ window.generovatQRVyletu = generovatQRVyletu;
         document.getElementById('gpxUpload').click();
     }
 };
-let vListBackup = [];
 function otevritGoogleMaps(id) {
     fetch('/api/ulozene-vylety').then(r => r.json()).then(v => {
         const x = v.find(x => x.id === id);
