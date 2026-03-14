@@ -303,7 +303,6 @@ window._smazatAPI = async function(id) {
     }
 };
 
-function otevritDetailVyletu(v){curOpenTripId=v.id;document.getElementById('resTitle').innerText=v.lokace;document.getElementById('resDiffText').innerText='Uloženo: '+(v.datumUlozeni||'');document.getElementById('btnSaveAI').style.display='none';document.getElementById('resBody').innerHTML=v.popis;vykresliHvezdicky(v.id,v.hodnoceni||0);vykresliKomentare(v.komentare||[]);curDraft=v;document.getElementById('resCard').style.display='block';window.scrollTo({top:document.getElementById('resCard').offsetTop-80,behavior:'smooth'});}
 async function hodnoceniVyletu(id, val){
     await fetch('/api/upravit-vylet',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,hodnoceni:val})});
     vykresliHvezdicky(id,val);nactiDnik();
@@ -490,14 +489,6 @@ async function sdiletVylet(id, lokace) {
 
 }
 
-async function generovatQRVyletu(shareId) {
-    if(!shareId) return alert('Tento výlet zatím nemá unikátní odkaz pro QR.');
-    const res = await (await fetch('/api/generovat-qr?text=' + encodeURIComponent(window.location.origin + '/s/' + shareId))).json();
-    if(res.data) {
-        document.getElementById('lightboxImg').src = res.data;
-        document.getElementById('lightbox').style.display = 'flex';
-    }
-}
 
 async function exportujIGZListu(id, event) {
     const x = vListBackup.find(t=>t.id===id);
@@ -507,7 +498,7 @@ async function exportujIGZListu(id, event) {
 }
 async function generovatQRVyletu(shareId, id) {
     let sid = shareId;
-    if(!sid || sid === 'undefined') {
+    if(!sid || sid === 'undefined' || sid === '') {
         const res = await (await fetch('/api/ulozit-vylet-share-id/' + id)).json();
         sid = res.shareId;
     }
@@ -519,6 +510,7 @@ async function generovatQRVyletu(shareId, id) {
         document.getElementById('lightbox').style.display = 'flex';
     }
 }
+window.generovatQRVyletu = generovatQRVyletu;
  window.nahrajStravaZListu = function(id) {
     const v = vListBackup.find(t=>t.id===id); 
     if(v) {
