@@ -345,6 +345,7 @@
         ::-webkit-scrollbar{width:5px;}
         ::-webkit-scrollbar-track{background:transparent;}
         ::-webkit-scrollbar-thumb{background:var(--gbd2);border-radius:99px;}
+
         /* WEATHER ANIMATIONS */
         @keyframes weather-float {
             0%, 100% { transform: translateY(0) rotate(0); }
@@ -368,15 +369,15 @@
         .wa-snow { color: #e2e8f0 !important; }
         .wa-bolt { color: #facc15 !important; }
 
-        @keyframes ach-bounce {
-            from { transform: scale(1) translateY(0); }
-            to { transform: scale(1.1) translateY(-10px); }
-        }
         .btn-strava { background: #fc4c02 !important; color: #fff !important; border: none !important; }
         .btn-ig { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888) !important; color: #fff !important; border: none !important; }
         .btn-qr { background: #000 !important; color: #fff !important; border: none !important; }
 
-        /* ACHIEVEMENT CARD */
+        /* ACHIEVEMENT STYLES */
+        @keyframes ach-bounce {
+            from { transform: translateY(0) scale(1.02); }
+            to { transform: translateY(-5px) scale(1); }
+        }
         .achievement-card {
             background: linear-gradient(160deg, #1e1b4b, #060810);
             border: 2px solid var(--a1);
@@ -393,9 +394,11 @@
             pointer-events: none;
             z-index: 1;
         }
-        @keyframes ach-bounce {
-            from { transform: translateY(0) scale(1.02); }
-            to { transform: translateY(-5px) scale(1); }
+
+        /* SHIMMER TEXT */
+        @keyframes shimmer {
+            0% { background-position: -200% center; }
+            100% { background-position: 200% center; }
         }
         .shimmer-text {
             background: linear-gradient(90deg, var(--a1), var(--a3), var(--a1));
@@ -403,10 +406,14 @@
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
-            animation: move-shimmer 3s linear infinite;
+            animation: shimmer 3s linear infinite;
+            display: inline-block;
         }
-        @keyframes move-shimmer {
-            to { background-position: 200% center; }
+        [data-theme="light"] .shimmer-text {
+            background: linear-gradient(90deg, #4f46e5, var(--a3), #4f46e5);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         @media (max-width: 768px) {
