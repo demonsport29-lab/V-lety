@@ -140,6 +140,38 @@ window.otevritDetailVerejnehoVyletuZListu = function(id) {
 };
 
 function toggleAcc(wid,bid){const w=document.getElementById(wid),b=document.getElementById(bid),o=w.classList.toggle('open');b.style.maxHeight=o?'380px':'0';}
+
+function toggleProfileDropdown() {
+    const menu = document.getElementById('profileDropdown');
+    menu.classList.toggle('open');
+}
+
+// Click outside dropdown to close
+document.addEventListener('click', (e) => {
+    const dropdown = document.querySelector('.profile-dropdown');
+    const menu = document.getElementById('profileDropdown');
+    if (dropdown && !dropdown.contains(e.target) && menu.classList.contains('open')) {
+        menu.classList.remove('open');
+    }
+});
+
+function aktualizujIndikator() {
+    const activeTab = document.querySelector('.nav-in .tab.active');
+    const indicator = document.getElementById('navIndicator');
+    if (activeTab && indicator) {
+        indicator.style.width = `${activeTab.offsetWidth}px`;
+        indicator.style.left = `${activeTab.offsetLeft}px`;
+    }
+
+    const mobileActiveTab = document.querySelector('.mnav .tab.active');
+    const mobileIndicator = document.getElementById('mobileIndicator');
+    if (mobileActiveTab && mobileIndicator) {
+        mobileIndicator.style.width = `${mobileActiveTab.offsetWidth}px`;
+        mobileIndicator.style.left = `${mobileActiveTab.offsetLeft}px`;
+    }
+}
+window.addEventListener('resize', aktualizujIndikator);
+
 function prepniRezim(){
     const currentTheme = document.documentElement.getAttribute('data-theme');
     const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
@@ -969,7 +1001,9 @@ function prepniTab(tab, updateUrl = true){
 
     if(updateUrl) history.pushState({tab}, '', `?v=${tab}`);
     window.scrollTo(0, 0);
+    setTimeout(aktualizujIndikator, 50);
 }
+
 
 async function nactiExplore() {
     const c = document.getElementById('exploreGrid');

@@ -287,37 +287,58 @@
             <div><span class="logo-wm">Verona</span><span class="logo-tag">Trip Architect</span></div>
         </a>
         <div class="tabs" id="navTabsContainer" style="display:none;">
+            <div class="tab-indicator" id="navIndicator"></div>
             <button class="tab" id="t-landing" onclick="prepniTab('landing')">Domů</button>
             <button class="tab" id="t-planovac" onclick="prepniTab('planovac')">Můj deník</button>
             <button class="tab" id="t-verejne" onclick="prepniTab('verejne')">Objevuj</button>
             <button class="tab" id="t-akce" onclick="prepniTab('akce')">Akce</button>
             <button class="tab" id="t-komunita" onclick="prepniTab('komunita')">Chat</button>
-            <button class="tab" id="t-profil" onclick="prepniTab('profil')" style="display:none;" id="navTabProfil">Profil</button>
+            <button class="tab" id="t-profil" onclick="prepniTab('profil')" style="display:none;">Profil</button>
         </div>
         <div class="nav-act">
-            <button class="btn bg" onclick="document.getElementById('donateModal').style.display='flex'"><span>Podpořit</span><span class="m-ico"><i class="ti ti-coffee"></i></span></button>
-            <button class="btn bgh" id="btnGoogle" onclick="location.href='/auth/google'"><span>Přihlásit</span><span class="m-ico"><i class="ti ti-user"></i></span></button>
-            <button class="btn bg" id="btnProfil" onclick="otevritMujProfil()" style="display:none;"><span>Profil</span><span class="m-ico"><i class="ti ti-settings"></i></span></button>
-            <button class="btn bgh" id="btnSocial" onclick="otevritSocialHub()" style="display:none; position:relative; padding: 0 12px; width:auto;" title="Konverzace a Přátelé">
-                <i class="ti ti-messages" style="font-size:1.2rem;"></i>
-                <span id="socialBadge" style="display:none; position:absolute; top:-2px; right:-2px; background:var(--a1); color:white; font-size:10px; font-weight:bold; border-radius:50%; width:16px; height:16px; align-items:center; justify-content:center; box-shadow:0 0 10px var(--a1);">!</span>
-            </button>
-            <button class="btn bgh" id="btnNotif" onclick="otevritNotifikaceModal()" style="display:none; position:relative; padding: 0 12px; width:auto;">
-                <i class="ti ti-bell" style="font-size:1.2rem;"></i>
-                <span id="notifBadge" style="display:none; position:absolute; top:-2px; right:-2px; background:#ef4444; color:white; font-size:10px; font-weight:bold; border-radius:50%; width:18px; height:18px; align-items:center; justify-content:center;">0</span>
-            </button>
+            <div class="profile-dropdown">
+                <div class="dropdown-trigger" id="dropdownTrigger" onclick="toggleProfileDropdown()">
+                    <i class="ti ti-user-circle" style="font-size:1.4rem;"></i>
+                    <span>Profil</span>
+                    <i class="ti ti-chevron-down" style="font-size:0.8rem; margin-left:4px;"></i>
+                </div>
+                <div class="dropdown-menu" id="profileDropdown">
+                    <button class="dropdown-item" onclick="document.getElementById('profileModal').style.display='flex'; toggleProfileDropdown()">
+                        <span>Můj Profil</span>
+                        <i class="ti ti-user"></i>
+                    </button>
+                    <button class="dropdown-item" id="dropSocial" onclick="otevritSocialHub(); toggleProfileDropdown()" style="display:none;">
+                        <span>Konverzace a přátelé</span>
+                        <i class="ti ti-messages"></i>
+                    </button>
+                    <button class="dropdown-item" id="dropNotif" onclick="otevritNotifikaceModal(); toggleProfileDropdown()" style="display:none;">
+                        <span>Upozornění</span>
+                        <i class="ti ti-bell"></i>
+                    </button>
+                    <div class="dropdown-divider"></div>
+                    <button class="dropdown-item" onclick="document.getElementById('donateModal').style.display='flex'; toggleProfileDropdown()">
+                        <span>Podpořit Verona</span>
+                        <i class="ti ti-coffee"></i>
+                    </button>
+                    <button class="dropdown-item" id="dropLogin" onclick="location.href='/auth/google'">
+                        <span>Přihlásit se</span>
+                        <i class="ti ti-login"></i>
+                    </button>
+                </div>
+            </div>
             <button class="btn bgh bi" style="font-size: 0.75rem; letter-spacing: 0.05em; width: auto; padding: 0 12px;" onclick="prepniRezim()"><span>Režim</span><span class="m-ico"><i class="ti ti-moon"></i></span></button>
         </div>
     </div>
 </nav>
 
 <div class="mnav" id="mobileTabsContainer" style="display:none;">
+    <div class="tab-indicator" id="mobileIndicator"></div>
     <button class="tab" id="mt-landing" onclick="prepniTab('landing')">Domů</button>
     <button class="tab" id="mt-planovac" onclick="prepniTab('planovac')">Deník</button>
     <button class="tab" id="mt-verejne" onclick="prepniTab('verejne')">Objevuj</button>
     <button class="tab" id="mt-akce" onclick="prepniTab('akce')">Akce</button>
     <button class="tab" id="mt-komunita" onclick="prepniTab('komunita')">Chat</button>
-    <button class="tab" id="mt-profil" onclick="prepniTab('profil')" style="display:none;" id="mobileTabProfil">Profil</button>
+    <button class="tab" id="mt-profil" onclick="prepniTab('profil')" style="display:none;">Profil</button>
 </div>
 
 <div id="viewLanding" class="wrap view au">
