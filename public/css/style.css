@@ -175,11 +175,44 @@
         .dropdown-item i {
             font-size: 1.1rem;
         }
+        .friend-dropdown-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            border-radius: 10px;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .friend-dropdown-item:hover {
+            background: rgba(255,255,255,0.05);
+        }
+        .friend-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .friend-status {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #4b5563; /* grey */
+        }
+        .friend-status.online {
+            background: #10b981; /* green */
+            box-shadow: 0 0 8px #10b981;
+        }
+        .friend-name {
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--t2);
+        }
         .dropdown-divider {
             height: 1px;
             background: var(--gbd);
             margin: 4px 8px;
         }
+
 
 
         /* BUTTONS */
