@@ -264,7 +264,7 @@ async function nactiDnik(){
                 <button class="btn bg bi" onclick="event.stopPropagation();otevritGoogleMaps('${x.id}')" style="justify-content:center; border-radius:10px; height:42px; width:100%;" title="Mapa"><i class="ti ti-map-2"></i></button>
                 <button class="btn bg bi btn-ig" onclick="event.stopPropagation();exportujIGZListu('${x.id}', event)" style="justify-content:center; border-radius:10px; height:42px; width:100%;" title="Instagram"><i class="ti ti-brand-instagram"></i></button>
                 <button class="btn bg bi btn-strava" onclick="event.stopPropagation();nahrajStravaZListu('${x.id}')" style="justify-content:center; border-radius:10px; height:42px; width:100%;" title="Strava"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="display:block; margin: 0 auto;"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/></svg></button>
-                <button class="btn bg bi btn-qr" onclick="event.stopPropagation();generovatQRVyletu('${x.shareId}','${x.id}')" style="justify-content:center; border-radius:10px; height:42px; width:100%;" title="QR Kód"><i class="ti ti-qrcode"></i></button>
+                <button class="btn bg bi btn-qr" onclick="event.stopPropagation(); window.generovatQRVyletu('${x.shareId || ''}','${x.id}')" style="justify-content:center; border-radius:10px; height:42px; width:100%;" title="QR Kód"><i class="ti ti-qrcode"></i></button>
                 <button class="btn ${x.dokonceno?'bgh':'bp'}" style="justify-content:center; border-radius:10px; grid-column: span 4; margin-top:4px; width:100%;" onclick="event.stopPropagation();prepnoutStav('${x.id}',${!x.dokonceno})">${x.dokonceno?'Hotovo':'Splnit'}</button>
             </div>`;
 
@@ -412,6 +412,7 @@ async function generovat(){
             if(document.getElementById('btnShareIG')) document.getElementById('btnShareIG').style.display='inline-flex';
             if(document.getElementById('btnEditTrip')) document.getElementById('btnEditTrip').style.display='inline-flex';
             if(document.getElementById('btnCalendarAdd')) document.getElementById('btnCalendarAdd').style.display='inline-flex';
+            if(document.getElementById('btnShowQR')) document.getElementById('btnShowQR').style.display='inline-flex';
             let h='<div class="tl">';
             curDraft.etapy.forEach((e,i)=>{
                 const isLast=i===curDraft.etapy.length-1;
@@ -471,7 +472,7 @@ function ukazAchievementModal(ach, allowShare = true) {
     console.log("Achievement UNLOCKED:", ach.nazev);
 }
 
-function pridatEtapu(){const d=document.createElement('div');d.className='man-etapa';d.style.cssText='display:flex;gap:7px;margin-bottom:7px;align-items:center;';d.innerHTML=`<input type="time" class="f e-cas" style="width:108px;margin:0;" value="12:00"><input type="text" class="f e-misto" placeholder="Místo" style="flex:1;margin:0;"><input type="text" class="f e-popis" placeholder="Popis" style="flex:2;margin:0;"><button onclick="this.parentElement.remove()" style="background:none;border:none;cursor:pointer;color:var(--t2);font-size:1rem;">Ă˘Ĺ›</button>`;document.getElementById('manEtapy').appendChild(d);}
+function pridatEtapu(){const d=document.createElement('div');d.className='man-etapa';d.style.cssText='display:flex;gap:7px;margin-bottom:7px;align-items:center;';d.innerHTML=`<input type="time" class="f e-cas" style="width:108px;margin:0;" value="12:00"><input type="text" class="f e-misto" placeholder="Místo" style="flex:1;margin:0;"><input type="text" class="f e-popis" placeholder="Popis" style="flex:2;margin:0;"><button onclick="this.parentElement.remove()" style="background:none;border:none;cursor:pointer;color:var(--t2);font-size:1rem;">✕</button>`;document.getElementById('manEtapy').appendChild(d);}
 async function ulozitVlastni(){const l=document.getElementById('manLokace').value.trim();if(!l)return alert('Zadejte název výletu.');const etapyEls=Array.from(document.querySelectorAll('.man-etapa'));let h='<div class="tl">';etapyEls.forEach((e,i)=>{const isLast=i===etapyEls.length-1;h+=`<div class="tr"><div class="t-left"><div class="td">${String(i+1).padStart(2,'0')}</div><div class="tt">${e.querySelector('.e-cas').value}</div></div><div class="tc"><h4>${e.querySelector('.e-misto').value}</h4><p>${e.querySelector('.e-popis').value}</p></div></div>`;if(!isLast)h+=`<div class="tr-line"></div>`;});h+='</div>';await fetch('/api/ulozit-vylet',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({lokace:l,popis:h,obtiznost:parseInt(document.getElementById('manObtiznost').value),typ:'vlastni',etapy:[]})});document.getElementById('manualModal').style.display='none';nactiDnik();}
 // NATIVNÍ SDÍLENÍ (Nyní odkazuje na konkrétní výlet)
 
@@ -513,6 +514,12 @@ async function generovatQRVyletu(shareId, id) {
     }
 }
 window.generovatQRVyletu = generovatQRVyletu;
+
+window.otevritQRZDetailu = function() {
+    if(!curOpenTripId) return;
+    const sid = curDraft ? curDraft.shareId : null;
+    window.generovatQRVyletu(sid, curOpenTripId);
+};
 
  window.nahrajStravaZListu = function(id) {
     const v = vListBackup.find(t=>t.id===id); 
@@ -637,6 +644,7 @@ function otevritDetailVyletu(v){
     if(document.getElementById('btnShareIG')) document.getElementById('btnShareIG').style.display='inline-flex';
     if(document.getElementById('btnEditTrip')) document.getElementById('btnEditTrip').style.display='inline-flex';
     if(document.getElementById('btnCalendarAdd')) document.getElementById('btnCalendarAdd').style.display='inline-flex';
+    if(document.getElementById('btnShowQR')) document.getElementById('btnShowQR').style.display='inline-flex';
     
     document.getElementById('resTitle').innerText=v.lokace;
     document.getElementById('resDiffText').innerText='Uloženo: '+(v.datumUlozeni||'');
