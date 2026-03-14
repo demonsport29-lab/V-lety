@@ -92,60 +92,10 @@ async function init(){
         } catch(e) {}
     }
 }
-function prepniTab(tab, updateUrl = true){
-    ['landing', 'planovac', 'verejne', 'komunita', 'akce'].forEach(t=>{
-        const btn = document.getElementById(`t-${t}`);
-        if(btn) btn.classList.remove('active');
-        const m = document.getElementById(`mt-${t}`);
-        if(m) m.classList.remove('active');
-        
-        const viewId = t === 'landing' ? 'viewLanding' : t === 'planovac' ? 'viewPlanovac' : t === 'verejne' ? 'viewVerejne' : t === 'akce' ? 'viewAkce' : 'viewKomunita';
-        const view = document.getElementById(viewId);
-        if(view) view.classList.add('hidden');
-    });
-    
-    // Záložka Plánování/Deník: pro hosty zobrazit výzvu k přihlášení
-    if (tab === 'planovac' && !prihlaseno) {
-        const v = document.getElementById('viewPlanovac');
-        if(v) {
-            v.classList.remove('hidden');
-            const diary = document.getElementById('diary');
-            if(diary) diary.innerHTML = `<div class="es" style="text-align:center;padding:40px 20px;">
-                <div style="font-size:3rem;margin-bottom:16px;">🗺️</div>
-                <h3 style="margin-bottom:10px;">Váš osobní deník výletů</h3>
-                <p style="color:var(--t2);margin-bottom:20px;">Přihlaste se a začněte budovat svůj digitální cestovatelský deník s AI plánovačem.</p>
-                <button class="btn bp bf" onclick="location.href='/auth/google'">Přihlásit se přes Google</button>
-            </div>`;
-        }
-        if(updateUrl) history.pushState(null, '', '#planovac');
-        const btn = document.getElementById('t-planovac'); if(btn) btn.classList.add('active');
-        const m = document.getElementById('mt-planovac'); if(m) m.classList.add('active');
-        if(mainMap) setTimeout(()=>mainMap.invalidateSize(),200);
-        return;
-    }
+// prepniTab() je definována níže (aktuální verze s podporou Friend Hub)
 
-    const activeBtn = document.getElementById(`t-${tab}`);
-    if(activeBtn) activeBtn.classList.add('active');
-    const activeM = document.getElementById(`mt-${tab}`);
-    if(activeM) activeM.classList.add('active');
-    
-    const activeViewId = tab === 'landing' ? 'viewLanding' : tab === 'planovac' ? 'viewPlanovac' : tab === 'verejne' ? 'viewVerejne' : tab === 'akce' ? 'viewAkce' : 'viewKomunita';
-    const activeView = document.getElementById(activeViewId);
-    if(activeView) activeView.classList.remove('hidden');
-    
-    if(tab==='planovac'&&mainMap)setTimeout(()=>mainMap.invalidateSize(),200);
+// popstate listener je definován níže (novější verze)
 
-    if (tab === 'komunita' && prihlaseno) nactiFeed();
-
-    if (updateUrl) {
-        history.pushState(null, '', tab === 'landing' ? '/' : '#' + tab);
-    }
-}
-
-window.addEventListener('popstate', () => {
-    const hash = window.location.hash.replace('#', '');
-    prepniTab(['komunita', 'planovac', 'verejne', 'akce'].includes(hash) ? hash : 'landing', false);
-});
 async function nactiVerejneVylety() {
     const res = await fetch('/api/verejne-vylety');
     const data = await res.json();
@@ -278,7 +228,7 @@ window._smazatAPI = async function(id) {
 function otevritDetailVyletu(v){curOpenTripId=v.id;document.getElementById('resTitle').innerText=v.lokace;document.getElementById('resDiffText').innerText='Uloženo: '+(v.datumUlozeni||'');document.getElementById('btnSaveAI').style.display='none';document.getElementById('resBody').innerHTML=v.popis;vykresliHvezdicky(v.id,v.hodnoceni||0);vykresliKomentare(v.komentare||[]);curDraft=v;document.getElementById('resCard').style.display='block';window.scrollTo({top:document.getElementById('resCard').offsetTop-80,behavior:'smooth'});}
 async function hodnoceniVyletu(id, val){
     await fetch('/api/upravit-vylet',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,hodnoceni:val})});
-    vykresliHvezdicky(id,val);nactiDB();
+    vykresliHvezdicky(id,val);nactiDnik();
 }
 function vykresliHvezdicky(id, cur=0){
     let h='';for(let i=1;i<=5;i++){h+=`<i class="ti ti-star${i<=cur?' ti-star-filled':''} star ${i<=cur?'lit':''}" onclick="hodnoceniVyletu('${id}',${i})"></i>`;}
@@ -303,19 +253,8 @@ async function upravitKomentar(cid,enc){const s=decodeURIComponent(enc),n=prompt
 
 function nactiFotkyDoFeedu(i){const p=document.getElementById('feedPhotoPreview');p.innerHTML='';pripraveneFotky=[];Array.from(i.files).slice(0,4).forEach(f=>{const r=new FileReader();r.onloadend=()=>{pripraveneFotky.push(r.result);p.innerHTML+=`<img src="${r.result}" style="width:70px;height:70px;border-radius:10px;object-fit:cover;border:1px solid var(--gbd);">`;};r.readAsDataURL(f);});}
 async function odeslatDoFeedu(){if(!prihlaseno)return alert('Pro publikování se prosím přihlaste.');const t=document.getElementById('feedText').value.trim();if(!t&&!pripraveneFotky.length)return alert('Příspěvek nemůže být prázdný.');const sel=document.getElementById('feedTripSelect'),btn=document.getElementById('btnOdeslatFeed');btn.innerHTML='<div class="spin"></div>';await fetch('/api/pridat-do-feedu',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:t,fotky:pripraveneFotky,pripojenyVyletId:sel.value,pripojenyVyletLokace:sel.value?sel.options[sel.selectedIndex].text:null})});document.getElementById('feedText').value='';document.getElementById('feedPhotoPreview').innerHTML='';pripraveneFotky=[];btn.innerText='Publikovat v komunitě';nactiFeed();}
+// nactiFeed() je definována níže (aktuální verze s lajky, chat stylem a klikatelnými profily)
 
-async function nactiFeed(){
-    const f=await(await fetch('/api/feed')).json();const c=document.getElementById('feedStream');
-    if(!f.length){c.innerHTML=`<div class="es"><p style="font-size:.88rem;">Komunita je zatím prázdná. Buďte první, kdo sdílí svůj výlet!</p></div>`;return;}
-    c.innerHTML=f.map((p,i)=>{
-        const av=p.autorAvatar?`background-image:url(${p.autorAvatar});color:transparent;`:'';
-        const fh=p.fotky?.length?`<div class="ps" style="margin-bottom:10px;">${p.fotky.map(img=>`<img src="${img}" class="pt2" style="width:110px;height:80px;" onclick="openGallery('${img}')">`).join('')}</div>`:'';
-        const th=p.pripojenyVyletId?`<div class="lt"><div><p class="ll">Sdílený výlet</p><p class="ln">${p.pripojenyVyletLokace}</p></div><button class="btn bp" style="font-size:.76rem;padding:7px 13px;" onclick="otevritGoogleMaps('${p.pripojenyVyletId}')">Mapa</button></div>`:'';
-        const io=prihlaseno&&mujProfil&&(p.autorId===mujProfil._id||mujProfil.isAdmin);
-        const ak=io?`<div style="display:flex;gap:5px;"><button class="btn bgh bi" style="width:auto;padding:0 8px;border-radius:8px;font-size:.75rem;" onclick="upravitFeed('${p._id}','${encodeURIComponent(p.text)}')">Upravit</button><button class="btn bgh bi" style="width:auto;padding:0 8px;border-radius:8px;font-size:.75rem;" onclick="smazatFeed('${p._id}')">Smazat</button></div>`:'';
-        return `<div class="fp" style="animation-delay:${i*.06}s;"><div class="ph"><div class="pa"><div class="av" style="${av}">${p.autorJmeno?.charAt(0).toUpperCase()||'U'}</div><div><p class="an">${p.autorJmeno}</p><p class="pd">${p.datum}</p></div></div>${ak}</div><p class="pt">${p.text}</p>${fh}${th}</div>`;
-    }).join('');
-}
 
 async function smazatFeed(id){if(confirm('Opravdu chcete příspěvek smazat?')){await fetch(`/api/smazat-feed/${id}`,{method:'DELETE'});nactiFeed();}}
 async function upravitFeed(id,enc){const s=decodeURIComponent(enc),n=prompt('Upravit příspěvek:',s);if(n&&n.trim()&&n!==s){await fetch('/api/upravit-feed',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({postId:id,text:n})});nactiFeed();}}
@@ -324,6 +263,8 @@ async function generovat(){
     if(!prihlaseno)return alert('Pro plánování výletů se prosím přihlaste.');
     const misto=document.getElementById('mistoIn').value.trim();if(!misto)return alert('Zadejte prosím destinaci.');
     const filtry=Array.from(document.querySelectorAll('.ai-filter:checked')).map(c=>c.value);
+    const posuvnik = document.getElementById('inpLide');
+    if(posuvnik) filtry.push(`Počet osob: ${posuvnik.value}`);
     const btn=document.getElementById('genBtn');btn.innerHTML='<div class="spin"></div> Zpracovávám…';btn.disabled=true;
     try{
         const res=await(await fetch('/api/vylet',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({misto,specifikace:document.getElementById('specIn').value,vybraneFiltry:filtry})})).json();

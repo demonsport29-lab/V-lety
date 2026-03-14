@@ -7,7 +7,7 @@ const Notifikace = require('../models/Notifikace');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" }); 
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" }); 
 
 // AI GENERÁTOR
 router.post('/api/vylet', async (req, res) => {
@@ -107,7 +107,7 @@ router.post('/api/ulozit-cizi-vylet', async (req, res) => {
         if (!org || !org.verejny) return res.json({ uspech: false, chyba: 'Výlet nelze zkopírovat.' });
         
         const novy = new Vylet({
-            verejny: false, vastnikId: req.session.userId,
+            verejny: false, vlastnikId: req.session.userId,
             lokace: org.lokace, popis: org.popis, obtiznost: org.obtiznost, typ: org.typ,
             etapy: org.etapy, dokonceno: false, fotky: [], hodnoceni: 0, 
             datumUlozeni: new Date().toLocaleDateString('cs-CZ')

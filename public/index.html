@@ -373,21 +373,33 @@
                 <input type="text" id="mistoIn" class="f" placeholder="Destinace (např. Šumava, Vídeň)">
                 <input type="text" id="specIn" class="f" placeholder="Specifická přání (volitelné)">
 
-                <div class="acc" id="w-kdo">
-                    <div class="ach" onclick="toggleAcc('w-kdo','b-kdo')">S kým cestuji <span class="aa">▾</span></div>
-                    <div class="acb" id="b-kdo"><div class="aci">
-                        <label class="fr"><input type="checkbox" class="ai-filter" value="Sólový cestovatel"> Solo cestovatel</label>
-                        <label class="fr"><input type="checkbox" class="ai-filter" value="Romantický výlet ve dvou"> Romantický výlet</label>
-                        <label class="fr"><input type="checkbox" class="ai-filter" value="Vhodné pro kočárky a malé děti"> S malými dětmi</label>
-                        <label class="fr"><input type="checkbox" class="ai-filter" value="Pro starší děti a teenagery"> S teenagery</label>
-                        <label class="fr"><input type="checkbox" class="ai-filter" value="Parta přátel"> Parta přátel</label>
-                        <label class="fr"><input type="checkbox" class="ai-filter" value="Pro seniory"> Senioři</label>
-                        <label class="fr"><input type="checkbox" class="ai-filter" value="Bezbariérový přístup"> Bezbariérový přístup</label>
-                        <label class="fr"><input type="checkbox" class="ai-filter" value="Cestuji se psem"> Cestování se psem</label>
+                <div class="acc" id="w-doprava">
+                    <div class="ach" onclick="toggleAcc('w-doprava','b-doprava')">Dopravní prostředek <span class="aa">▾</span></div>
+                    <div class="acb" id="b-doprava" style="max-height:380px;"><div class="aci">
+                        <label class="fr"><input type="checkbox" class="ai-filter" value="Doprava autem"> Autem</label>
+                        <label class="fr"><input type="checkbox" class="ai-filter" value="Doprava vlakem"> Vlakem</label>
+                        <label class="fr"><input type="checkbox" class="ai-filter" value="Na kole"> Kolo / Cykloturistika</label>
+                        <label class="fr"><input type="checkbox" class="ai-filter" value="Pěšky"> Pěšky</label>
                     </div></div>
                 </div>
+
+                <div class="acc" id="w-kdo">
+                    <div class="ach" onclick="toggleAcc('w-kdo','b-kdo')">S kým cestuji <span class="aa">▾</span></div>
+                    <div class="acb" id="b-kdo" style="max-height:380px;"><div class="aci">
+                        <div style="padding: 10px 14px 15px;">
+                            <label style="display:flex; justify-content:space-between; font-size:0.83rem; font-weight:700; color:var(--t2); margin-bottom:8px;">
+                                Počet osob: <span id="lblLide" style="color:var(--t1);">2</span>
+                            </label>
+                            <input type="range" id="inpLide" min="1" max="30" value="2" class="range-slider" oninput="document.getElementById('lblLide').innerText=this.value" style="width:100%;">
+                        </div>
+                        <label class="fr"><input type="checkbox" class="ai-filter" value="Cestujeme se psem"> Se psem</label>
+                        <label class="fr"><input type="checkbox" class="ai-filter" value="S malými dětmi"> S malými dětmi</label>
+                        <label class="fr"><input type="checkbox" class="ai-filter" value="Bezbariérový přístup"> Bezbariérový přístup</label>
+                    </div></div>
+                </div>
+
                 <div class="acc" id="w-sport">
-                    <div class="ach" onclick="toggleAcc('w-sport','b-sport')">Aktivita a pohyb <span class="aa">▾</span></div>
+                    <div class="ach" onclick="toggleAcc('w-sport','b-sport')">Sportovní aktivity <span class="aa">▾</span></div>
                     <div class="acb" id="b-sport"><div class="aci">
                         <label class="fr"><input type="checkbox" class="ai-filter" value="Lehká, odpočinková procházka"> Lehká procházka</label>
                         <label class="fr"><input type="checkbox" class="ai-filter" value="Náročná pěší turistika (převýšení)"> Horská turistika</label>
