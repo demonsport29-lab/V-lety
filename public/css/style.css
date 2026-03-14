@@ -345,4 +345,25 @@
         ::-webkit-scrollbar{width:5px;}
         ::-webkit-scrollbar-track{background:transparent;}
         ::-webkit-scrollbar-thumb{background:var(--gbd2);border-radius:99px;}
-        
+        /* WEATHER ANIMATIONS */
+        @keyframes weather-float {
+            0%, 100% { transform: translateY(0) rotate(0); }
+            50% { transform: translateY(-8px) rotate(5deg); }
+        }
+        @keyframes weather-spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        @keyframes weather-pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.05); }
+        }
+        .wa { display: block; filter: drop-shadow(0 0 12px rgba(99,102,241,0.3)); }
+        .wa-float { animation: weather-float 4s ease-in-out infinite; }
+        .wa-spin { animation: weather-spin 10s linear infinite; }
+        .wa-pulse { animation: weather-pulse 3s ease-in-out infinite; }
+        .wa-sun { color: #fbbf24 !important; filter: drop-shadow(0 0 15px rgba(251,191,36,0.4)); }
+        .wa-cloud { color: #94a3b8 !important; }
+        .wa-rain { color: #3b82f6 !important; }
+        .wa-snow { color: #e2e8f0 !important; }
+        .wa-bolt { color: #facc15 !important; }
