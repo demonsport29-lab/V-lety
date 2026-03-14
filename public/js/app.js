@@ -253,19 +253,18 @@ async function nactiDnik(){
             <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;">
                 <div><h3 style="font-size:1.15rem;font-weight:800;letter-spacing:-.02em;margin-bottom:3px;">${x.lokace}</h3><p style="font-family:var(--fm);font-size:.62rem;color:var(--t2);">${x.datumUlozeni||''}</p></div>
                 <div style="display:flex; gap:6px;">
-                    <button class="btn bgh bi" style="width:28px; height:28px; border-radius:8px;" onclick="event.stopPropagation(); window.smazat('${x.id}')" title="Smazat">Ă˘Ĺ›</button>
+                    <button class="btn bgh bi" style="width:28px; height:28px; border-radius:8px;" onclick="event.stopPropagation(); window.smazat('${x.id}')" title="Smazat"><i class="ti ti-trash"></i></button>
                 </div>
             </div>
             <div class="pr"><span class="chip ${x.verejny?'ci':'cm'}">${x.verejny?'Veřejný':'Soukromý'}</span><button class="btn bgh" style="padding:4px 11px;font-size:.7rem;border-radius:8px;" onclick="event.stopPropagation();prepnoutSoukromi('${x.id}',${!x.verejny})">Změnit</button></div>
             <div class="sr"><div></div><div style="text-align:right;"><span class="sl">Komentáře</span><span class="sv">${x.komentare?.length||0}</span></div></div>
             ${fh}
-            <div class="ar-unified" style="display:grid; grid-template-columns: repeat(2, 1fr); gap:8px; margin-top:16px;">
-                <button class="btn bg bi" onclick="event.stopPropagation();sdiletVylet('${x.id}','${x.lokace}')" style="justify-content:center; border-radius:10px;"><i class="ti ti-share"></i> Odkaz</button>
-                <button class="btn bg bi btn-qr" onclick="event.stopPropagation();generovatQRVyletu('${x.shareId}')" style="justify-content:center; border-radius:10px;"><i class="ti ti-qrcode"></i> QR KĂłd</button>
-                <button class="btn bg bi btn-ig" onclick="event.stopPropagation();exportovatNaInstagramZListu('${x.id}')" style="justify-content:center; border-radius:10px;"><i class="ti ti-brand-instagram"></i> Instagram</button>
-                <button class="btn bg bi btn-strava" onclick="event.stopPropagation();upload('${x.id}')" style="justify-content:center; border-radius:10px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/></svg> Strava</button>
-                <button class="btn bg bi" onclick="event.stopPropagation();otevritGoogleMaps('${x.id}')" style="justify-content:center; border-radius:10px;"><i class="ti ti-map-2"></i> Mapa</button>
-                <button class="btn ${x.dokonceno?'bgh':'bp'}" style="justify-content:center; border-radius:10px;" onclick="event.stopPropagation();prepnoutStav('${x.id}',${!x.dokonceno})">${x.dokonceno?'Hotovo':'Splnit'}</button>
+            <div class="ar-unified" style="display:grid; grid-template-columns: repeat(4, 1fr); gap:8px; margin-top:16px;">
+                <button class="btn bg bi" onclick="event.stopPropagation();otevritGoogleMaps('${x.id}')" style="justify-content:center; border-radius:10px; height:42px;" title="Mapa"><i class="ti ti-map-2"></i></button>
+                <button class="btn bg bi btn-ig" onclick="event.stopPropagation();exportovatNaInstagramZListu('${x.id}')" style="justify-content:center; border-radius:10px; height:42px;" title="Instagram"><i class="ti ti-brand-instagram"></i></button>
+                <button class="btn bg bi btn-strava" onclick="event.stopPropagation();upload('${x.id}')" style="justify-content:center; border-radius:10px; height:42px;" title="Strava"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/></svg></button>
+                <button class="btn bg bi btn-qr" onclick="event.stopPropagation();generovatQRVyletu('${x.shareId}')" style="justify-content:center; border-radius:10px; height:42px;" title="QR Kód"><i class="ti ti-qrcode"></i></button>
+                <button class="btn ${x.dokonceno?'bgh':'bp'}" style="justify-content:center; border-radius:10px; grid-column: span 4; margin-top:4px;" onclick="event.stopPropagation();prepnoutStav('${x.id}',${!x.dokonceno})">${x.dokonceno?'Hotovo':'Splnit'}</button>
             </div>`;
 
         k.onclick=e=>{if(e.target.closest('button')||e.target.closest('img'))return;otevritDetailVyletu(x);};
