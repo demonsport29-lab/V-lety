@@ -276,27 +276,27 @@ async function generovat(){
             
             // Render Widgetu Počasí
             const wBox = document.getElementById('resWeather');
-    if (v.pocasi && v.pocasi.teplota !== undefined) {
-        const wmoKody = {
-            0: {i:'ph-sun', t:'Jasno'}, 1: {i:'ph-cloud-sun', t:'Polojasno'}, 2: {i:'ph-cloud', t:'Oblačno'}, 3: {i:'ph-clouds', t:'Zataženo'},
-            45: {i:'ph-cloud-fog', t:'Mlha'}, 48: {i:'ph-cloud-fog', t:'Námrazová mlha'},
-            51:{i:'ph-cloud-drizzle', t:'Slabé mrholení'}, 53:{i:'ph-cloud-drizzle', t:'Mrholení'}, 55:{i:'ph-cloud-drizzle', t:'Silné mrholení'},
-            61:{i:'ph-cloud-rain', t:'Slabý déšť'}, 63:{i:'ph-cloud-rain', t:'Déšť'}, 65:{i:'ph-cloud-rain', t:'Silný déšť'},
-            71:{i:'ph-cloud-snow', t:'Slabé sněžení'}, 73:{i:'ph-cloud-snow', t:'Sněžení'}, 75:{i:'ph-cloud-snow', t:'Silné sněžení'},
-            80:{i:'ph-cloud-lightning', t:'Přeháňky'}, 81:{i:'ph-cloud-lightning', t:'Silné přeháňky'}, 82:{i:'ph-cloud-lightning', t:'Přívalové srážky'},
-            95:{i:'ph-cloud-lightning', t:'Bouřka'}, 96:{i:'ph-cloud-lightning', t:'Silná bouřka'}, 99:{i:'ph-cloud-lightning', t:'Bouřka a kroupy'}
-        };
-        const wip = wmoKody[v.pocasi.wmo] || {i:'ph-cloud-sun', t:'Neznámé'};
-        wBox.innerHTML = `
-            <div style="display:flex; align-items:center; gap:16px; background:rgba(255,255,255,0.06); padding:12px 18px; border-radius:18px; border:1px solid rgba(255,255,255,0.1); width:max-content; margin-top:14px; box-shadow:0 8px 32px rgba(0,0,0,0.15);">
-                <i class="ph ${wip.i}" style="font-size:2.4rem; color:var(--a3); filter:drop-shadow(0 0 12px rgba(6,182,212,0.4)); display:block;"></i>
-                <div>
-                    <div style="font-size:1.6rem; font-weight:800; font-family:var(--fm); line-height:1; margin-bottom:4px;">${v.pocasi.teplota}°C</div>
-                    <div style="font-size:0.75rem; color:var(--t2); font-weight:600;">${wip.t} &nbsp;•&nbsp; Vítr ${v.pocasi.vitr} km/h</div>
-                </div>
-            </div>`;
-        wBox.style.display = 'block';
-    } else { wBox.style.display = 'none'; }
+            if (curDraft.pocasi && curDraft.pocasi.teplota !== undefined) {
+                const wmoKody = {
+                    0: {i:'ph-sun', t:'Jasno'}, 1: {i:'ph-cloud-sun', t:'Polojasno'}, 2: {i:'ph-cloud', t:'Oblačno'}, 3: {i:'ph-clouds', t:'Zataženo'},
+                    45: {i:'ph-cloud-fog', t:'Mlha'}, 48: {i:'ph-cloud-fog', t:'Námrazová mlha'},
+                    51:{i:'ph-cloud-drizzle', t:'Slabé mrholení'}, 53:{i:'ph-cloud-drizzle', t:'Mrholení'}, 55:{i:'ph-cloud-drizzle', t:'Silné mrholení'},
+                    61:{i:'ph-cloud-rain', t:'Slabý déšť'}, 63:{i:'ph-cloud-rain', t:'Déšť'}, 65:{i:'ph-cloud-rain', t:'Silný déšť'},
+                    71:{i:'ph-cloud-snow', t:'Slabé sněžení'}, 73:{i:'ph-cloud-snow', t:'Sněžení'}, 75:{i:'ph-cloud-snow', t:'Silné sněžení'},
+                    80:{i:'ph-cloud-lightning', t:'Přeháňky'}, 81:{i:'ph-cloud-lightning', t:'Silné přeháňky'}, 82:{i:'ph-cloud-lightning', t:'Přívalové srážky'},
+                    95:{i:'ph-cloud-lightning', t:'Bouřka'}, 96:{i:'ph-cloud-lightning', t:'Silná bouřka'}, 99:{i:'ph-cloud-lightning', t:'Bouřka a kroupy'}
+                };
+                const wip = wmoKody[curDraft.pocasi.wmo] || {i:'ph-cloud-sun', t:'Neznámé'};
+                wBox.innerHTML = `
+                    <div style="display:flex; align-items:center; gap:16px; background:rgba(255,255,255,0.06); padding:12px 18px; border-radius:18px; border:1px solid rgba(255,255,255,0.1); width:max-content; margin-top:14px; box-shadow:0 8px 32px rgba(0,0,0,0.15);">
+                        <i class="ph ${wip.i}" style="font-size:2.4rem; color:var(--a3); filter:drop-shadow(0 0 12px rgba(6,182,212,0.4)); display:block;"></i>
+                        <div>
+                            <div style="font-size:1.6rem; font-weight:800; font-family:var(--fm); line-height:1; margin-bottom:4px;">${curDraft.pocasi.teplota}°C</div>
+                            <div style="font-size:0.75rem; color:var(--t2); font-weight:600;">${wip.t} &nbsp;•&nbsp; Vítr ${curDraft.pocasi.vitr} km/h</div>
+                        </div>
+                    </div>`;
+                wBox.style.display = 'block';
+            } else { wBox.style.display = 'none'; }
             document.getElementById('commentsSection').style.display='none';
             document.getElementById('btnSaveAI').style.display='inline-flex';
             let h='<div class="tl">';

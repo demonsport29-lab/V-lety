@@ -36,8 +36,8 @@ router.post('/api/vylet', async (req, res) => {
     const filtryText = vybraneFiltry && vybraneFiltry.length > 0 ? `STRIKTNĚ DODRŽ FILTRY A SPORT: ${vybraneFiltry.join(', ')}.` : "";
     const prompt = `Jsi architekt výletů VERONA. Navrhni výlet pro: ${misto}. Styl: ${specifikace}. ${filtryText}
     ${pocasiInfo}
-    Vrať POUZE VALIDNÍ JSON formát: {"lokace": "Název", "etapy": [{"cas": "09:00", "misto": "Název zastávky", "popis": "Co tam dělat", "lat": 50.08, "lng": 14.42}], "doporuceni": "Tip Architekta na cestu (oblečení apod.)", "pocasi": {"teplota": 15, "vitr": 5, "wmo": 0}, "typ": "mesto", "obtiznost": 2}
-    VŽDY vyplň reálné GPS souřadnice lat a lng pro vykreslení trasy mape! Smaž veškeré formátování textu (ani zpětné uvozovky). JSON musí jít ihned parsovat!`;
+    Vrať POUZE VALIDNÍ JSON formát: {"lokace": "Název", "etapy": [{"cas": "09:00", "misto": "Název zastávky", "popis": "Co tam dělat", "lat": 50.08, "lng": 14.42}], "doporuceni": "Tip Architekta na cestu (oblečení apod.)", "pocasi": {"teplota": 0, "vitr": 0, "wmo": 0}, "typ": "mesto", "obtiznost": 2}
+    VŽDY vyplň reálné GPS souřadnice lat a lng pro vykreslení trasy v mapě! Použij data o počasí z kontextu výše pro klíč "pocasi". Smaž veškeré formátování textu (ani zpětné uvozovky). JSON musí jít ihned parsovat!`;
     
     let text = (await model.generateContent(prompt)).response.text();
     const match = text.match(/\{[\s\S]*\}/); if (match) text = match[0];
