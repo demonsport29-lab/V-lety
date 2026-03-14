@@ -1,4 +1,4 @@
-let curDraft=null,curOpenTripId=null,prihlaseno=false,mainMap=null,markerCluster=null,mujProfil=null,pripraveneFotky=[],curPolyline=null
+let curDraft=null,curOpenTripId=null,prihlaseno=false,mainMap=null,markerCluster=null,mujProfil=null,pripraveneFotky=[],curPolyline=null,lastSocNeprecteno=0
 
 function toggleContact(){const w=document.getElementById('contactWin');if(w.style.display==='flex'){w.style.display='none';return;}w.style.display='flex';w.style.flexDirection='column';}
 
@@ -33,6 +33,7 @@ async function init(){
             document.getElementById('btnGoogle').innerHTML='<span>Přihlášen</span><span class="m-ico"><i class="ti ti-check"></i></span>';
             document.getElementById('btnGoogle').onclick=e=>e.preventDefault();
             document.getElementById('btnProfil').style.display='inline-flex';
+            document.getElementById('btnSocial').style.display='inline-flex';
             document.getElementById('btnNotif').style.display='inline-flex';
 
             // Notifikace jen pro přihlášené
@@ -1372,9 +1373,15 @@ async function kontrolaNotifikaci(prvniStart) {
         }
         
         const socBadge = document.getElementById('socialBadge');
-        if (socBadge) {
+        if (socBadge && res.data) {
             const nepZpravy = res.data.filter(x => x.typ === 'zprava' && !x.precteno).length;
             socBadge.style.display = nepZpravy > 0 ? 'flex' : 'none';
+            // Pokud přibylo nepřečtených zpráv a není to první start, ukážeme toast
+            if (nepZpravy > lastSocNeprecteno && !prvniStart) {
+                const posledniZprava = res.data.filter(x => x.typ === 'zprava' && !x.precteno)[0];
+                ukazToast('Nová zpráva', posledniZprava ? posledniZprava.text : 'Máte novou zprávu v Social Hubu.');
+            }
+            lastSocNeprecteno = nepZpravy;
         }
         
         const c = document.getElementById('notifikaceList');
