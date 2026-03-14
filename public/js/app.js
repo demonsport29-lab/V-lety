@@ -111,7 +111,6 @@ async function nactiVerejneVylety() {
 
     
     c.innerHTML = data.data.map((x, i) => {
-        const sh = Array.from({length:5}, (_,j) => `<span class="star${j<(x.hodnoceni||0)?' lit':''}">â…</span>`).join('');
         const av = x.autorAvatar ? `background-image:url(${x.autorAvatar});color:transparent;` : '';
         const ini = x.autorJmeno ? x.autorJmeno.charAt(0).toUpperCase() : 'U';
         
@@ -126,7 +125,7 @@ async function nactiVerejneVylety() {
                     </div>
                 </div>
             </div>
-            <div class="sr"><div><span class="sl">Hodnocení</span><div>${sh}</div></div><div style="text-align:right;"><span class="sl">Komentáře</span><span class="sv">${x.komentare?.length||0}</span></div></div>
+            <div class="sr"><div><span class="sl">Komentáře</span><span class="sv">${x.komentare?.length||0}</span></div></div>
         </div>`;
     }).join('');
 }
@@ -248,7 +247,6 @@ async function nactiDnik(){
     v.forEach((x,i)=>{
         sel.innerHTML+=`<option value="${x.id}">${x.lokace}</option>`;
         const k=document.createElement('div');k.className=`dc au${x.dokonceno?' done':''}`;k.style.animationDelay=`${i*.05}s`;k.dataset.id=x.id;
-        const sh=Array.from({length:5},(_,j)=>`<span class="star${j<(x.hodnoceni||0)?' lit':''}">â…</span>`).join('');
         const fh=x.fotky?.length?`<div class="ps">${x.fotky.map(f=>`<img src="${f}" class="pt2" onclick="event.stopPropagation();openGallery('${f}')">`).join('')}</div>`:'';
         
         k.innerHTML=`
@@ -259,7 +257,7 @@ async function nactiDnik(){
                 </div>
             </div>
             <div class="pr"><span class="chip ${x.verejny?'ci':'cm'}">${x.verejny?'Veřejný':'Soukromý'}</span><button class="btn bgh" style="padding:4px 11px;font-size:.7rem;border-radius:8px;" onclick="event.stopPropagation();prepnoutSoukromi('${x.id}',${!x.verejny})">Změnit</button></div>
-            <div class="sr"><div><span class="sl">Hodnocení</span><div>${sh}</div></div><div style="text-align:right;"><span class="sl">Komentáře</span><span class="sv">${x.komentare?.length||0}</span></div></div>
+            <div class="sr"><div></div><div style="text-align:right;"><span class="sl">Komentáře</span><span class="sv">${x.komentare?.length||0}</span></div></div>
             ${fh}
             <div class="ar-unified" style="display:grid; grid-template-columns: repeat(2, 1fr); gap:8px; margin-top:16px;">
                 <button class="btn bg bi" onclick="event.stopPropagation();sdiletVylet('${x.id}','${x.lokace}')" style="justify-content:center; border-radius:10px;"><i class="ti ti-share"></i> Odkaz</button>
@@ -355,6 +353,8 @@ async function generovat(){
     const filtry=Array.from(document.querySelectorAll('.ai-filter:checked')).map(c=>c.value);
     const posuvnik = document.getElementById('inpLide');
     if(posuvnik) filtry.push(`Počet osob: ${posuvnik.value}`);
+    const posuvnikZ = document.getElementById('inpZastavky');
+    if(posuvnikZ) filtry.push(`Počet zastávek: ${posuvnikZ.value}`);
     const btn=document.getElementById('genBtn');btn.innerHTML='<div class="spin"></div> Zpracov\xE1v\xE1m...';btn.disabled=true;
 
     try{
@@ -363,7 +363,6 @@ async function generovat(){
             curDraft=res.data;curOpenTripId=null;
             document.getElementById('resTitle').innerText=curDraft.lokace;
             document.getElementById('resDiffText').innerText='AI Koncept — Náročnost '+(curDraft.obtiznost||2);
-            document.getElementById('resTopRating').innerHTML='<span style="font-family:var(--fm);font-size:.65rem;color:var(--t2);">Pro hodnocení nejprve uložte</span>';
 
             
             // Render Widgetu Počasí
@@ -408,6 +407,12 @@ async function generovat(){
             } else { wBox.style.display = 'none'; }
             document.getElementById('commentsSection').style.display='none';
             document.getElementById('btnSaveAI').style.display='inline-flex';
+            
+            // Tlačítka okamžitě viditelná po generování
+            if(document.getElementById('btnUploadStrava')) document.getElementById('btnUploadStrava').style.display='inline-flex';
+            if(document.getElementById('btnShareIG')) document.getElementById('btnShareIG').style.display='inline-flex';
+            if(document.getElementById('btnEditTrip')) document.getElementById('btnEditTrip').style.display='inline-flex';
+            if(document.getElementById('btnCalendarAdd')) document.getElementById('btnCalendarAdd').style.display='inline-flex';
             let h='<div class="tl">';
             curDraft.etapy.forEach((e,i)=>{
                 const isLast=i===curDraft.etapy.length-1;
@@ -618,6 +623,12 @@ function otevritDetailVyletu(v){
     const shareBtn = document.getElementById('btnShareTrip');
     if(shareBtn) shareBtn.style.display = 'inline-flex';
     
+    // Tlačítka viditelná v detailu
+    if(document.getElementById('btnUploadStrava')) document.getElementById('btnUploadStrava').style.display='inline-flex';
+    if(document.getElementById('btnShareIG')) document.getElementById('btnShareIG').style.display='inline-flex';
+    if(document.getElementById('btnEditTrip')) document.getElementById('btnEditTrip').style.display='inline-flex';
+    if(document.getElementById('btnCalendarAdd')) document.getElementById('btnCalendarAdd').style.display='inline-flex';
+    
     document.getElementById('resTitle').innerText=v.lokace;
     document.getElementById('resDiffText').innerText='Uloženo: '+(v.datumUlozeni||'');
     document.getElementById('btnSaveAI').style.display='none';
@@ -674,7 +685,6 @@ function otevritDetailVyletu(v){
         wBox.style.display = 'block';
     } else { wBox.style.display = 'none'; }
 
-    vykresliHvezdicky(v.id,v.hodnoceni||0);
     vykresliKomentare(v.komentare||[]);
     curDraft=v;
     document.getElementById('resCard').style.display='block';
@@ -1101,7 +1111,6 @@ async function nactiExplore() {
                             <span style="font-size:0.7rem; color:var(--t2); font-weight:600;">${x.autorJmeno}</span>
                         </div>
                         <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <div style="display:flex; gap:4px;">${Array.from({length:5},(_,j)=>`<span style="color:${j<(x.hodnoceni||0)?'#fbbf24': 'rgba(255,255,255,0.1)'}; font-size:0.7rem;">â…</span>`).join('')}</div>
                             <span style="font-size:0.65rem; color:var(--a1); font-weight:800;">ZOBRAZIT</span>
                         </div>
                     </div>

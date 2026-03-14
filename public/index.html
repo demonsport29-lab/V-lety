@@ -468,6 +468,12 @@
                             </label>
                             <input type="range" id="inpLide" min="1" max="30" value="2" class="range-slider" oninput="document.getElementById('lblLide').innerText=this.value" style="width:100%;">
                         </div>
+                        <div style="padding: 0 14px 15px;">
+                            <label style="display:flex; justify-content:space-between; font-size:0.83rem; font-weight:700; color:var(--t2); margin-bottom:8px;">
+                                Počet zastávek: <span id="lblZastavky" style="color:var(--t1);">6</span>
+                            </label>
+                            <input type="range" id="inpZastavky" min="0" max="15" value="6" class="range-slider" oninput="document.getElementById('lblZastavky').innerText=this.value" style="width:100%;">
+                        </div>
                         <label class="fr"><input type="checkbox" class="ai-filter" value="Cestujeme se psem"> Se psem</label>
                         <label class="fr"><input type="checkbox" class="ai-filter" value="S malými dětmi"> S malými dětmi</label>
                         <label class="fr"><input type="checkbox" class="ai-filter" value="Bezbariérový přístup"> Bezbariérový přístup</label>
@@ -522,13 +528,14 @@
                     </div>
                 </div>
 
-                <div class="rtop">
-                    <p class="ey" id="resDiffText">AI Koncept</p>
-                    <h2 id="resTitle" style="font-size:2rem;font-weight:800;letter-spacing:-.03em;margin-bottom:14px;transition:all 0.2s;">Název výletu</h2>
-                    <div class="no-print">
-                        <p style="font-family:var(--fm);font-size:.6rem;text-transform:uppercase;letter-spacing:.08em;color:var(--t2);margin-bottom:5px;">Hodnocení</p>
-                        <div id="resTopRating"></div>
+                <div class="rtop" style="position:relative;">
+                    <div style="position:absolute; top:0; right:0;" class="no-print">
+                        <button class="btn bgh bi" id="btnEditTrip" onclick="toggleEditTrip()" title="Upravit texty">
+                            <i class="ti ti-edit" style="font-size:1.2rem;"></i>
+                        </button>
                     </div>
+                    <p class="ey" id="resDiffText">AI Koncept</p>
+                    <h2 id="resTitle" style="font-size:2rem;font-weight:800;letter-spacing:-.02em;margin-bottom:14px;transition:all 0.2s; padding-right:50px;">Název výletu</h2>
                     <!-- Widget Počasí ze JS -->
                     <div id="resWeather" style="display:none;"></div>
                 </div>
@@ -538,28 +545,27 @@
                     
                     <div class="no-print" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
                         <div style="display:flex; gap:8px; align-items:center;">
-                            <button class="btn bg" onclick="ulozitNovyAI()" id="btnSaveAI">Uložit do deníku</button>
+                            <button class="btn bp" onclick="ulozitNovyAI()" id="btnSaveAI">Uložit do deníku</button>
                             <button class="btn bg" onclick="ulozitCiziVylet()" id="btnSavePublic" style="display:none; color:#10b981; border-color:#10b98133;">
                                 <span style="display:block;">Uložit do mého deníku</span>
                                 <i class="ti ti-bookmark-filled" style="display:block; font-size:1.1rem;"></i>
                             </button>
-                            <button class="btn bgh bi" id="btnEditTrip" onclick="toggleEditTrip()" title="Upravit texty">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block;"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
-                            </button>
-                            <button class="btn" id="btnUploadStrava" onclick="document.getElementById('gpxUpload').click()" title="Nahrát záznam ze Stravy" style="display:none; background:#fc4c02; color:#fff; border:none; padding:8px 14px; align-items:center; gap:6px;">
-                                <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="display:block;"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/></svg>
-                                <span style="font-weight:700; font-size:.78rem; display:block;">Strava záznam</span>
+                            
+                            <button class="btn bgh bi" id="btnUploadStrava" onclick="document.getElementById('gpxUpload').click()" title="Nahrát záznam ze Stravy" style="background:#fc4c02; color:#fff; border:none; padding:10px;">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="display:block;"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/></svg>
                             </button>
                             <input type="file" id="gpxUpload" accept=".gpx" style="display:none;" onchange="zpracovatGPX(this)">
-                            <button class="btn bg bi" id="btnShareTrip" onclick="sdiletVylet(curOpenTripId, document.getElementById('resTitle').innerText)" style="display:none;" title="Sdílet s přáteli">
-                            <button class="btn bg bi" onclick="exportovatNaInstagram(event)" title="Exportovat pro Instagram Stories" style="color:#d946ef; border-color:rgba(217,70,239,0.3);">
-    <i class="ti ti-brand-instagram" style="font-size:1.3rem;"></i>
-</button>   
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:block;"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+
+                            <button class="btn bgh bi" id="btnShareIG" onclick="exportovatNaInstagram(event)" title="Exportovat pro Instagram Stories" style="color:#d946ef; border-color:rgba(217,70,239,0.3); padding:10px;">
+                                <i class="ti ti-brand-instagram" style="font-size:1.4rem;"></i>
+                            </button>   
+                            
+                            <button class="btn bgh bi" id="btnShareTrip" onclick="sdiletVylet(curOpenTripId, document.getElementById('resTitle').innerText)" style="display:none;" title="Sdílet s přáteli">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:block;"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
                             </button>
                         </div>
 
-                        <button class="btn bp" onclick="document.getElementById('calendarModal').style.display='flex'">
+                        <button class="btn bp" id="btnCalendarAdd" onclick="document.getElementById('calendarModal').style.display='flex'">
                             <span style="font-size:0.85rem; font-weight:700; display:block;">Přidat do kalendáře</span>
                         </button>
                     </div>
