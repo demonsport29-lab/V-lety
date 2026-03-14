@@ -348,7 +348,10 @@ async function upravitFeed(id,enc){const s=decodeURIComponent(enc),n=prompt('Upr
 
 async function generovat(){
     if(!prihlaseno)return alert('Pro plánování výletů se prosím přihlaste.');
-    const misto=document.getElementById('mistoIn').value.trim();if(!misto)return alert('Zadejte prosím destinaci.');
+    const start=document.getElementById('startIn').value.trim();
+    const cil=document.getElementById('cilIn').value.trim();
+    if(!start || !cil)return alert('Zadejte prosím odkud a kam chcete jet.');
+    const misto = `${start} -> ${cil}`;
     const filtry=Array.from(document.querySelectorAll('.ai-filter:checked')).map(c=>c.value);
     const posuvnik = document.getElementById('inpLide');
     if(posuvnik) filtry.push(`Počet osob: ${posuvnik.value}`);
@@ -397,8 +400,8 @@ async function generovat(){
                     <div style="display:flex; align-items:center; gap:16px; background:rgba(255,255,255,0.06); padding:12px 18px; border-radius:18px; border:1px solid rgba(255,255,255,0.1); width:max-content; margin-top:14px; box-shadow:0 8px 32px rgba(0,0,0,0.15);">
                         <i class="ti ${wip.i} wa" style="font-size:2.6rem; display:block;"></i>
                         <div>
-                            <div style="font-size:1.6rem; font-weight:800; font-family:var(--fm); line-height:1; margin-bottom:4px;">°C</div>
-                            <div style="font-size:0.75rem; color:var(--t2); font-weight:600;">${wip.t} &nbsp;≈&nbsp; Vítr ${curDraft.pocasi.vitr} km/h</div>
+                            <div style="font-size:1.6rem; font-weight:800; font-family:var(--fm); line-height:1; margin-bottom:4px;">${curDraft.pocasi.teplota}°C</div>
+                            <div style="font-size:0.75rem; color:var(--t2); font-weight:600;">${wip.t} &nbsp;&nbsp; Vítr ${curDraft.pocasi.vitr} km/h</div>
                         </div>
                     </div>`;
                 wBox.style.display = 'block';
@@ -444,7 +447,7 @@ async function ulozitNovyAI(){
         nactiDnik();
         
         if (res.uspech && res.awarded && res.awarded.length > 0) {
-            ukazAchievementModal(res.awarded[0]); 
+            ukazAchievementModal(res.awarded[0], false); 
         } else {
             alert('Itinerář byl úspěšně uložen do deníku.');
         }
@@ -452,12 +455,15 @@ async function ulozitNovyAI(){
     } catch(e) { alert('Chyba při ukládání.'); }
 }
 
-function ukazAchievementModal(ach) {
+function ukazAchievementModal(ach, allowShare = true) {
     document.getElementById('achIcon').className = `ti ${ach.ikona}`;
     document.getElementById('achTitle').innerText = ach.nazev;
     document.getElementById('achDesc').innerText = ach.popis;
+    
+    const shareBtn = document.getElementById('btnAchShare');
+    if (shareBtn) shareBtn.style.display = allowShare ? 'inline-flex' : 'none';
+    
     document.getElementById('achievementModal').style.display = 'flex';
-    // Spustit konfety (pokud máme libku, nebo aspoĹ visual feedback)
     console.log("Achievement UNLOCKED:", ach.nazev);
 }
 
@@ -661,8 +667,8 @@ function otevritDetailVyletu(v){
             <div style="display:flex; align-items:center; gap:16px; background:rgba(255,255,255,0.06); padding:12px 18px; border-radius:18px; border:1px solid rgba(255,255,255,0.1); width:max-content; margin-top:14px; box-shadow:0 8px 32px rgba(0,0,0,0.15);">
                 <i class="ti ${wip.i} wa" style="font-size:2.6rem; display:block;"></i>
                 <div>
-                    <div style="font-size:1.6rem; font-weight:800; font-family:var(--fm); line-height:1; margin-bottom:4px;">${v.pocasi.teplota}Ă‚ďż˝C</div>
-                    <div style="font-size:0.75rem; color:var(--t2); font-weight:600;">${wip.t} &nbsp;≈&nbsp; Vítr ${v.pocasi.vitr} km/h</div>
+                    <div style="font-size:1.6rem; font-weight:800; font-family:var(--fm); line-height:1; margin-bottom:4px;">${v.pocasi.teplota}°C</div>
+                    <div style="font-size:0.75rem; color:var(--t2); font-weight:600;">${wip.t} &nbsp;&nbsp; Vítr ${v.pocasi.vitr} km/h</div>
                 </div>
             </div>`;
         wBox.style.display = 'block';

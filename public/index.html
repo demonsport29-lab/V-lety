@@ -271,7 +271,7 @@
         <p id="achDesc" style="color:var(--t2); font-size:0.95rem; line-height:1.6; margin-bottom:30px;">Právě jsi získal nový odznak za svou aktivitu.</p>
         
         <div style="display:flex; gap:10px;">
-            <button class="btn bp bf" onclick="sdiletAchievementIG()" style="background:linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); border:none;">
+            <button id="btnAchShare" class="btn bp bf" onclick="sdiletAchievementIG()" style="background:linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); border:none;">
                 <i class="ti ti-brand-instagram"></i> Sdílet Story
             </button>
             <button class="btn bg" onclick="nastavitAchievementProfilovku()">
@@ -445,7 +445,8 @@
             <div class="card au d1">
                 <p class="ey">AI Architekt</p>
                 <h2 style="font-size:1.3rem;font-weight:800;margin-bottom:18px;letter-spacing:-.02em;">Sestavit výlet</h2>
-                <input type="text" id="mistoIn" class="f" placeholder="Destinace (např. Šumava, Vídeň)">
+                <input type="text" id="startIn" class="f" placeholder="Odkud vyjíždíte? (např. Praha)">
+                <input type="text" id="cilIn" class="f" placeholder="Cílová destinace (např. Šumava)">
                 <input type="text" id="specIn" class="f" placeholder="Specifická přání (volitelné)">
 
                 <div class="acc" id="w-doprava">
