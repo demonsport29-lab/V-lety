@@ -5,6 +5,9 @@ const Vylet = require('../models/Vylet');
 const Komentar = require('../models/Komentar');
 const Notifikace = require('../models/Notifikace');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
+const { checkAchievements } = require('../utils/achievementManager');
+const { nanoid } = require('nanoid');
+const QRCode = require('qrcode');
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
@@ -41,7 +44,15 @@ router.post('/api/vylet', async (req, res) => {
     
     let text = (await model.generateContent(prompt)).response.text();
     const match = text.match(/\{[\s\S]*\}/); if (match) text = match[0];
-    res.json({ uspech: true, data: JSON.parse(text) });
+    const generatedData = JSON.parse(text);
+
+    // Update stats if logged in
+    if (req.session.userId) {
+        await User.findByIdAndUpdate(req.session.userId, { $inc: { 'statistiky.aiVyletyPocet': 1 } });
+        await checkAchievements(req.session.userId, 'ai_gen');
+    }
+
+    res.json({ uspech: true, data: generatedData });
   } catch (e) {
       console.error(e);
       res.json({ uspech: false, chyba: e.message }); 
@@ -72,8 +83,20 @@ router.get('/api/ulozene-vylety', async (req, res) => {
 
 router.post('/api/ulozit-vylet', async (req, res) => {
     if (!req.session.userId) return res.json({ uspech: false });
-    await new Vylet({...req.body, vlastnikId: req.session.userId, datumUlozeni: new Date().toLocaleDateString('cs-CZ')}).save(); 
-    res.json({ uspech: true });
+    const shareId = nanoid(10);
+    const novyVylet = new Vylet({
+        ...req.body, 
+        vlastnikId: req.session.userId, 
+        datumUlozeni: new Date().toLocaleDateString('cs-CZ'),
+        shareId
+    });
+    await novyVylet.save();
+    
+    // Stats & Achievements
+    await User.findByIdAndUpdate(req.session.userId, { $inc: { 'statistiky.vyletyPocet': 1 } });
+    const awarded = await checkAchievements(req.session.userId, 'save_trip');
+    
+    res.json({ uspech: true, awarded });
 });
 
 router.post('/api/upravit-vylet', async (req, res) => { 
@@ -185,6 +208,102 @@ router.post('/api/upravit-komentar', async (req, res) => {
         await kom.save();
         res.json({ uspech: true });
     } catch (e) { res.json({ uspech: false, chyba: e.message }); }
+});
+
+// EXPLORE - Veřejné výlety
+router.get('/api/explore', async (req, res) => {
+    try {
+        const vylety = await Vylet.find({ verejny: true }).limit(20).sort({ datumUlozeni: -1 });
+        res.json(vylety);
+    } catch (e) { res.json([]); }
+});
+
+// RAW DATA PRO VEŘEJNÝ VÝLET (včetně meta dat)
+router.get('/api/public-trip/:shareId', async (req, res) => {
+    try {
+        const v = await Vylet.findOne({ shareId: req.params.shareId });
+        if (!v) return res.status(404).json({ uspech: false });
+        res.json({ uspech: true, data: v });
+    } catch (e) { res.status(500).json({ uspech: false }); }
+});
+
+// VEŘEJNÝ PROFIL - Data
+router.get('/api/u/:prezdivka', async (req, res) => {
+    try {
+        const u = await User.findOne({ prezdivka: req.params.prezdivka, verejnyProfil: true });
+        if (!u) return res.status(404).json({ uspech: false });
+        
+        // Vrátíme jen bezpečné info
+        res.json({
+            uspech: true,
+            data: {
+                jmeno: u.jmeno,
+                prijmeni: u.prijmeni,
+                prezdivka: u.prezdivka,
+                avatar: u.avatar,
+                bio: u.bio,
+                achievementy: u.achievementy,
+                statistiky: u.statistiky
+            }
+        });
+    } catch (e) { res.status(500).json({ uspech: false }); }
+});
+
+// GENEROVÁNÍ QR KÓDU
+router.post('/api/generovat-qr', async (req, res) => {
+    try {
+        const { url } = req.body;
+        if (!url) return res.json({ uspech: false });
+        const qr = await QRCode.toDataURL(url);
+        res.json({ uspech: true, qr });
+    } catch (e) { res.json({ uspech: false }); }
+});
+
+// SOCIAL PREVIEW HANDLERS (Minimal HTML for SEO)
+router.get('/s/:shareId', async (req, res) => {
+    try {
+        const v = await Vylet.findOne({ shareId: req.params.shareId });
+        if (!v) return res.redirect('/');
+        
+        // Minimal HTML with OG tags for social networks
+        const html = `
+        <!DOCTYPE html>
+        <html lang="cs">
+        <head>
+            <meta charset="UTF-8">
+            <title>Verona | ${v.lokace}</title>
+            <meta property="og:title" content="Výlet: ${v.lokace}">
+            <meta property="og:description" content="${v.popis || 'Podívej se na můj itinerář výletu na Verona Trip Architect!'}">
+            <meta property="og:image" content="https://verona-app.example/static/og-preview.jpg"> <!-- Placeholder -->
+            <meta property="og:type" content="website">
+            <meta http-equiv="refresh" content="0; url=/?s=${req.params.shareId}">
+        </head>
+        <body>Přesměrovávám na výlet...</body>
+        </html>`;
+        res.send(html);
+    } catch (e) { res.redirect('/'); }
+});
+
+router.get('/u/:prezdivka', async (req, res) => {
+    try {
+        const u = await User.findOne({ prezdivka: req.params.prezdivka, verejnyProfil: true });
+        if (!u) return res.redirect('/');
+        
+        const html = `
+        <!DOCTYPE html>
+        <html lang="cs">
+        <head>
+            <meta charset="UTF-8">
+            <title>Verona | Profil ${u.prezdivka}</title>
+            <meta property="og:title" content="Profil cestovatele: ${u.prezdivka}">
+            <meta property="og:description" content="Sleduj moje výlety a úspěchy ve Verona Trip Architect.">
+            <meta property="og:image" content="${u.avatar || ''}">
+            <meta http-equiv="refresh" content="0; url=/?u=${req.params.prezdivka}">
+        </head>
+        <body>Přesměrovávám na profil...</body>
+        </html>`;
+        res.send(html);
+    } catch (e) { res.redirect('/'); }
 });
 
 module.exports = router;

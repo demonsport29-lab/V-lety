@@ -6,7 +6,8 @@ const vyletSchema = new mongoose.Schema({
     etapy: Array, dokonceno: { type: Boolean, default: false }, fotky: [String], 
     hodnoceni: { type: Number, default: 0 }, 
     datumUlozeni: String,
-    gpxTrasa: { type: Array, default: [] }
+    gpxTrasa: { type: Array, default: [] },
+    shareId: { type: String, unique: true, sparse: true }
 });
 
 module.exports = mongoose.model('Vylet', vyletSchema);

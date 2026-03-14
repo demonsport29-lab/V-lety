@@ -228,12 +228,43 @@ router.get('/api/verejne-vylety', async (req, res) => {
 });
 
 const seznamMedaili = [
-    { id: 'start', nazev: 'Průzkumník', popis: 'Uložil si svůj první výlet do deníku.', ikona: '<i class="ph-fill ph-map-trifold"></i>', podminka: (s) => s.pocetVyletu >= 1 },
-    { id: 'znalec', nazev: 'Světem protřelý', popis: 'Zapsal 10 výletů do deníku.', ikona: '<i class="ph-fill ph-backpack"></i>', podminka: (s) => s.pocetVyletu >= 10 },
-    { id: 'krok', nazev: 'Akční hrdina', popis: 'Fyzicky splnil svůj první výlet.', ikona: '<i class="ph-fill ph-boot"></i>', podminka: (s) => s.pocetSplnenych >= 1 },
-    { id: 'dobyvatel', nazev: 'Dobyvatel', popis: 'Fyzicky splnil 5 výletů.', ikona: '<i class="ph-fill ph-mountains"></i>', podminka: (s) => s.pocetSplnenych >= 5 },
-    { id: 'komunita', nazev: 'Hlas komunity', popis: 'Napsal první příspěvek do chatu.', ikona: '<i class="ph-fill ph-megaphone"></i>', podminka: (s) => s.pocetFeed >= 1 }
+    { id: 'start', nazev: 'Průzkumník', popis: 'Uložil si svůj první výlet do deníku.', ikona: 'ti-map-2', podminka: (s) => s.pocetVyletu >= 1 },
+    { id: 'znalec', nazev: 'Světem protřelý', popis: 'Zapsal 10 výletů do deníku.', ikona: 'ti-backpack', podminka: (s) => s.pocetVyletu >= 10 },
+    { id: 'krok', nazev: 'Akční hrdina', popis: 'Fyzicky splnil svůj první výlet.', ikona: 'ti-shoe', podminka: (s) => s.pocetSplnenych >= 1 },
+    { id: 'dobyvatel', nazev: 'Dobyvatel', popis: 'Fyzicky splnil 5 výletů.', ikona: 'ti-mountain', podminka: (s) => s.pocetSplnenych >= 5 },
+    { id: 'komunita', nazev: 'Hlas komunity', popis: 'Napsal první příspěvek do chatu.', ikona: 'ti-message-2', podminka: (s) => s.pocetFeed >= 1 }
 ];
+
+router.get('/api/moje-info', async (req, res) => {
+    if (!req.session.userId) return res.json({ uspech: false, chyba: 'Nepřihlášen.' });
+    try {
+        const user = await User.findById(req.session.userId);
+        const pocetVyletu = await Vylet.countDocuments({ vlastnikId: req.session.userId });
+        const pocetSplnenych = await Vylet.countDocuments({ vlastnikId: req.session.userId, dokonceno: true });
+        const pocetFeed = await FeedPost.countDocuments({ autorId: req.session.userId });
+        
+        const statistiky = { pocetVyletu, pocetSplnenych, pocetFeed, ujetaVzdalenost: pocetSplnenych * 12 }; // Simulace km
+        const achievementy = seznamMedaili.filter(m => m.podminka(statistiky));
+        
+        res.json({ uspech: true, user: { ...user._doc, statistiky, achievementy } });
+    } catch(e) { res.json({ uspech: false, chyba: e.message }); }
+});
+
+router.post('/api/nastavit-avatar-achievement', async (req, res) => {
+    if (!req.session.userId) return res.json({ uspech: false });
+    try {
+        const { achievementTitle } = req.body;
+        const medaile = seznamMedaili.find(m => m.nazev === achievementTitle);
+        // V reálu bychom potřebovali URL ikony, ale ti- ikona je font. 
+        // Budeme ukládat 'ti:ti-nazev' do avatar pole a frontend to pozná.
+        if (medaile) {
+            await User.findByIdAndUpdate(req.session.userId, { avatar: `ti:${medaile.ikona}` });
+            res.json({ uspech: true });
+        } else {
+            res.json({ uspech: false, chyba: 'Medaile nenalezena.' });
+        }
+    } catch(e) { res.json({ uspech: false }); }
+});
 
 router.get('/api/moje-staty', async (req, res) => {
     if (!req.session.userId) return res.json({ uspech: false });

@@ -367,3 +367,51 @@
         .wa-rain { color: #3b82f6 !important; }
         .wa-snow { color: #e2e8f0 !important; }
         .wa-bolt { color: #facc15 !important; }
+
+        @keyframes ach-bounce {
+            from { transform: scale(1) translateY(0); }
+            to { transform: scale(1.1) translateY(-10px); }
+        }
+        .btn-strava { background: #fc4c02 !important; color: #fff !important; border: none !important; }
+        .btn-ig { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888) !important; color: #fff !important; border: none !important; }
+        .btn-qr { background: #000 !important; color: #fff !important; border: none !important; }
+
+        /* ACHIEVEMENT CARD */
+        .achievement-card {
+            background: linear-gradient(160deg, #1e1b4b, #060810);
+            border: 2px solid var(--a1);
+            border-radius: 32px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            position: relative;
+            z-index: 10001;
+            overflow: hidden;
+            animation: ach-bounce 1s infinite alternate;
+        }
+        .confetti-canvas {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 1;
+        }
+        @keyframes ach-bounce {
+            from { transform: translateY(0) scale(1.02); }
+            to { transform: translateY(-5px) scale(1); }
+        }
+        .shimmer-text {
+            background: linear-gradient(90deg, var(--a1), var(--a3), var(--a1));
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: move-shimmer 3s linear infinite;
+        }
+        @keyframes move-shimmer {
+            to { background-position: 200% center; }
+        }
+
+        @media (max-width: 768px) {
+            .pg { grid-template-columns: 1fr; }
+            .sidebar { position: static; }
+            .nav-in { padding: 0 16px; }
+            .tabs { display: none !important; }
+        }
