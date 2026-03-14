@@ -72,19 +72,6 @@
                 <textarea id="profBio" class="f" rows="3" placeholder="Pár slov o sobě…"></textarea>
                 <button class="btn bp bf" onclick="ulozitProfil()">Uložit profil</button>
 
-                <div style="margin-top:28px; padding:16px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:var(--rsm);">
-                    <p class="ey" style="margin-bottom:12px; display:flex; align-items:center; gap:6px;"><i class="ti ti-qrcode"></i> Můj Friendly-Code</p>
-                    <div style="display:flex; gap:8px; margin-bottom:16px;">
-                        <input type="text" id="mujFriendlyCode" class="f" readonly style="margin:0; font-family:var(--fs); background:rgba(0,0,0,0.2);" value="Načítání...">
-                        <button class="btn bgh" onclick="kopirovatMujKod()" title="Kopírovat můj kód"><i class="ti ti-copy"></i></button>
-                    </div>
-                    
-                    <p class="ey" style="margin-bottom:12px; display:flex; align-items:center; gap:6px;"><i class="ti ti-user-plus"></i> Přidat přítele přes kód</p>
-                    <div style="display:flex; gap:8px;">
-                        <input type="text" id="inputFriendCode" class="f" placeholder="Vložte Friendly-Code" style="margin:0;">
-                        <button class="btn bp" onclick="pridatPriteleKod()"><i class="ti ti-plus"></i></button>
-                    </div>
-                </div>
             </div>
 
             <div style="flex: 1.5 1 340px; display:flex; flex-direction:column; gap: 20px;">
@@ -249,6 +236,27 @@
         <div id="notifikaceList" style="flex-grow:1; overflow-y:auto; display:flex; flex-direction:column; gap:12px;"></div>
     </div>
 </div>
+</div>
+
+<!-- SOCIAL HUB MODAL -->
+<div id="socialHubModal" class="overlay" style="z-index: 100001;" onclick="if(event.target===this)this.style.display='none'">
+    <div class="mb" style="max-width:500px; height:80vh; display:flex; flex-direction:column; padding: 24px; background: linear-gradient(160deg, var(--bg) 0%, rgba(99,102,241,0.03) 100%);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <h2 style="font-size:1.5rem; font-weight:800; display:flex; align-items:center; gap:10px; margin:0;"><i class="ti ti-users" style="color:var(--a1);"></i> Social Hub</h2>
+            <button class="btnx" onclick="document.getElementById('socialHubModal').style.display='none'">✕</button>
+        </div>
+        
+        <div class="tabs" style="display:flex; margin-bottom:20px; background:rgba(255,255,255,0.03); border-radius:14px; padding:4px;">
+            <button class="tab active" style="flex:1; padding:8px;" id="s-tab-chat" onclick="prepniSocialTab('chat')">Konverzace</button>
+            <button class="tab" style="flex:1; padding:8px;" id="s-tab-friends" onclick="prepniSocialTab('friends')">Přátelé</button>
+        </div>
+
+        <div id="socialContent" style="flex:1; overflow-y:auto; padding-right:5px;">
+            <!-- Obsah se generuje dynamicky -->
+        </div>
+    </div>
+</div>
+
 
 <div id="achievementModal" class="overlay" style="z-index: 100000;" onclick="if(event.target===this)this.style.display='none'">
     <div class="mb au achievement-card" style="text-align:center; max-width:400px; background:linear-gradient(160deg, #1e1b4b, #060810); border: 2px solid #6366f1;">
@@ -290,6 +298,10 @@
             <button class="btn bg" onclick="document.getElementById('donateModal').style.display='flex'"><span>Podpořit</span><span class="m-ico"><i class="ti ti-coffee"></i></span></button>
             <button class="btn bgh" id="btnGoogle" onclick="location.href='/auth/google'"><span>Přihlásit</span><span class="m-ico"><i class="ti ti-user"></i></span></button>
             <button class="btn bg" id="btnProfil" onclick="otevritMujProfil()" style="display:none;"><span>Profil</span><span class="m-ico"><i class="ti ti-settings"></i></span></button>
+            <button class="btn bgh" id="btnSocial" onclick="otevritSocialHub()" style="display:none; position:relative; padding: 0 12px; width:auto;" title="Konverzace a Přátelé">
+                <i class="ti ti-messages" style="font-size:1.2rem;"></i>
+                <span id="socialBadge" style="display:none; position:absolute; top:-2px; right:-2px; background:var(--a1); color:white; font-size:10px; font-weight:bold; border-radius:50%; width:16px; height:16px; align-items:center; justify-content:center; box-shadow:0 0 10px var(--a1);">!</span>
+            </button>
             <button class="btn bgh" id="btnNotif" onclick="otevritNotifikaceModal()" style="display:none; position:relative; padding: 0 12px; width:auto;">
                 <i class="ti ti-bell" style="font-size:1.2rem;"></i>
                 <span id="notifBadge" style="display:none; position:absolute; top:-2px; right:-2px; background:#ef4444; color:white; font-size:10px; font-weight:bold; border-radius:50%; width:18px; height:18px; align-items:center; justify-content:center;">0</span>

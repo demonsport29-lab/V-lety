@@ -905,47 +905,7 @@ async function prepnoutStav(id, stav) {
     }
 }
 
-// 5. FRIENDLY-CODE a PŘÁTELĂ‰ HUB
-function kopirovatMujKod() {
-    const input = document.getElementById('mujFriendlyCode');
-    input.select();
-    input.setSelectionRange(0, 99999);
-    navigator.clipboard.writeText(input.value);
-    
-    const btn = input.nextElementSibling;
-    const origHtml = btn.innerHTML;
-    btn.innerHTML = '<i class="ti ti-check" style="color:#10b981;"></i>';
-    setTimeout(() => { btn.innerHTML = origHtml; }, 2000);
-}
-
-async function pridatPriteleKod() {
-    const input = document.getElementById('inputFriendCode');
-    const kod = input.value.trim();
-    if(!kod) return;
-    
-    const btn = input.nextElementSibling;
-    const origHtml = btn.innerHTML;
-    btn.innerHTML = '<div class="spin" style="width:16px;height:16px;border-width:2px;border-color:rgba(255,255,255,0.3);border-top-color:#fff;"></div>';
-    
-    try {
-        const res = await (await fetch('/api/pridat-pritele-kod', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ kod }) })).json();
-        if(res.uspech) {
-            btn.innerHTML = '<i class="ti ti-check" style="color:#fff;"></i>';
-            btn.className = 'btn bg';
-            input.value = '';
-            setTimeout(() => { btn.innerHTML = origHtml; btn.className = 'btn bp'; }, 2000);
-            if (document.getElementById('viewKomunita').classList.contains('hidden') === false) {
-                vykreslitFriendHub();
-            }
-        } else {
-            alert(res.chyba || "Chyba při přidávání.");
-            btn.innerHTML = origHtml;
-        }
-    } catch(e) { 
-        alert("Došlo k chybě. Kód je neplatný."); 
-        btn.innerHTML = origHtml;
-    }
-}
+// Logic relocated to Social Hub
 
 async function vykreslitFriendHub() {
     if(!prihlaseno) return;
@@ -1411,6 +1371,12 @@ async function kontrolaNotifikaci(prvniStart) {
             badge.style.display = 'none';
         }
         
+        const socBadge = document.getElementById('socialBadge');
+        if (socBadge) {
+            const nepZpravy = res.data.filter(x => x.typ === 'zprava' && !x.precteno).length;
+            socBadge.style.display = nepZpravy > 0 ? 'flex' : 'none';
+        }
+        
         const c = document.getElementById('notifikaceList');
         if(res.data.length === 0) {
             c.innerHTML = '<div class="es"><p>Zatím žádná upozornění.</p></div>';
@@ -1581,3 +1547,118 @@ async function nastavitAchievementProfilovku() {
         }
     } catch(e) { alert('Chyba při nastavování profilovky.'); }
 }
+
+// SOCIAL HUB LOGIC
+let curSocialTab = 'chat';
+function otevritSocialHub() { 
+    const modal = document.getElementById('socialHubModal');
+    if(modal) modal.style.display = 'flex'; 
+    prepniSocialTab(curSocialTab); 
+}
+function prepniSocialTab(tab) {
+    if(!document.getElementById(`s-tab-${tab}`)) return;
+    curSocialTab = tab;
+    document.querySelectorAll('#socialHubModal .tab').forEach(t => t.classList.remove('active'));
+    document.getElementById(`s-tab-${tab}`).classList.add('active');
+    if (tab === 'chat') nactiKonverzace();
+    else nactiSeznamPratel();
+}
+async function nactiKonverzace() {
+    const c = document.getElementById('socialContent'); if(!c) return;
+    c.innerHTML = '<div class="spin" style="margin:20px auto;"></div>';
+    try {
+        const res = await (await fetch('/api/moje-konverzace')).json();
+        if (res.uspech && res.data.length > 0) {
+            c.innerHTML = res.data.map(k => {
+                const avId = `av-soc-${k.id}`;
+                setTimeout(() => renderovatAvatar(document.getElementById(avId), k.avatar, k.jmeno), 0);
+                return `<div class="dc au" style="display:flex; align-items:center; gap:15px; margin-bottom:10px; cursor:pointer;" onclick="otevritChatV2('${k.id}', '${k.jmeno}')">
+                    <div id="${avId}" class="av" style="width:45px; height:45px; border:2px solid ${k.neprecteno ? 'var(--a1)' : 'transparent'};"></div>
+                    <div style="flex:1;">
+                        <div style="display:flex; justify-content:space-between;"><strong style="font-size:0.95rem;">${k.jmeno}</strong><span style="font-size:0.65rem; color:var(--t2);">${k.datum ? new Date(k.datum).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : ''}</span></div>
+                        <p style="font-size:0.8rem; color:${k.neprecteno ? 'var(--t1)' : 'var(--t2)'}; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:260px;">${k.posledniZprava || 'Zatím žádné zprávy'}</p>
+                    </div>
+                </div>`;
+            }).join('');
+        } else c.innerHTML = '<p style="text-align:center; padding:40px; color:var(--t2); font-size:0.9rem;">Zatím nemáte žádné konverzace.</p>';
+    } catch (e) { c.innerHTML = '<p>Chyba načítání.</p>'; }
+}
+async function nactiSeznamPratel() {
+    const c = document.getElementById('socialContent'); if(!c) return;
+    c.innerHTML = `
+        <div style="margin-bottom:20px; display:flex; flex-direction:column; gap:15px;">
+            <div style="background:rgba(255,255,255,0.03); padding:16px; border-radius:18px; border:1px solid rgba(255,255,255,0.05);">
+                <label style="display:block; font-size:0.7rem; color:var(--t2); margin-bottom:8px; font-weight:800; text-transform:uppercase; letter-spacing:0.5px;">Tvůj kód pro přátele</label>
+                <div style="display:flex; gap:10px;">
+                    <input type="text" value="${mujProfil ? mujProfil._id : ''}" id="mujFriendlyCodeSocial" class="f" style="margin:0; font-family:'Space Mono'; text-align:center; font-weight:bold; letter-spacing:1px; background:rgba(0,0,0,0.2); font-size:0.8rem;" readonly>
+                    <button class="btn bg bi" onclick="navigator.clipboard.writeText('${mujProfil ? mujProfil._id : ''}'); alert('Kód zkopírován!')" title="Kopírovat"><i class="ti ti-copy"></i></button>
+                </div>
+            </div>
+            <div style="background:rgba(255,255,255,0.03); padding:16px; border-radius:18px; border:1px solid rgba(255,255,255,0.05);">
+                <label style="display:block; font-size:0.7rem; color:var(--t2); margin-bottom:10px; font-weight:800; text-transform:uppercase; letter-spacing:0.5px;">Najít přítele podle Gmailu</label>
+                <div style="display:flex; gap:8px;">
+                    <input type="text" id="gmailSearchIn" class="f" placeholder="example@gmail.com" style="margin:0; font-size:0.85rem;">
+                    <button class="btn bp" style="padding:0 15px;" onclick="hledatPrateleGmail()"><i class="ti ti-search"></i></button>
+                </div>
+                <div id="gmailSearchResult" style="margin-top:12px;"></div>
+            </div>
+            <div style="background:rgba(255,255,255,0.03); padding:16px; border-radius:18px; border:1px solid rgba(255,255,255,0.05);">
+                <label style="display:block; font-size:0.7rem; color:var(--t2); margin-bottom:8px; font-weight:800; text-transform:uppercase; letter-spacing:0.5px;">Přidat přítele přes kód</label>
+                <div style="display:flex; gap:10px;">
+                    <input type="text" id="friendCodeInSoc" class="f" placeholder="Vlož kód..." style="margin:0; font-size:0.85rem;">
+                    <button class="btn bp" style="padding:0 15px;" onclick="pridatPritelePresKodSoc()">Přidat</button>
+                </div>
+            </div>
+        </div>
+        <h3 style="font-size:0.9rem; font-weight:800; margin-bottom:12px; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:8px;">Seznam přátel</h3>
+        <div id="friendsListContainer"></div>
+    `;
+    nactiActualFriends();
+}
+async function hledatPrateleGmail() {
+    const e = document.getElementById('gmailSearchIn').value.trim(), r = document.getElementById('gmailSearchResult'); if(!e) return;
+    r.innerHTML = '<div class="spin" style="width:20px; height:20px; border-width:2px; margin:5px auto;"></div>';
+    try {
+        const res = await (await fetch('/api/hledat-podle-emailu?email=' + encodeURIComponent(e))).json();
+        if (res.uspech) {
+            const u = res.user, avId = `av-search-${u.id}`;
+            setTimeout(() => renderovatAvatar(document.getElementById(avId), u.avatar, u.jmeno), 0);
+            r.innerHTML = `<div class="dc au" style="display:flex; align-items:center; gap:12px; padding:10px; margin:0;"><div id="${avId}" class="av" style="width:34px; height:34px;"></div><div style="flex:1;"><span style="font-size:0.85rem; font-weight:700;">${u.jmeno}</span></div><button class="btn bp bi" onclick="pridatPriteleGmail('${u.id}')" style="width:32px; height:32px;"><i class="ti ti-user-plus"></i></button></div>`;
+        } else r.innerHTML = `<p style="font-size:0.75rem; color:#ef4444; margin:0;">${res.chyba}</p>`;
+    } catch (err) { r.innerHTML = '<p>Chyba hledání.</p>'; }
+}
+async function pridatPriteleGmail(id) {
+    try {
+        const res = await (await fetch('/api/pridat-pritele', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({targetId: id}) })).json();
+        if (res.uspech) { ukazToast('Přátelství', res.akce === 'pridano' ? 'Uživatel byl přidán do přátel.' : 'Uživatel byl odebrán z přátel.'); if (curSocialTab === 'friends') nactiSeznamPratel(); }
+    } catch (err) { alert('Chyba přidání.'); }
+}
+async function nactiActualFriends() {
+    const c = document.getElementById('friendsListContainer'); if(!c) return;
+    try {
+        const res = await (await fetch('/api/moji-pratele')).json();
+        if (res.uspech && res.data.length > 0) {
+            c.innerHTML = res.data.map(p => {
+                const avId = `av-friend-${p.id}`;
+                setTimeout(() => renderovatAvatar(document.getElementById(avId), p.avatar, p.jmeno), 0);
+                return `<div style="display:flex; align-items:center; gap:12px; margin-bottom:12px; background:rgba(255,255,255,0.02); padding:10px; border-radius:14px; border:1px solid rgba(255,255,255,0.03);">
+                    <div id="${avId}" class="av" style="width:36px; height:36px; cursor:pointer;" onclick="otevritVerejnyProfil('${p.id}')"></div>
+                    <div style="flex:1;"><strong style="font-size:0.85rem; display:block;">${p.jmeno}</strong></div>
+                    <div style="display:flex; gap:6px;"><button class="btn bg bi" onclick="otevritChatV2('${p.id}', '${p.jmeno}')" style="width:32px; height:32px;"><i class="ti ti-message"></i></button><button class="btn bgh bi" onclick="pridatPriteleGmail('${p.id}')" style="width:32px; height:32px; color:#ef4444;" title="Odebrat"><i class="ti ti-user-minus"></i></button></div>
+                </div>`;
+            }).join('');
+        } else c.innerHTML = '<p style="text-align:center; padding:10px; color:var(--t2); font-size:0.8rem;">Nemáte zatím žádné přátele.</p>';
+    } catch (err) { c.innerHTML = '<p>Chyba načítání seznamu.</p>'; }
+}
+async function pridatPritelePresKodSoc() {
+    const k = document.getElementById('friendCodeInSoc').value.trim(); if(!k) return;
+    try {
+        const res = await (await fetch('/api/pridat-pritele-kod', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({kod:k}) })).json();
+        if (res.uspech) { ukazToast('Přátelství', 'Nový přítel byl přidán přes kód!'); prepniSocialTab('friends'); }
+        else alert(res.chyba || 'Neplatný kód nebo uživatel už existuje.');
+    } catch(err) { alert('Chyba spojení.'); }
+}
+function otevritChatV2(id, jm) { 
+    alert('Privátní chat s ' + jm + ' bude brzy dostupný! Nyní prosím využijte komunitní feed.'); 
+}
+
