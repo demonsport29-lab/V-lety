@@ -38,7 +38,7 @@ async function init(){
             if(document.getElementById('dropLogout')) document.getElementById('dropLogout').style.display='flex';
             if(document.getElementById('dropSocial')) document.getElementById('dropSocial').style.display='flex';
             if(document.getElementById('dropNotif')) document.getElementById('dropNotif').style.display='flex';
-            nactiPrateleDropdown();spustitNotifikace();
+            spustitNotifikace();
             if(!localStorage.getItem('verona_news')) setTimeout(()=>document.getElementById('newsletterModal').style.display='flex',1500);
             document.getElementById('landingActionBtns').innerHTML = `
                 <button class="btn bp blg" onclick="prepniTab('planovac')">Otevřít můj deník</button>
@@ -143,39 +143,9 @@ function toggleAcc(wid,bid){const w=document.getElementById(wid),b=document.getE
 
 function toggleProfileDropdown() {
     const menu = document.getElementById('profileDropdown');
-    const isOpen = menu.classList.toggle('open');
-    if (isOpen && prihlaseno) {
-        nactiPrateleDropdown();
-    }
+    menu.classList.toggle('open');
 }
 
-async function nactiPrateleDropdown() {
-    const container = document.getElementById('friendsDropdownItems');
-    if (!container) return;
-    
-    try {
-        const r = await fetch('/api/social/friends');
-        const data = await r.json();
-        if (data.success && data.friends) {
-            if (data.friends.length === 0) {
-                container.innerHTML = '<p style="font-size: 0.7rem; color: var(--t3); margin: 8px;">Zatím žádní přátelé</p>';
-                return;
-            }
-
-            container.innerHTML = data.friends.map(f => `
-                <div class="friend-dropdown-item" onclick="otevritChat('${f.userId}'); toggleProfileDropdown()">
-                    <div class="friend-info">
-                        <div class="friend-status ${f.online ? 'online' : ''}"></div>
-                        <span class="friend-name">${f.username}</span>
-                    </div>
-                    <i class="ti ti-chevron-right" style="font-size: 0.7rem; color: var(--t3);"></i>
-                </div>
-            `).join('');
-        }
-    } catch (e) {
-        console.error('Chyba při načítání přátel do dropdownu:', e);
-    }
-}
 
 function otevritChat(targetUserId) {
     prepniTab('komunita');
