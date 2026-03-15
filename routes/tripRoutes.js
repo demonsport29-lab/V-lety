@@ -10,8 +10,8 @@ const { nanoid } = require('nanoid');
 const QRCode = require('qrcode');
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-// Explicitně nastavíme verzi v1, protože v1beta hází u flash modelu 404
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" }, { apiVersion: 'v1' });
+// Použijeme alias 'gemini-flash-latest', který v roce 2026 odkazuje na aktuální verzi modelu Flash
+const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" }, { apiVersion: 'v1' });
 
 // AI GENERÁTOR
 router.post('/api/vylet', async (req, res) => {
