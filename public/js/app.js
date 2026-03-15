@@ -361,42 +361,39 @@ async function generovat(){
         if(res.uspech){
             curDraft=res.data;curOpenTripId=null;
             document.getElementById('resTitle').innerText=curDraft.lokace;
-            document.getElementById('resDiffText').innerText='AI Koncept — Náročnost '+(curDraft.obtiznost||2);
+            document.getElementById('resDiffText').innerText = 'AI Koncept — Náročnost ' + (curDraft.obtiznost || 2);
 
-            
             // Render Widgetu Počasí
             const wBox = document.getElementById('resWeather');
             if (curDraft.pocasi && curDraft.pocasi.teplota !== undefined) {
                 const wmoKody = {
-                    0: {i:'ti-sun wa-spin wa-sun', t:'Jasno'}, 
-                    1: {i:'ti-cloud-sun wa-float', t:'Polojasno'}, 
-                    2: {i:'ti-cloud wa-float wa-cloud', t:'Oblačno'}, 
-                    3: {i:'ti-cloud wa-float wa-cloud', t:'Zataženo'},
-
-                    45: {i:'ti-mist wa-pulse', t:'Mlha'}, 
-                    48: {i:'ti-mist wa-pulse', t:'Námrazová mlha'},
-                    51:{i:'ti-cloud-rain wa-pulse wa-rain', t:'Slabé mrholení'}, 
-                    53:{i:'ti-cloud-rain wa-pulse wa-rain', t:'Mrholení'}, 
-                    55:{i:'ti-cloud-rain wa-pulse wa-rain', t:'Silné mrholení'},
-                    61:{i:'ti-cloud-rain wa-pulse wa-rain', t:'Slabý déšť'}, 
-                    63:{i:'ti-cloud-rain wa-pulse wa-rain', t:'Déšť'}, 
-                    65:{i:'ti-cloud-rain wa-pulse wa-rain', t:'Silný déšť'},
-                    71:{i:'ti-snowflake wa-spin wa-snow', t:'Slabé sněžení'}, 
-                    73:{i:'ti-snowflake wa-spin wa-snow', t:'Sněžení'}, 
-                    75:{i:'ti-snowflake wa-spin wa-snow', t:'Silné sněžení'},
-
-                    80:{i:'ti-cloud-storm wa-pulse wa-bolt', t:'PřeháĹky'}, 
-                    81:{i:'ti-cloud-storm wa-pulse wa-bolt', t:'Silné přeháĹky'}, 
-                    82:{i:'ti-cloud-storm wa-pulse wa-bolt', t:'Přívalové srážky'},
-                    95:{i:'ti-cloud-storm wa-pulse wa-bolt', t:'Bouřka'}, 
-                    96:{i:'ti-cloud-storm wa-pulse wa-bolt', t:'Silná bouřka'}, 
-                    99:{i:'ti-cloud-storm wa-pulse wa-bolt', t:'Bouřka a kroupy'}
+                    0: {i:'ph-sun wa-spin wa-sun', t:'Jasno'}, 
+                    1: {i:'ph-cloud-sun wa-float', t:'Polojasno'}, 
+                    2: {i:'ph-cloud wa-float wa-cloud', t:'Oblačno'}, 
+                    3: {i:'ph-cloud wa-float wa-cloud', t:'Zataženo'},
+                    45: {i:'ph-cloud-fog wa-pulse', t:'Mlha'}, 
+                    48: {i:'ph-cloud-fog wa-pulse', t:'Námrazová mlha'},
+                    51:{i:'ph-cloud-rain wa-pulse wa-rain', t:'Slabé mrholení'}, 
+                    53:{i:'ph-cloud-rain wa-pulse wa-rain', t:'Mrholení'}, 
+                    55:{i:'ph-cloud-rain wa-pulse wa-rain', t:'Silné mrholení'},
+                    61:{i:'ph-cloud-rain wa-pulse wa-rain', t:'Slabý déšť'}, 
+                    63:{i:'ph-cloud-rain wa-pulse wa-rain', t:'Déšť'}, 
+                    65:{i:'ph-cloud-rain wa-pulse wa-rain', t:'Silný déšť'},
+                    71:{i:'ph-cloud-snow wa-spin wa-snow', t:'Slabé sněžení'}, 
+                    73:{i:'ph-cloud-snow wa-spin wa-snow', t:'Sněžení'}, 
+                    75:{i:'ph-cloud-snow wa-spin wa-snow', t:'Silné sněžení'},
+                    80:{i:'ph-cloud-rain wa-pulse wa-bolt', t:'Přeháňky'}, 
+                    81:{i:'ph-cloud-rain wa-pulse wa-bolt', t:'Silné přeháňky'}, 
+                    82:{i:'ph-cloud-rain wa-pulse wa-bolt', t:'Přívalové srážky'},
+                    95:{i:'ph-cloud-lightning wa-pulse wa-bolt', t:'Bouřka'}, 
+                    96:{i:'ph-cloud-lightning wa-pulse wa-bolt', t:'Silná bouřka'}, 
+                    99:{i:'ph-cloud-lightning wa-pulse wa-bolt', t:'Bouřka a kroupy'}
                 };
-                const wip = wmoKody[curDraft.pocasi.wmo] || {i:'ti-cloud-sun wa-float', t:'Neznámé'};
+                const wip = wmoKody[curDraft.pocasi.wmo] || {i:'ph-cloud-sun wa-float', t:'Neznámé'};
 
                 wBox.innerHTML = `
                     <div style="display:flex; align-items:center; gap:16px; background:rgba(255,255,255,0.06); padding:12px 18px; border-radius:18px; border:1px solid rgba(255,255,255,0.1); width:max-content; margin-top:14px; box-shadow:0 8px 32px rgba(0,0,0,0.15);">
-                        <i class="ti ${wip.i} wa" style="font-size:2.6rem; display:block;"></i>
+                        <i class="ph ${wip.i} wa" style="font-size:2.6rem; display:block;"></i>
                         <div>
                             <div style="font-size:1.6rem; font-weight:800; font-family:var(--fm); line-height:1; margin-bottom:4px;">${curDraft.pocasi.teplota}°C</div>
                             <div style="font-size:0.75rem; color:var(--t2); font-weight:600;">${wip.t} &nbsp;&nbsp; Vítr ${curDraft.pocasi.vitr} km/h</div>
@@ -667,33 +664,33 @@ function otevritDetailVyletu(v){
     const wBox = document.getElementById('resWeather');
     if (v.pocasi && v.pocasi.teplota !== undefined) {
         const wmoKody = {
-            0: {i:'ti-sun wa-spin wa-sun', t:'Jasno'}, 
-            1: {i:'ti-cloud-sun wa-float', t:'Polojasno'}, 
-            2: {i:'ti-cloud wa-float wa-cloud', t:'Oblačno'}, 
-            3: {i:'ti-cloud wa-float wa-cloud', t:'Zataženo'},
-            45: {i:'ti-mist wa-pulse', t:'Mlha'}, 
-            48: {i:'ti-mist wa-pulse', t:'Námrazová mlha'},
-            51:{i:'ti-cloud-rain wa-pulse wa-rain', t:'Slabé mrholení'}, 
-            53:{i:'ti-cloud-rain wa-pulse wa-rain', t:'Mrholení'}, 
-            55:{i:'ti-cloud-rain wa-pulse wa-rain', t:'Silné mrholení'},
-            61:{i:'ti-cloud-rain wa-pulse wa-rain', t:'Slabý déšť'}, 
-            63:{i:'ti-cloud-rain wa-pulse wa-rain', t:'Déšť'}, 
-            65:{i:'ti-cloud-rain wa-pulse wa-rain', t:'Silný déšť'},
-            71:{i:'ti-snowflake wa-spin wa-snow', t:'Slabé sněžení'}, 
-            73:{i:'ti-snowflake wa-spin wa-snow', t:'Sněžení'}, 
-            75:{i:'ti-snowflake wa-spin wa-snow', t:'Silné sněžení'},
-            80:{i:'ti-cloud-storm wa-pulse wa-bolt', t:'PřeháĹky'}, 
-            81:{i:'ti-cloud-storm wa-pulse wa-bolt', t:'Silné přeháĹky'}, 
-            82:{i:'ti-cloud-storm wa-pulse wa-bolt', t:'Přívalové srážky'},
-            95:{i:'ti-cloud-storm wa-pulse wa-bolt', t:'Bouřka'}, 
-            96:{i:'ti-cloud-storm wa-pulse wa-bolt', t:'Silná bouřka'}, 
-            99:{i:'ti-cloud-storm wa-pulse wa-bolt', t:'Bouřka a kroupy'}
+            0: {i:'ph-sun wa-spin wa-sun', t:'Jasno'}, 
+            1: {i:'ph-cloud-sun wa-float', t:'Polojasno'}, 
+            2: {i:'ph-cloud wa-float wa-cloud', t:'Oblačno'}, 
+            3: {i:'ph-cloud wa-float wa-cloud', t:'Zataženo'},
+            45: {i:'ph-cloud-fog wa-pulse', t:'Mlha'}, 
+            48: {i:'ph-cloud-fog wa-pulse', t:'Námrazová mlha'},
+            51:{i:'ph-cloud-rain wa-pulse wa-rain', t:'Slabé mrholení'}, 
+            53:{i:'ph-cloud-rain wa-pulse wa-rain', t:'Mrholení'}, 
+            55:{i:'ph-cloud-rain wa-pulse wa-rain', t:'Silné mrholení'},
+            61:{i:'ph-cloud-rain wa-pulse wa-rain', t:'Slabý déšť'}, 
+            63:{i:'ph-cloud-rain wa-pulse wa-rain', t:'Déšť'}, 
+            65:{i:'ph-cloud-rain wa-pulse wa-rain', t:'Silný déšť'},
+            71:{i:'ph-cloud-snow wa-spin wa-snow', t:'Slabé sněžení'}, 
+            73:{i:'ph-cloud-snow wa-spin wa-snow', t:'Sněžení'}, 
+            75:{i:'ph-cloud-snow wa-spin wa-snow', t:'Silné sněžení'},
+            80:{i:'ph-cloud-rain wa-pulse wa-bolt', t:'Přeháňky'}, 
+            81:{i:'ph-cloud-rain wa-pulse wa-bolt', t:'Silné přeháňky'}, 
+            82:{i:'ph-cloud-rain wa-pulse wa-bolt', t:'Přívalové srážky'},
+            95:{i:'ph-cloud-lightning wa-pulse wa-bolt', t:'Bouřka'}, 
+            96:{i:'ph-cloud-lightning wa-pulse wa-bolt', t:'Silná bouřka'}, 
+            99:{i:'ph-cloud-lightning wa-pulse wa-bolt', t:'Bouřka a kroupy'}
         };
-        const wip = wmoKody[v.pocasi.wmo] || {i:'ti-cloud-sun wa-float', t:'Neznámé'};
+        const wip = wmoKody[v.pocasi.wmo] || {i:'ph-cloud-sun wa-float', t:'Neznámé'};
 
         wBox.innerHTML = `
             <div style="display:flex; align-items:center; gap:16px; background:rgba(255,255,255,0.06); padding:12px 18px; border-radius:18px; border:1px solid rgba(255,255,255,0.1); width:max-content; margin-top:14px; box-shadow:0 8px 32px rgba(0,0,0,0.15);">
-                <i class="ti ${wip.i} wa" style="font-size:2.6rem; display:block;"></i>
+                <i class="ph ${wip.i} wa" style="font-size:2.6rem; display:block;"></i>
                 <div>
                     <div style="font-size:1.6rem; font-weight:800; font-family:var(--fm); line-height:1; margin-bottom:4px;">${v.pocasi.teplota}°C</div>
                     <div style="font-size:0.75rem; color:var(--t2); font-weight:600;">${wip.t} &nbsp;&nbsp; Vítr ${v.pocasi.vitr} km/h</div>
