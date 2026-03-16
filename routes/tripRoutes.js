@@ -250,14 +250,26 @@ router.get('/api/u/:prezdivka', async (req, res) => {
     } catch (e) { res.status(500).json({ uspech: false }); }
 });
 
-// GENEROVÁNÍ QR KÓDU
-router.post('/api/generovat-qr', async (req, res) => {
+// GENEROVÁNÍ DESIGN QR KÓDU
+router.get('/api/qr/:id', async (req, res) => {
     try {
-        const { url } = req.body;
-        if (!url) return res.json({ uspech: false });
-        const qr = await QRCode.toDataURL(url);
-        res.json({ uspech: true, qr });
-    } catch (e) { res.json({ uspech: false }); }
+        // Získáme ID výletu a vytvoříme odkaz pro sdílení
+        const tripUrl = `https://www.veronaapp.eu/?s=${req.params.id}`;
+
+        // Vygenerujeme QR kód (bílý na průhledném pozadí)
+        const qrBase64 = await QRCode.toDataURL(tripUrl, {
+            width: 300,
+            margin: 2,
+            color: {
+                dark: '#ffffff',     // Bílá barva kódu
+                light: '#00000000'   // Průhledné pozadí
+            }
+        });
+
+        res.json({ uspech: true, qrData: qrBase64 });
+    } catch (error) {
+        res.status(500).json({ uspech: false, chyba: error.message });
+    }
 });
 
 // SOCIAL PREVIEW HANDLERS (Minimal HTML for SEO)

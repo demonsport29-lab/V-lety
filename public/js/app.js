@@ -1766,4 +1766,51 @@ function otevritChatV2(id, jm) {
     alert('Privátní chat s ' + jm + ' bude brzy dostupný! Nyní prosím využijte komunitní feed.'); 
 }
 
+// --- FUNKCE PRO ZOBRAZENÍ DESIGN QR KÓDU ---
+async function ukazatQR(tripId) {
+    // 1. Vytvoření plovoucího okna
+    const modal = document.createElement('div');
+    modal.id = 'qrModal';
+    modal.style.cssText = 'position:fixed; inset:0; background:rgba(0,0,0,0.8); backdrop-filter:blur(8px); z-index:100000; display:flex; align-items:center; justify-content:center; opacity:0; transition:opacity 0.3s ease;';
 
+    modal.innerHTML = `
+        <div style="background: linear-gradient(145deg, var(--gb2, #1a1c29), var(--gb3, #060810)); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 40px; text-align: center; max-width: 90%; width: 340px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); transform: translateY(20px); transition: transform 0.3s ease;">
+            <h3 style="color: white; font-size: 1.5rem; margin-bottom: 10px; font-weight: 800;">Sdílet výlet 🚀</h3>
+            <p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 20px;">Ukaž tento kód kamarádovi. Stačí namířit foťák!</p>
+
+            <div id="qrLoader" style="color: white; margin: 40px 0;">Generuji QR kód...</div>
+
+            <img id="qrImage" src="" alt="QR Kód" style="display: none; width: 100%; border-radius: 12px; margin-bottom: 20px; background: rgba(255,255,255,0.05); padding: 10px;">
+
+            <button onclick="document.getElementById('qrModal').remove()" style="background: rgba(255,255,255,0.1); color: white; border: none; padding: 12px 24px; border-radius: 12px; cursor: pointer; font-weight: bold; width: 100%; transition: background 0.2s;">Zavřít</button>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    setTimeout(() => {
+        modal.style.opacity = '1';
+        modal.querySelector('div').style.transform = 'translateY(0)';
+    }, 10);
+
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.remove();
+    });
+
+    // 2. Načtení z backendu
+    try {
+        const response = await fetch(`/api/qr/${tripId}`);
+        const data = await response.json();
+
+        if (data.uspech) {
+            document.getElementById('qrLoader').style.display = 'none';
+            const img = document.getElementById('qrImage');
+            img.src = data.qrData;
+            img.style.display = 'block';
+        } else {
+            document.getElementById('qrLoader').innerText = '❌ Chyba při generování';
+        }
+    } catch (err) {
+        document.getElementById('qrLoader').innerText = '❌ Nelze se spojit se serverem';
+    }
+}
