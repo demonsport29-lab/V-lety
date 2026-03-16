@@ -289,7 +289,7 @@ router.get('/s/:shareId', async (req, res) => {
             <meta property="og:description" content="${v.popis || 'Podívej se na můj itinerář výletu na Verona Trip Architect!'}">
             <meta property="og:image" content="https://verona-app.example/static/og-preview.jpg"> <!-- Placeholder -->
             <meta property="og:type" content="website">
-            <meta http-equiv="refresh" content="0; url=/?s=${req.params.shareId}">
+            <meta http-equiv="refresh" content="0; url=/?vylet=${v._id}">
         </head>
         <body>Přesměrovávám na výlet...</body>
         </html>`;
