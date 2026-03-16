@@ -254,7 +254,7 @@ router.get('/api/u/:prezdivka', async (req, res) => {
 router.get('/api/qr/:id', async (req, res) => {
     try {
         // Získáme ID výletu a vytvoříme odkaz pro sdílení
-        const tripUrl = `https://www.veronaapp.eu/?s=${req.params.id}`;
+        const tripUrl = `https://www.veronaapp.eu/s/${req.params.id}`;
 
         // Vygenerujeme QR kód (bílý na průhledném pozadí)
         const qrBase64 = await QRCode.toDataURL(tripUrl, {
