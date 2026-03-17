@@ -611,5 +611,35 @@
 </div>
 
 <script src="/js/app.js"></script>
+<div id="socialSidebar" class="social-sidebar">
+    <div class="soc-header">
+        <div class="soc-tabs">
+            <div class="soc-tab active" id="tabBtn-pratele" onclick="prepniSocTab('pratele')"><i class="ph-bold ph-users"></i> Přátelé</div>
+            <div class="soc-tab" id="tabBtn-chat" onclick="prepniSocTab('chat')"><i class="ph-bold ph-chat-circle"></i> Chat</div>
+            <div class="soc-tab" id="tabBtn-notifikace" onclick="prepniSocTab('notifikace')"><i class="ph-bold ph-bell"></i></div>
+        </div>
+        <button class="soc-close" onclick="document.getElementById('socialSidebar').classList.remove('open')"><i class="ph-bold ph-x"></i></button>
+    </div>
+    
+    <div id="soc-pratele" class="soc-content" style="display:block;">
+        <input type="text" class="soc-search" placeholder="Vyhledat uživatele (jméno, přezdívka)...">
+        
+        <div class="soc-section-title">Blízcí přátelé <i class="ph-fill ph-star" style="color: gold;"></i></div>
+        <div id="soc-blizci-list" class="soc-list">Zatím žádní blízcí přátelé.</div>
+        
+        <div class="soc-section-title">Sleduji</div>
+        <div id="soc-sleduji-list" class="soc-list">Zatím nikoho nesleduješ.</div>
+    </div>
+
+    <div id="soc-chat" class="soc-content" style="display:none;">
+        <div class="soc-section-title">Zprávy</div>
+        <div id="soc-chat-list" class="soc-list">Zatím žádné zprávy. Začni konverzaci v záložce Přátelé!</div>
+    </div>
+
+    <div id="soc-notifikace" class="soc-content" style="display:none;">
+        <div class="soc-section-title">Upozornění</div>
+        <div id="soc-notif-list" class="soc-list">Žádná nová upozornění.</div>
+    </div>
+</div>
 </body>
 </html>

@@ -1925,3 +1925,25 @@ async function ukazatQR(tripId) {
         document.getElementById('qrLoader').innerText = '❌ Nelze se spojit se serverem';
     }
 }
+// --- SOCIÁLNÍ PANEL: Přepínání záložek ---
+function prepniSocTab(tab) {
+    // Schová všechny obsahy
+    document.getElementById('soc-pratele').style.display = 'none';
+    document.getElementById('soc-chat').style.display = 'none';
+    document.getElementById('soc-notifikace').style.display = 'none';
+    
+    // Odbarví všechny tlačítka
+    document.getElementById('tabBtn-pratele').classList.remove('active');
+    document.getElementById('tabBtn-chat').classList.remove('active');
+    document.getElementById('tabBtn-notifikace').classList.remove('active');
+    
+    // Zobrazí ten správný
+    document.getElementById('soc-' + tab).style.display = 'block';
+    document.getElementById('tabBtn-' + tab).classList.add('active');
+}
+
+// Funkce pro otevření panelu (tu budeme volat z horního menu)
+function otevriSocialniPanel() {
+    if (!prihlaseno) return alert("Pro přístup k přátelům se musíte přihlásit.");
+    document.getElementById('socialSidebar').classList.add('open');
+}
