@@ -1427,7 +1427,8 @@ async function toggleEditTrip() {
     const btn = document.getElementById('btnEditTrip');
     const title = document.getElementById('resTitle');
     const body = document.getElementById('resBody');
-    
+    const textKontejner = document.getElementById('resText');
+if (textKontejner) textKontejner.innerHTML = v.text || v.itinerar || '';
     if (!isEditingTrip) {
         // ZAPNUTÍ REŽIMU ÚPRAV
         isEditingTrip = true;
