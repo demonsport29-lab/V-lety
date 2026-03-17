@@ -1922,6 +1922,20 @@ function toggleChatWidget() {
     }
 }
 
+function zavritAktivniChat() {
+    const hMain = document.getElementById('cwHeaderMain');
+    const bMain = document.getElementById('cwBodyMain');
+    const hActive = document.getElementById('cwHeaderActive');
+    const bActive = document.getElementById('cwBodyActive');
+    
+    if (hMain) hMain.style.display = 'flex';
+    if (bMain) bMain.style.display = 'block';
+    if (hActive) hActive.style.display = 'none';
+    if (bActive) bActive.style.display = 'none';
+    
+    if (window.chatRefreshInterval) clearInterval(window.chatRefreshInterval);
+}
+
 function toggleFriendSearch() {
     const s = document.getElementById('cwFriendSearch');
     s.style.display = s.style.display === 'none' ? 'block' : 'none';
