@@ -1925,25 +1925,104 @@ async function ukazatQR(tripId) {
         document.getElementById('qrLoader').innerText = '❌ Nelze se spojit se serverem';
     }
 }
-// --- SOCIÁLNÍ PANEL: Přepínání záložek ---
-function prepniSocTab(tab) {
-    // Schová všechny obsahy
-    document.getElementById('soc-pratele').style.display = 'none';
-    document.getElementById('soc-chat').style.display = 'none';
-    document.getElementById('soc-notifikace').style.display = 'none';
-    
-    // Odbarví všechny tlačítka
-    document.getElementById('tabBtn-pratele').classList.remove('active');
-    document.getElementById('tabBtn-chat').classList.remove('active');
-    document.getElementById('tabBtn-notifikace').classList.remove('active');
-    
-    // Zobrazí ten správný
-    document.getElementById('soc-' + tab).style.display = 'block';
-    document.getElementById('tabBtn-' + tab).classList.add('active');
+// --- NOVÝ WIDGET PRO CHAT A PŘÁTELE ---
+function toggleChatWidget() {
+    if (!prihlaseno) return alert("Pro přístup k chatu se musíte přihlásit.");
+    const w = document.getElementById('chatWidget');
+    if (w.style.display === 'none') {
+        w.style.display = 'flex';
+        prepniCwTab('konverzace'); // Rovnou načte zprávy
+    } else {
+        w.style.display = 'none';
+        document.getElementById('cwFriendSearch').style.display = 'none'; // Zavře i hledání, pokud bylo otevřené
+    }
 }
 
-// Funkce pro otevření panelu (tu budeme volat z horního menu)
-function otevriSocialniPanel() {
-    if (!prihlaseno) return alert("Pro přístup k přátelům se musíte přihlásit.");
-    document.getElementById('socialSidebar').classList.add('open');
+function toggleFriendSearch() {
+    const s = document.getElementById('cwFriendSearch');
+    s.style.display = s.style.display === 'none' ? 'block' : 'none';
+    if (s.style.display === 'block') document.getElementById('cwSearchInput').focus();
 }
+
+function prepniCwTab(tab) {
+    document.getElementById('cw-konverzace').style.display = 'none';
+    document.getElementById('cw-pratele').style.display = 'none';
+    document.getElementById('cwTab-konverzace').classList.remove('active');
+    document.getElementById('cwTab-pratele').classList.remove('active');
+    
+    document.getElementById('cw-' + tab).style.display = 'block';
+    document.getElementById('cwTab-' + tab).classList.add('active');
+    
+    if (tab === 'konverzace') nactiKonverzaceCw();
+    else nactiPrateleCw();
+}
+
+// ŽIVÉ VYHLEDÁVÁNÍ PŘÁTEL PODLE JMÉNA (vyskakuje při psaní)
+document.addEventListener('DOMContentLoaded', () => {
+    const inp = document.getElementById('cwSearchInput');
+    const resList = document.getElementById('cwSearchResults');
+    if(inp) {
+        inp.addEventListener('input', async (e) => {
+            const q = e.target.value.trim();
+            if(q.length < 2) { resList.innerHTML = ''; return; }
+            
+            resList.innerHTML = '<div class="spin" style="width:16px;height:16px;border-width:2px;margin:10px auto;"></div>';
+            try {
+                const res = await (await fetch('/api/hledej-uzivatele?q=' + encodeURIComponent(q))).json();
+                if(res.uspech && res.uzivatele.length > 0) {
+                    resList.innerHTML = res.uzivatele.map(u => `
+                        <div style="display:flex; align-items:center; gap:10px; padding:10px; background:rgba(255,255,255,0.03); border-radius:10px; margin-bottom:6px; cursor:pointer;" onclick="pridatPriteleGmail('${u._id}'); toggleFriendSearch();">
+                            <div style="width:34px; height:34px; border-radius:50%; background:var(--a1); color:white; display:flex; align-items:center; justify-content:center; font-weight:bold;">${u.jmeno.charAt(0)}</div>
+                            <div style="flex:1; font-size:0.85rem; font-weight:bold;">${u.jmeno} ${u.prijmeni||''}</div>
+                            <button class="btn bp bi" style="width:28px; height:28px; padding:0;"><i class="ti ti-plus"></i></button>
+                        </div>
+                    `).join('');
+                } else { resList.innerHTML = '<p style="font-size:0.75rem; color:var(--t2); text-align:center;">Nikoho jsme nenašli.</p>'; }
+            } catch(err) { resList.innerHTML = ''; }
+        });
+    }
+});
+
+async function nactiKonverzaceCw() {
+    const c = document.getElementById('cw-konverzace'); 
+    c.innerHTML = '<div class="spin" style="margin:20px auto;"></div>';
+    try {
+        const res = await (await fetch('/api/moje-konverzace')).json();
+        if (res.uspech && res.data.length > 0) {
+            c.innerHTML = res.data.map(k => `
+                <div style="display:flex; align-items:center; gap:12px; padding:12px; border-bottom:1px solid rgba(255,255,255,0.05); cursor:pointer; transition:background 0.2s; border-radius:12px;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'" onclick="otevritChatV2('${k.id}', '${k.jmeno}')">
+                    <div style="width:42px; height:42px; border-radius:50%; background:var(--gb3); border:2px solid ${k.neprecteno ? 'var(--a1)' : 'transparent'};"></div>
+                    <div style="flex:1;">
+                        <strong style="font-size:0.9rem; display:block; margin-bottom:2px;">${k.jmeno}</strong>
+                        <p style="font-size:0.75rem; color:${k.neprecteno ? 'var(--t1)' : 'var(--t2)'}; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:200px; margin:0;">${k.posledniZprava || 'Otevřít zprávy'}</p>
+                    </div>
+                </div>
+            `).join('');
+        } else c.innerHTML = '<p style="text-align:center; padding:20px; color:var(--t2); font-size:0.85rem;">Zatím nemáte žádné konverzace.</p>';
+    } catch (e) { c.innerHTML = '<p style="text-align:center; color:var(--t2); font-size:0.85rem;">Chyba načítání.</p>'; }
+}
+
+async function nactiPrateleCw() {
+    const c = document.getElementById('cw-pratele'); 
+    c.innerHTML = '<div class="spin" style="margin:20px auto;"></div>';
+    try {
+        const res = await (await fetch('/api/moji-pratele')).json();
+        if (res.uspech && res.data.length > 0) {
+            c.innerHTML = res.data.map(p => `
+                <div style="display:flex; align-items:center; gap:12px; padding:10px; border-bottom:1px solid rgba(255,255,255,0.05);">
+                    <div style="width:36px; height:36px; border-radius:50%; background:var(--a1); color:white; display:flex; align-items:center; justify-content:center; font-size:0.9rem; font-weight:bold; cursor:pointer;" onclick="otevritVerejnyProfil('${p.id}')">${p.jmeno.charAt(0)}</div>
+                    <div style="flex:1; font-size:0.9rem; font-weight:bold;">${p.jmeno}</div>
+                    <button class="btnx" style="color:var(--a1);" onclick="otevritChatV2('${p.id}', '${p.jmeno}')"><i class="ti ti-message-circle" style="font-size:1.4rem;"></i></button>
+                </div>
+            `).join('');
+        } else c.innerHTML = '<p style="text-align:center; padding:20px; color:var(--t2); font-size:0.85rem;">Nemáte zatím žádné přátele. Přidejte si někoho přes ikonku <b>+</b> nahoře!</p>';
+    } catch (err) { c.innerHTML = '<p style="text-align:center; color:var(--t2); font-size:0.85rem;">Chyba načítání.</p>'; }
+}
+
+window.otevritChatV2 = function(id, jm) {
+    document.getElementById('chatWidget').style.display = 'none';
+    window.aktualniCiziProfilId = id;
+    window.aktualniCiziProfilJmeno = jm;
+    window.aktualniCiziProfilAvatar = null; 
+    otevritChat(); 
+};

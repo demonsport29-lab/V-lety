@@ -331,9 +331,9 @@
                     </button>
                 </div>
             </div>
-            <button class="btn bgh bi" style="font-size: 0.75rem; letter-spacing: 0.05em; width: auto; padding: 0 12px; margin-right: 8px;" onclick="otevriSocialniPanel()" title="Přátelé a chat">
-                <span>Přátelé</span>
-                <span class="m-ico" style="margin-left:6px;"><i class="ti ti-users"></i></span>
+            <button class="btn bgh bi" style="font-size: 0.75rem; letter-spacing: 0.05em; width: auto; padding: 0 12px; margin-right: 8px;" onclick="toggleChatWidget()" title="Chat a Přátelé">
+                <span>Chat</span>
+                <span class="m-ico" style="margin-left:6px;"><i class="ti ti-message-circle"></i></span>
             </button>
             <button class="btn bgh bi" style="font-size: 0.75rem; letter-spacing: 0.05em; width: auto; padding: 0 12px;" onclick="prepniRezim()"><span>Režim</span><span class="m-ico"><i class="ti ti-moon"></i></span></button>
         </div>
@@ -615,34 +615,49 @@
 </div>
 
 <script src="/js/app.js"></script>
-<div id="socialSidebar" class="social-sidebar">
-    <div class="soc-header">
-        <div class="soc-tabs">
-            <div class="soc-tab active" id="tabBtn-pratele" onclick="prepniSocTab('pratele')"><i class="ph-bold ph-users"></i> Přátelé</div>
-            <div class="soc-tab" id="tabBtn-chat" onclick="prepniSocTab('chat')"><i class="ph-bold ph-chat-circle"></i> Chat</div>
-            <div class="soc-tab" id="tabBtn-notifikace" onclick="prepniSocTab('notifikace')"><i class="ph-bold ph-bell"></i></div>
+<style>
+    .chat-widget {
+        position: fixed; top: 70px; right: 20px; width: 340px; max-height: calc(100vh - 100px);
+        background: rgba(15, 17, 26, 0.95); backdrop-filter: blur(20px);
+        border: 1px solid rgba(255,255,255,0.1); border-radius: 16px;
+        box-shadow: 0 15px 40px rgba(0,0,0,0.5); z-index: 9999;
+        display: flex; flex-direction: column; overflow: hidden;
+        animation: cwFadeIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+    }
+    @keyframes cwFadeIn { from { opacity: 0; transform: translateY(-10px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    .cw-header { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; background: rgba(0,0,0,0.3); border-bottom: 1px solid var(--gbd); }
+    .cw-body { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+    .cw-content { flex: 1; overflow-y: auto; max-height: 400px; padding: 10px; }
+    .cw-tab { flex: 1; padding: 8px; border-radius: 10px; font-size: 0.85rem; font-weight: 600; background: transparent; border: none; color: var(--t2); cursor: pointer; transition: 0.2s; }
+    .cw-tab:hover { background: rgba(255,255,255,0.05); color: white; }
+    .cw-tab.active { background: var(--a1); color: white; }
+</style>
+
+<div id="chatWidget" class="chat-widget" style="display: none;">
+    <div class="cw-header">
+        <div style="font-weight: 800; display: flex; align-items: center; gap: 8px; font-size: 1.1rem;">
+            <i class="ti ti-messages" style="color: var(--a1);"></i> Chat
         </div>
-        <button class="soc-close" onclick="document.getElementById('socialSidebar').classList.remove('open')"><i class="ph-bold ph-x"></i></button>
-    </div>
-    
-    <div id="soc-pratele" class="soc-content" style="display:block;">
-        <input type="text" class="soc-search" placeholder="Vyhledat uživatele (jméno, přezdívka)...">
-        
-        <div class="soc-section-title">Blízcí přátelé <i class="ph-fill ph-star" style="color: gold;"></i></div>
-        <div id="soc-blizci-list" class="soc-list">Zatím žádní blízcí přátelé.</div>
-        
-        <div class="soc-section-title">Sleduji</div>
-        <div id="soc-sleduji-list" class="soc-list">Zatím nikoho nesleduješ.</div>
+        <div style="display: flex; gap: 8px;">
+            <button class="btn bgh bi" style="width: 32px; height: 32px; border-radius: 8px; padding: 0;" onclick="toggleFriendSearch()" title="Přidat přítele">
+                <i class="ti ti-user-plus"></i>
+            </button>
+        </div>
     </div>
 
-    <div id="soc-chat" class="soc-content" style="display:none;">
-        <div class="soc-section-title">Zprávy</div>
-        <div id="soc-chat-list" class="soc-list">Zatím žádné zprávy. Začni konverzaci v záložce Přátelé!</div>
+    <div id="cwFriendSearch" style="display: none; padding: 14px; background: rgba(0,0,0,0.2); border-bottom: 1px solid var(--gbd);">
+        <input type="text" id="cwSearchInput" class="f" placeholder="Napište jméno..." style="margin: 0 0 8px 0; font-size: 0.85rem; padding: 10px;">
+        <div id="cwSearchResults" style="max-height: 200px; overflow-y: auto; padding-right: 5px;"></div>
     </div>
 
-    <div id="soc-notifikace" class="soc-content" style="display:none;">
-        <div class="soc-section-title">Upozornění</div>
-        <div id="soc-notif-list" class="soc-list">Žádná nová upozornění.</div>
+    <div class="cw-body">
+        <div class="soc-tabs" style="display:flex; padding: 10px; gap: 5px; border-bottom: 1px solid var(--gbd);">
+            <button class="cw-tab active" onclick="prepniCwTab('konverzace')" id="cwTab-konverzace">Zprávy</button>
+            <button class="cw-tab" onclick="prepniCwTab('pratele')" id="cwTab-pratele">Přátelé</button>
+        </div>
+        
+        <div id="cw-konverzace" class="cw-content" style="display: block;"></div>
+        <div id="cw-pratele" class="cw-content" style="display: none;"></div>
     </div>
 </div>
 </body>
