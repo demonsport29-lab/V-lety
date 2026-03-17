@@ -1947,36 +1947,45 @@ function otevriSocialniPanel() {
     if (!prihlaseno) return alert("Pro přístup k přátelům se musíte přihlásit.");
     document.getElementById('socialSidebar').classList.add('open');
 }
-// --- AUTOMATICKÉ VLOŽENÍ TLAČÍTKA PŘÁTEL DO HORNÍ LIŠTY ---
+// --- OPRAVENÉ AUTOMATICKÉ VLOŽENÍ TLAČÍTKA PŘÁTEL ---
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Najdeme všechna tlačítka a odkazy na stránce
-    const vsechnyPrvky = document.querySelectorAll('button, a, div');
-    let profilTlacitko = null;
+    // 1. Najdeme všechna tlačítka
+    const tlacitka = Array.from(document.querySelectorAll('button, a, div'));
+    
+    // 2. Najdeme Profil a Režim
+    let profilBtn = tlacitka.find(el => el.textContent && el.textContent.trim().includes('Profil') && el.tagName !== 'H2');
+    let rezimBtn = tlacitka.find(el => el.textContent && el.textContent.trim() === 'Režim');
 
-    // 2. Najdeme to, které má v sobě napsáno "Profil"
-    vsechnyPrvky.forEach(prvek => {
-        if (prvek.textContent.trim() === 'Profil' && prvek.tagName !== 'H2') {
-            profilTlacitko = prvek;
-        }
-    });
-
-    // 3. Pokud jsme ho našli, vytvoříme nové tlačítko Přátel a dáme ho hned vedle
-    if (profilTlacitko && profilTlacitko.parentNode) {
-        const socBtn = document.createElement(profilTlacitko.tagName); // Zkopíruje typ (button/a)
-        socBtn.className = profilTlacitko.className; // Zkopíruje tvůj design
-        socBtn.innerHTML = '<i class="ti ti-users" style="font-size:1.2rem;"></i>'; // Ikonka přátel
-        socBtn.title = 'Přátelé a chat';
-        socBtn.style.marginRight = '8px';
-        socBtn.style.marginLeft = '8px';
-        socBtn.style.cursor = 'pointer';
+    if (profilBtn && rezimBtn && profilBtn.parentNode === rezimBtn.parentNode) {
+        const kontejner = profilBtn.parentNode;
         
-        // Akce po kliknutí - otevře náš nový panel!
+        // 3. Zkrotíme kontejner: Vynutíme jednu vodorovnou řadu a stejné mezery
+        kontejner.style.display = 'flex';
+        kontejner.style.flexDirection = 'row';
+        kontejner.style.flexWrap = 'nowrap';
+        kontejner.style.alignItems = 'stretch'; // Aby byla stejně vysoká
+        kontejner.style.gap = '10px'; // Rozestupy
+        
+        // 4. Vytvoříme nové tlačítko podle vzoru "Režim" (nemá dropdown jako Profil)
+        const socBtn = document.createElement(rezimBtn.tagName);
+        socBtn.className = rezimBtn.className; 
+        
+        // 5. Ikonka + Text (aby vizuálně ladilo k ostatním)
+        socBtn.innerHTML = '<i class="ti ti-users" style="margin-right: 6px; font-size: 1.1rem;"></i> Přátelé';
+        socBtn.title = 'Komunita a chat';
+        socBtn.style.cursor = 'pointer';
+        socBtn.style.display = 'flex';
+        socBtn.style.alignItems = 'center';
+        socBtn.style.justifyContent = 'center';
+        socBtn.style.whiteSpace = 'nowrap'; // Zabrání zalomení textu
+        socBtn.style.margin = '0'; // Zrušíme případné marginy
+        
         socBtn.onclick = (e) => {
             e.preventDefault();
             otevriSocialniPanel();
         };
 
-        // Vložíme ho přesně ZA tlačítko Profil
-        profilTlacitko.parentNode.insertBefore(socBtn, profilTlacitko.nextSibling);
+        // 6. Vložíme ho přesně DOPROSTŘED (mezi Profil a Režim)
+        kontejner.insertBefore(socBtn, rezimBtn);
     }
 });
