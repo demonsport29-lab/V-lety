@@ -940,7 +940,8 @@ async function otevritVerejnyProfil(id) {
                     if (!prihlaseno) return alert('Pro sledování cestovatelů se musíš přihlásit.');
                     followBtn.innerHTML = '<div class="spin" style="width:16px;height:16px;border-width:2px;"></div>'; // Animace načítání
                     try {
-                        const fRes = await (await fetch('/api/sleduj/' + p._id, { method: 'POST' })).json();
+                        const targetId = p._id || id;
+                        const fRes = await (await fetch('/api/sleduj/' + targetId, { method: 'POST' })).json();
                         if (fRes.uspech) {
                             uzSleduji = fRes.nyniSleduje;
                             vykresliTlacitko(uzSleduji);
@@ -949,6 +950,7 @@ async function otevritVerejnyProfil(id) {
                             vykresliTlacitko(uzSleduji);
                         }
                     } catch(e) { 
+                        console.error('Follow error:', e);
                         alert('Chyba spojení.'); 
                         vykresliTlacitko(uzSleduji); 
                     }
@@ -1019,6 +1021,7 @@ window.otevritChat = function() {
 };
 
 async function nactiChat() {
+    if(!mujProfil) return;
     const widget = document.getElementById('chatWidget');
     // Kontrola, zda je widget otevřený, jinak zbytečně nezatěžujeme server
     if(!widget || widget.style.display === 'none') return;
@@ -1982,6 +1985,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 async function nactiKonverzaceCw() {
+    if(!mujProfil) return;
     const c = document.getElementById('cw-konverzace'); 
     c.innerHTML = '<div class="spin" style="margin:20px auto;"></div>';
     try {
