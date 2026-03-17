@@ -2019,10 +2019,23 @@ async function nactiPrateleCw() {
     } catch (err) { c.innerHTML = '<p style="text-align:center; color:var(--t2); font-size:0.85rem;">Chyba načítání.</p>'; }
 }
 
-window.otevritChatV2 = function(id, jm) {
-    document.getElementById('chatWidget').style.display = 'none';
+window.otevritChatV2 = function(id, jmeno, avatar) {
     window.aktualniCiziProfilId = id;
-    window.aktualniCiziProfilJmeno = jm;
-    window.aktualniCiziProfilAvatar = null; 
-    otevritChat(); 
+    window.aktualniCiziProfilJmeno = jmeno;
+    
+    const widget = document.getElementById('chatWidget');
+    widget.style.display = 'flex'; // Otevře widget, pokud je zavřený
+
+    // Přepne zobrazení ze seznamu na samotné psaní zpráv
+    document.getElementById('cwHeaderMain').style.display = 'none';
+    document.getElementById('cwBodyMain').style.display = 'none';
+    document.getElementById('cwHeaderActive').style.display = 'flex';
+    document.getElementById('cwBodyActive').style.display = 'flex';
+    
+    document.getElementById('chatName').innerText = jmeno;
+    renderovatAvatar(document.getElementById('chatAvatar'), avatar, jmeno);
+
+    nactiChat();
+    if(window.chatRefreshInterval) clearInterval(window.chatRefreshInterval);
+    window.chatRefreshInterval = setInterval(nactiChat, 4000);
 };
