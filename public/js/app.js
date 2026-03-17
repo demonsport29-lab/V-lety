@@ -154,10 +154,6 @@ function toggleProfileDropdown() {
 }
 
 
-function otevritChat(targetUserId) {
-    prepniTab('komunita');
-    // Zde by mohla být logika pro otevření konkrétního chatu, pokud to systém podporuje
-}
 
 // Click outside dropdown to close
 document.addEventListener('click', (e) => {
@@ -1047,16 +1043,6 @@ async function nactiChat() {
     } catch(e) {}
 }
 
-async function poslatZpravu() {
-    const inp = document.getElementById('chatInput');
-    if(!inp || !inp.value.trim() || !window.aktualniCiziProfilId) return;
-    const text = inp.value;
-    inp.value = '';
-    try {
-        await fetch('/api/poslat-zpravu', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ prijemceId: window.aktualniCiziProfilId, text }) });
-        nactiChat();
-    } catch(e) {}
-}
 
 async function poslatZpravu() {
     const inp = document.getElementById('chatInput');
