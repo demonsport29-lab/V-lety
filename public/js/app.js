@@ -1016,45 +1016,45 @@ async function pridatOdebratPritele() {
 }
 
 window.chatRefreshInterval = null;
-async function otevritChat() {
-    document.getElementById('publicProfileModal').style.display='none';
-    document.getElementById('chatModal').style.display='flex';
-    document.getElementById('chatName').innerText = window.aktualniCiziProfilJmeno;
-    
-    const av = document.getElementById('chatAvatar');
-    if(window.aktualniCiziProfilAvatar) { av.style.backgroundImage = `url(${window.aktualniCiziProfilAvatar})`; av.innerText = ''; }
-    else { av.style.backgroundImage = 'linear-gradient(135deg,var(--a1),var(--a3))'; av.innerText = window.aktualniCiziProfilJmeno.charAt(0).toUpperCase(); }
-    
-    nactiChat();
-    // Auto-refresh chatu
-    if(window.chatRefreshInterval) clearInterval(window.chatRefreshInterval);
-    window.chatRefreshInterval = setInterval(nactiChat, 4000);
-}
 
+// Nová funkce otevritChat nyní rovnou volá widget
+window.otevritChat = function() {
+    otevritChatV2(window.aktualniCiziProfilId, window.aktualniCiziProfilJmeno, window.aktualniCiziProfilAvatar);
+};
 
 async function nactiChat() {
-    if(document.getElementById('chatModal').style.display === 'none') return;
+    const widget = document.getElementById('chatWidget');
+    // Kontrola, zda je widget otevřený, jinak zbytečně nezatěžujeme server
+    if(!widget || widget.style.display === 'none') return;
+    
     try {
         const res = await (await fetch('/api/zpravy/' + window.aktualniCiziProfilId)).json();
         if(res.uspech) {
             const hist = document.getElementById('chatHistory');
-            // Zjištění zda jsme byli vespod
+            if(!hist) return;
             const isScrolledToBottom = hist.scrollHeight - hist.clientHeight <= hist.scrollTop + 20;
 
-            if(res.data.length === 0) hist.innerHTML = '<div class="es"><p>Zatím žádné zprávy. Začněte konverzaci!</p></div>';
+            if(res.data.length === 0) hist.innerHTML = '<div style="padding:20px;text-align:center;opacity:0.5;">Zatím žádné zprávy.</div>';
             else {
-                hist.innerHTML = res.data.map((z, i) => {
+                hist.innerHTML = res.data.map((z) => {
                     const isMine = z.odesilatelId === mujProfil._id;
-                    const bSty = isMine ? 'background: linear-gradient(135deg, var(--a1), var(--a2)); color: white; margin-left: auto; border-bottom-right-radius: 4px;' : 'background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.05); margin-right: auto; border-bottom-left-radius: 4px;';
-                    return `
-                    <div style="max-width:75%; padding:10px 15px; border-radius:16px; font-size:0.9rem; line-height:1.5; ${bSty} animation: fadeIn 0.3s ease;">
-                        ${z.text}
-                        <div style="font-size:0.55rem; opacity:0.6; text-align:${isMine?'right':'left'}; margin-top:4px;">${z.datum}</div>
-                    </div>`;
+                    const bSty = isMine ? 'background:var(--a1);color:white;margin-left:auto;' : 'background:rgba(255,255,255,0.1);margin-right:auto;';
+                    return `<div style="max-width:80%;padding:10px;border-radius:12px;font-size:0.85rem;${bSty}">${z.text}</div>`;
                 }).join('');
             }
             if(isScrolledToBottom) hist.scrollTop = hist.scrollHeight;
         }
+    } catch(e) {}
+}
+
+async function poslatZpravu() {
+    const inp = document.getElementById('chatInput');
+    if(!inp || !inp.value.trim() || !window.aktualniCiziProfilId) return;
+    const text = inp.value;
+    inp.value = '';
+    try {
+        await fetch('/api/poslat-zpravu', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ prijemceId: window.aktualniCiziProfilId, text }) });
+        nactiChat();
     } catch(e) {}
 }
 
