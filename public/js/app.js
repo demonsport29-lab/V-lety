@@ -1031,8 +1031,6 @@ async function otevritChat() {
     window.chatRefreshInterval = setInterval(nactiChat, 4000);
 }
 
-// Při zavření chatu vypnout ping
-document.querySelector('#chatModal .btnx').addEventListener('click', () => { clearInterval(window.chatRefreshInterval); });
 
 async function nactiChat() {
     if(document.getElementById('chatModal').style.display === 'none') return;
