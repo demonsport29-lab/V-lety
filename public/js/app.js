@@ -892,7 +892,73 @@ async function otevritVerejnyProfil(id) {
             const avDiv = document.getElementById('pubAvatar');
             if (p.avatar) { avDiv.style.backgroundImage = `url(${p.avatar})`; avDiv.innerText = ''; } 
             else { avDiv.style.backgroundImage = 'linear-gradient(135deg,var(--a1),var(--a3))'; avDiv.innerText = p.jmeno.charAt(0).toUpperCase(); }
+            // --- NOVINKA: TLAČÍTKO SLEDOVAT (Instagram styl) ---
+            let followBtn = document.getElementById('btnSledovatProfil');
+            if (!followBtn) {
+                // Vytvoříme tlačítko, pokud tam ještě není
+                followBtn = document.createElement('button');
+                followBtn.id = 'btnSledovatProfil';
+                // Vložíme ho hned pod jméno a bio
+                document.getElementById('pubBio').parentNode.insertBefore(followBtn, document.getElementById('pubBio').nextSibling);
+            }
             
+            // Pokud koukám sám na sebe, tlačítko schovám (nemůžu sledovat sám sebe)
+            if (mujProfil && p._id === mujProfil._id) {
+                followBtn.style.display = 'none';
+            } else {
+                followBtn.style.display = 'inline-flex';
+                followBtn.style.alignItems = 'center';
+                followBtn.style.justifyContent = 'center';
+                followBtn.style.gap = '8px';
+                followBtn.style.padding = '8px 20px';
+                followBtn.style.borderRadius = '20px';
+                followBtn.style.fontSize = '0.9rem';
+                followBtn.style.fontWeight = 'bold';
+                followBtn.style.cursor = 'pointer';
+                followBtn.style.marginTop = '15px';
+                followBtn.style.transition = 'all 0.2s ease';
+                followBtn.style.border = 'none';
+
+                // Zjistíme, jestli ho už sleduju
+                let uzSleduji = p.sledujici && mujProfil && p.sledujici.includes(mujProfil._id);
+                
+                // Funkce na přebarvení tlačítka
+                const vykresliTlacitko = (sleduje) => {
+                    if (sleduje) {
+                        followBtn.innerHTML = 'Sleduji <i class="ph-fill ph-check-circle"></i>';
+                        followBtn.style.background = 'rgba(255,255,255,0.1)';
+                        followBtn.style.color = '#fff';
+                        followBtn.style.border = '1px solid rgba(255,255,255,0.2)';
+                    } else {
+                        followBtn.innerHTML = 'Sledovat <i class="ph-bold ph-user-plus"></i>';
+                        followBtn.style.background = 'var(--a1, #6b4ce6)'; // Tvoje fialová/modrá barva
+                        followBtn.style.color = '#fff';
+                        followBtn.style.border = 'none';
+                    }
+                };
+                
+                vykresliTlacitko(uzSleduji);
+                
+                // Co se stane po kliknutí
+                followBtn.onclick = async () => {
+                    if (!prihlaseno) return alert('Pro sledování cestovatelů se musíš přihlásit.');
+                    followBtn.innerHTML = '<div class="spin" style="width:16px;height:16px;border-width:2px;"></div>'; // Animace načítání
+                    try {
+                        const fRes = await (await fetch('/api/sleduj/' + p._id, { method: 'POST' })).json();
+                        if (fRes.uspech) {
+                            uzSleduji = fRes.nyniSleduje;
+                            vykresliTlacitko(uzSleduji);
+                        } else {
+                            alert(fRes.chyba);
+                            vykresliTlacitko(uzSleduji);
+                        }
+                    } catch(e) { 
+                        alert('Chyba spojení.'); 
+                        vykresliTlacitko(uzSleduji); 
+                    }
+                };
+            }
+            // --- KONEC TLAČÍTKA SLEDOVAT ---
             // Logika přátelství a Chat zobrazení pouze pro přihlášeného klienta (Ne na svém vlastním profilu)
             const pubActions = document.getElementById('pubActions');
             if (prihlaseno && mujProfil && mujProfil._id !== id) {

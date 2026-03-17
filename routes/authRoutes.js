@@ -41,4 +41,42 @@ router.post('/api/ulozit-profil', async (req, res) => {
     res.json({ uspech: true });
 });
 
+
+// --- SOCIÁLNÍ SÍŤ: Sledování uživatelů ---
+router.post('/api/sleduj/:id', async (req, res) => {
+    try {
+        if (!req.session.userId) return res.json({ uspech: false, chyba: 'Musíš být přihlášen.' });
+        
+        const cilovyUzivatelId = req.params.id;
+        const mujId = req.session.userId;
+
+        if (cilovyUzivatelId === mujId) return res.json({ uspech: false, chyba: 'Nemůžeš sledovat sám sebe.' });
+
+        const ja = await User.findById(mujId);
+        const cil = await User.findById(cilovyUzivatelId);
+
+        if (!ja || !cil) return res.json({ uspech: false, chyba: 'Uživatel nenalezen.' });
+
+        // Je uživatel už v mém seznamu sledovaných?
+        const uzSleduji = ja.sleduji.includes(cilovyUzivatelId);
+
+        if (uzSleduji) {
+            // UNFOLLOW (Odebrat)
+            ja.sleduji.pull(cilovyUzivatelId);
+            cil.sledujici.pull(mujId);
+        } else {
+            // FOLLOW (Přidat)
+            ja.sleduji.push(cilovyUzivatelId);
+            cil.sledujici.push(mujId);
+        }
+
+        await ja.save();
+        await cil.save();
+
+        res.json({ uspech: true, nyniSleduje: !uzSleduji });
+    } catch (err) {
+        console.error(err);
+        res.json({ uspech: false, chyba: 'Chyba na serveru.' });
+    }
+});
 module.exports = router;
