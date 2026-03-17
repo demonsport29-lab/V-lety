@@ -1,5 +1,12 @@
 let curDraft=null,curOpenTripId=null,prihlaseno=false,mainMap=null,markerCluster=null,mujProfil=null,pripraveneFotky=[],curPolyline=null,lastSocNeprecteno=0,vListBackup=[];
-
+// --- DOČASNÁ PAST NA MOBILNÍ CHYBY ---
+window.onerror = function(msg, url, line) {
+    alert("Mobilní chyba: " + msg + "\nŘádek: " + line);
+};
+window.addEventListener("unhandledrejection", function(e) {
+    alert("Mobilní chyba (Promise): " + (e.reason ? (e.reason.message || e.reason) : "Neznámá"));
+});
+// -------------------------------------
 function toggleContact(){const w=document.getElementById('contactWin');if(w.style.display==='flex'){w.style.display='none';return;}w.style.display='flex';w.style.flexDirection='column';}
 
 // --- HELPER: Ochranná funkce pro akce vyžadující přihlášení ---
