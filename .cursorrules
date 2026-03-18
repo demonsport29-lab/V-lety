@@ -1,0 +1,16 @@
+# PRAVIDLA PRO PROJEKT VERONA
+
+## 1. Komunikace a dokumentace
+- Všechny komentáře a vysvětlivky v kódu piš VÝHRADNĚ v češtině.
+- Názvy nových funkcí a proměnných tvoř smysluplně.
+
+## 2. Psaní kódu (JavaScript)
+- Používej moderní JavaScript (ES6+). Pro asynchronní operace vždy používej `async/await` a bloky `try/catch`.
+- Zabraň hlubokému zanořování kódu (tzv. Callback Hell).
+- Vždy kontroluj, zda prvky v DOM existují, než na ně začneš volat metody nebo upravovat `.style` (prevence chyb typu `Cannot read properties of null`).
+- Nikdy nepřepisuj a nemaž existující event listenery nebo globální logiku, pokud k tomu nedostaneš přímý pokyn.
+- Udržuj čistý globální scope.
+
+## 3. HTML a UI
+- Přísně se vyhýbej duplikování ID elementů (např. nevkládej stejný widget do stránky dvakrát).
+- Pro barvy a pozadí vždy přednostně používej existující CSS proměnné aplikace (např. `var(--bg)`, `var(--t1)`, `var(--t2)`, `var(--a1)`, `var(--gbd)`). Nepiš barvy natvrdo pomocí `hex` nebo `rgba`, aby správně fungovalo přepínání světlého a tmavého režimu.
