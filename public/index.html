@@ -9,16 +9,19 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <link rel="icon" type="image/svg+xml" href="/ikona.svg">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
-    <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <link rel="stylesheet" href="/css/style.css">
+    <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
+    <link rel="stylesheet" href="/css/style.min.css">
 </head>
 <body>
 
@@ -54,7 +57,7 @@
 
 <div id="profileModal" class="overlay" onclick="if(event.target===this)this.style.display='none'">
     <div class="mb" style="max-width: 780px; padding: 32px;">
-        <div class="mh" style="margin-bottom: 20px;"><h2 class="mt">Můj Profil a Statistiky</h2><button class="btnx" onclick="document.getElementById('profileModal').style.display='none'">✕</button></div>
+        <div class="mh" style="margin-bottom: 20px;"><h2 class="mt">Můj Profil a Statistiky</h2><button class="btnx" aria-label="Zavřít"  onclick="document.getElementById('profileModal').style.display='none'">✕</button></div>
 
         <div style="display:flex; flex-wrap: wrap; gap: 32px;">
             <div style="flex: 1 1 280px;">
@@ -106,7 +109,7 @@
     <div class="mb" style="max-width: 600px; padding: 24px;">
         <div class="mh" style="margin-bottom: 20px;">
             <h2 class="mt" style="display:flex; align-items:center; gap:8px;"><i class="ti ti-shield-lock" style="color:#ef4444;"></i> Správa Akcí</h2>
-            <button class="btnx" onclick="document.getElementById('adminAkceModal').style.display='none'">✕</button>
+            <button class="btnx" aria-label="Zavřít"  onclick="document.getElementById('adminAkceModal').style.display='none'">✕</button>
         </div>
         
         <p class="ey" style="margin-bottom:12px;">Přidat novou událost</p>
@@ -132,7 +135,7 @@
 
 <div id="donateModal" class="overlay" onclick="if(event.target===this)this.style.display='none'">
     <div class="mb" style="text-align:center;background:linear-gradient(160deg,var(--gb2),rgba(99,102,241,.05));">
-        <button class="btnx" style="position:absolute;top:20px;right:20px;" onclick="document.getElementById('donateModal').style.display='none'">✕</button>
+        <button class="btnx" aria-label="Zavřít"  style="position:absolute;top:20px;right:20px;" onclick="document.getElementById('donateModal').style.display='none'">✕</button>
         <h2 style="font-size:1.7rem;color:var(--a1);margin-bottom:10px;margin-top:10px;">Podpořit projekt</h2>
         <p style="color:var(--t2);margin-bottom:28px;line-height:1.7;font-size:.92rem;">VERONU vyvíjíme pro usnadnění vašich cest. Pokud vám aplikace dělá radost, budeme vděční za symbolický příspěvek na provoz serverů.</p>
         <button id="btnKoupit" class="btn bp bf blg" onclick="poslatPrispevek()">Přispět 99 Kč</button>
@@ -141,7 +144,7 @@
 
 <div id="calendarModal" class="overlay" onclick="if(event.target===this)this.style.display='none'">
     <div class="mb" style="text-align:center; max-width: 400px;">
-        <button class="btnx" style="position:absolute;top:20px;right:20px;" onclick="document.getElementById('calendarModal').style.display='none'">✕</button>
+        <button class="btnx" aria-label="Zavřít"  style="position:absolute;top:20px;right:20px;" onclick="document.getElementById('calendarModal').style.display='none'">✕</button>
         
         <div style="width:64px; height:64px; border-radius:50%; background:linear-gradient(135deg, var(--a1), var(--a3)); color:#fff; font-size:1.8rem; display:flex; align-items:center; justify-content:center; margin:0 auto 16px; box-shadow: 0 0 20px rgba(99,102,241,0.4);">
             <i class="ph ph-calendar-plus"></i>
@@ -158,7 +161,7 @@
 
 <div id="manualModal" class="overlay" onclick="if(event.target===this)this.style.display='none'">
     <div class="mb">
-        <div class="mh"><h2 class="mt">Vlastní plán</h2><button class="btnx" onclick="document.getElementById('manualModal').style.display='none'">✕</button></div>
+        <div class="mh"><h2 class="mt">Vlastní plán</h2><button class="btnx" aria-label="Zavřít"  onclick="document.getElementById('manualModal').style.display='none'">✕</button></div>
         <input type="text" id="manLokace" class="f" placeholder="Název výletu (např. Sněžka)">
         <input type="text" id="manDoporuceni" class="f" placeholder="Poznámka (nepovinné)">
         <select id="manObtiznost" class="f">
@@ -205,11 +208,11 @@
 <div id="chatWidget">
     <div class="cw-header" id="cwHeaderMain">
         <div style="font-weight: 800; display: flex; align-items: center; gap: 8px;"><i class="ti ti-messages" style="color:var(--a1);"></i> Chat</div>
-        <button class="btn bgh bi" style="width:32px; height:32px; padding:0;" onclick="toggleFriendSearch()"><i class="ti ti-user-plus"></i></button>
+        <button class="btn bgh bi" aria-label="Hledat přátele" style="width:32px; height:32px; padding:0;" onclick="toggleFriendSearch()"><i class="ti ti-user-plus"></i></button>
     </div>
 
     <div class="cw-header" id="cwHeaderActive" style="display: none;">
-        <button class="btn bgh bi" style="width:32px; height:32px; padding:0;" onclick="zavritAktivniChat()"><i class="ti ti-arrow-left"></i></button>
+        <button class="btn bgh bi" aria-label="Zavřít chat" style="width:32px; height:32px; padding:0;" onclick="zavritAktivniChat()"><i class="ti ti-arrow-left"></i></button>
         <div id="chatName" style="font-weight: 800; flex: 1; text-align: right; margin-right: 10px; font-size: 0.95rem;">Jméno</div>
         <div class="av" id="chatAvatar" style="width:28px; height:28px;"></div>
     </div>
@@ -238,7 +241,7 @@
 </div>
 <div id="publicProfileModal" class="overlay" onclick="if(event.target===this)this.style.display='none'">
     <div class="mb" style="max-width: 500px;">
-        <div class="mh"><h2 class="mt" id="pubName">Profil</h2><button class="btnx" onclick="document.getElementById('publicProfileModal').style.display='none'">✕</button></div>
+        <div class="mh"><h2 class="mt" id="pubName">Profil</h2><button class="btnx" aria-label="Zavřít"  onclick="document.getElementById('publicProfileModal').style.display='none'">✕</button></div>
         <div style="text-align:center;margin-bottom:22px;">
             <div class="pa2" id="pubAvatar" style="cursor:default;">U</div>
             <p id="pubBio" style="font-size:.85rem;color:var(--t2);margin-top:14px;line-height:1.6;"></p>
@@ -255,7 +258,7 @@
 </div>
 <div id="newsletterModal" class="overlay" onclick="if(event.target===this){this.style.display='none'; localStorage.setItem('verona_news', '1');}">
     <div class="mb" style="text-align:center; max-width: 440px; background:linear-gradient(160deg, var(--gb2), rgba(99,102,241,.08));">
-        <button class="btnx" style="position:absolute;top:20px;right:20px;" onclick="document.getElementById('newsletterModal').style.display='none'; localStorage.setItem('verona_news', '1');">✕</button>
+        <button class="btnx" aria-label="Zavřít"  style="position:absolute;top:20px;right:20px;" onclick="document.getElementById('newsletterModal').style.display='none'; localStorage.setItem('verona_news', '1');">✕</button>
         <div style="width:64px; height:64px; border-radius:50%; background:linear-gradient(135deg, var(--a1), var(--a3)); color:#fff; font-size:1.8rem; display:flex; align-items:center; justify-content:center; margin:0 auto 16px; box-shadow: 0 0 20px rgba(99,102,241,0.4);">💌</div>
         <h2 style="font-size:1.6rem; font-weight:800; margin-bottom:12px; letter-spacing:-0.02em;">Cestujme v tom společně!</h2>
         <p style="color:var(--t2); font-size:0.92rem; line-height:1.6; margin-bottom:24px;">Nechte si posílat exkluzivní tipy na tajná místa, nové funkce AI architekta a pozvánky na naše cestovatelské akce. Žádný spam, jen čistá inspirace.</p>
@@ -267,7 +270,7 @@
     <div class="mb" style="max-width: 440px; min-height: 400px; padding: 24px; display:flex; flex-direction:column; background: linear-gradient(160deg, var(--bg) 0%, rgba(99,102,241,0.05) 100%);">
         <div class="mh" style="margin-bottom: 20px;">
             <h2 style="display:flex; align-items:center; gap:8px;"><i class="ti ti-bell-ringing"></i> Notifikace</h2>
-            <button class="btnx" onclick="document.getElementById('notifikaceModal').style.display='none'">✕</button>
+            <button class="btnx" aria-label="Zavřít"  onclick="document.getElementById('notifikaceModal').style.display='none'">✕</button>
         </div>
         <div id="notifikaceList" style="flex-grow:1; overflow-y:auto; display:flex; flex-direction:column; gap:12px;"></div>
     </div>
@@ -350,7 +353,7 @@
                 <span>Chat</span>
                 <span class="m-ico" style="margin-left:6px;"><i class="ti ti-message-circle"></i></span>
             </button>
-            <button class="btn bgh bi" style="font-size: 0.75rem; letter-spacing: 0.05em; width: auto; padding: 0 12px;" onclick="prepniRezim()"><span>Režim</span><span class="m-ico"><i class="ti ti-moon"></i></span></button>
+            <button class="btn bgh bi" aria-label="Přepnout režim" style="font-size: 0.75rem; letter-spacing: 0.05em; width: auto; padding: 0 12px;" onclick="prepniRezim()"><span>Režim</span><span class="m-ico"><i class="ti ti-moon"></i></span></button>
         </div>
     </div>
 </nav>
@@ -363,6 +366,7 @@
     <button class="tab" id="mt-akce" onclick="prepniTab('akce')">Akce</button>
 </div>
 
+<main id="main-content">
 <div id="viewLanding" class="wrap view au">
     <div style="text-align:center; padding: 80px 20px; max-width: 860px; margin: 0 auto;">
         <p class="ey" style="margin-bottom: 20px; font-size: 0.8rem; letter-spacing: 0.15em;">Premium Trip Architect</p>
@@ -374,9 +378,9 @@
     </div>
     <div style="margin-top: 32px; display: flex; align-items: center; justify-content: center; gap: 12px; animation: fadeIn 1s ease-in-out 0.5s both;">
             <div style="display: flex; margin-right: 8px;">
-                <div style="width: 34px; height: 34px; border-radius: 50%; border: 2px solid var(--bg); background: url('https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&q=80') center/cover; z-index: 4;"></div>
-                <div style="width: 34px; height: 34px; border-radius: 50%; border: 2px solid var(--bg); background: url('https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&q=80') center/cover; margin-left: -12px; z-index: 3;"></div>
-                <div style="width: 34px; height: 34px; border-radius: 50%; border: 2px solid var(--bg); background: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=80') center/cover; margin-left: -12px; z-index: 2;"></div>
+                <div style="width: 34px; height: 34px; border-radius: 50%; border: 2px solid var(--bg); background: url('https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&q=80&fm=webp') center/cover; z-index: 4;"></div>
+                <div style="width: 34px; height: 34px; border-radius: 50%; border: 2px solid var(--bg); background: url('https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&q=80&fm=webp') center/cover; margin-left: -12px; z-index: 3;"></div>
+                <div style="width: 34px; height: 34px; border-radius: 50%; border: 2px solid var(--bg); background: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=80&fm=webp') center/cover; margin-left: -12px; z-index: 2;"></div>
                 <div style="width: 34px; height: 34px; border-radius: 50%; border: 2px solid var(--bg); background: linear-gradient(135deg, var(--a1), var(--a3)); display: flex; align-items: center; justify-content: center; color: white; font-size: 0.65rem; font-weight: 800; margin-left: -12px; z-index: 1;">+5k</div>
             </div>
             <div style="text-align: left;">
@@ -387,17 +391,17 @@
     <div style="margin-top: 60px; display: flex; flex-wrap: wrap; justify-content: center; gap: 24px;">
         <div class="card" style="text-align: center; flex: 1 1 300px; max-width: 340px;">
             <div style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, var(--a1), var(--a2)); color: white; display: flex; align-items: center; justify-content: center; font-family: var(--fm); font-weight: 700; margin: 0 auto 20px;">AI</div>
-            <h3 style="margin-bottom: 12px; font-weight: 700;">AI Architekt</h3>
+            <h2 style="margin-bottom: 12px; font-weight: 700; font-size: 1.17em;">AI Architekt</h2>
             <p style="color: var(--t2); font-size: 0.9rem; line-height: 1.6;">Zadejte destinaci, vyberte své zájmy a nechte umělou inteligenci sestavit detailní plán cesty včetně časového harmonogramu.</p>
         </div>
         <div class="card" style="text-align: center; flex: 1 1 300px; max-width: 340px;">
             <div style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, var(--a3), var(--a1)); color: white; display: flex; align-items: center; justify-content: center; font-family: var(--fm); font-weight: 700; margin: 0 auto 20px;">GPX</div>
-            <h3 style="margin-bottom: 12px; font-weight: 700;">Interaktivní Mapy</h3>
+            <h2 style="margin-bottom: 12px; font-weight: 700; font-size: 1.17em;">Interaktivní Mapy</h2>
             <p style="color: var(--t2); font-size: 0.9rem; line-height: 1.6;">Všechny vaše výlety se automaticky propisují do interaktivní mapy. Sledujte svou stopu a exportujte trasy pro navigaci.</p>
         </div>
         <div class="card" style="text-align: center; flex: 1 1 300px; max-width: 340px;">
             <div style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, var(--a4), var(--a3)); color: white; display: flex; align-items: center; justify-content: center; font-family: var(--fm); font-weight: 700; margin: 0 auto 20px;">COM</div>
-            <h3 style="margin-bottom: 12px; font-weight: 700;">Aktivní Komunita</h3>
+            <h2 style="margin-bottom: 12px; font-weight: 700; font-size: 1.17em;">Aktivní Komunita</h2>
             <p style="color: var(--t2); font-size: 0.9rem; line-height: 1.6;">Inspirujte se deníky ostatních. Sdílejte fotografie z cest, hodnoťte trasy a objevujte ta nejlepší místa od zkušených cestovatelů.</p>
         </div>
     </div>
@@ -529,7 +533,7 @@
             </div>
         </aside>
 
-        <main>
+        <div class="planner-main">
             <div id="resCard" class="rc" style="display:none;">
                 <div id="printHeader" style="display:none; justify-content:space-between; align-items:flex-start; margin-bottom: 24px; border-bottom: 2px solid #000; padding-bottom: 16px;">
                     <div style="display:flex; align-items:center; gap: 12px; margin-top: 10px;">
@@ -544,7 +548,7 @@
 
                 <div class="rtop" style="position:relative;">
                     <div style="position:absolute; top:0; right:0;" class="no-print">
-                        <button class="btn bgh bi" id="btnEditTrip" onclick="toggleEditTrip()" title="Upravit texty">
+                        <button class="btn bgh bi" id="btnEditTrip" aria-label="Upravit texty" onclick="toggleEditTrip()" title="Upravit texty">
                             <i class="ti ti-edit" style="font-size:1.2rem;"></i>
                         </button>
                     </div>
@@ -565,19 +569,19 @@
                                 <i class="ti ti-bookmark-filled" style="display:block; font-size:1.1rem;"></i>
                             </button>
                             
-                            <button class="btn bgh bi" id="btnUploadStrava" onclick="document.getElementById('gpxUpload').click()" title="Nahrát záznam ze Stravy" style="background:#fc4c02; color:#fff; border:none; padding:10px;">
+                            <button class="btn bgh bi" id="btnUploadStrava" aria-label="Nahrát záznam ze Stravy" onclick="document.getElementById('gpxUpload').click()" title="Nahrát záznam ze Stravy" style="background:#fc4c02; color:#fff; border:none; padding:10px;">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="display:block;"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/></svg>
                             </button>
                             <input type="file" id="gpxUpload" accept=".gpx" style="display:none;" onchange="zpracovatGPX(this)">
 
-                            <button class="btn bgh bi" id="btnShareIG" onclick="exportovatNaInstagram(event)" title="Exportovat pro Instagram Stories" style="color:#d946ef; border-color:rgba(217,70,239,0.3); padding:10px;">
+                            <button class="btn bgh bi" id="btnShareIG" aria-label="Exportovat pro Instagram Stories" onclick="exportovatNaInstagram(event)" title="Exportovat pro Instagram Stories" style="color:#d946ef; border-color:rgba(217,70,239,0.3); padding:10px;">
                                 <i class="ti ti-brand-instagram" style="font-size:1.4rem;"></i>
                             </button>   
                             
-                            <button class="btn bgh bi" id="btnShareTrip" onclick="sdiletVylet(curOpenTripId, document.getElementById('resTitle').innerText)" style="display:none;" title="Sdílet s přáteli">
+                            <button class="btn bgh bi" id="btnShareTrip" aria-label="Sdílet s přáteli" onclick="sdiletVylet(curOpenTripId, document.getElementById('resTitle').innerText)" style="display:none;" title="Sdílet s přáteli">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:block;"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
                             </button>
-                            <button class="btn bgh bi" id="btnShowQR" onclick="otevritQRZDetailu()" style="display:none;" title="Zobrazit QR kód">
+                            <button class="btn bgh bi" id="btnShowQR" aria-label="Zobrazit QR kód" onclick="otevritQRZDetailu()" style="display:none;" title="Zobrazit QR kód">
                                 <i class="ti ti-qrcode" style="font-size:1.4rem;"></i>
                             </button>
                         </div>
@@ -613,8 +617,10 @@
     </div>
 </div>
 
+</main>
+
 <div class="cf">
-    <button class="cb" onclick="toggleContact()" style="font-family: var(--fm); font-weight: 700;">?</button>
+    <button class="cb" aria-label="Nápověda" onclick="toggleContact()" style="font-family: var(--fm); font-weight: 700;">?</button>
     <div class="cp" id="contactWin">
         <div class="cph">
             <span>Kontaktovat podporu</span>
@@ -629,6 +635,6 @@
     </div>
 </div>
 
-<script src="/js/app.js"></script>
+<script src="/js/app.min.js" defer></script>
 </body>
 </html>
