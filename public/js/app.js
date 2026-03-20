@@ -7,6 +7,39 @@ window.addEventListener("unhandledrejection", function(e) {
     alert("Mobilní chyba (Promise): " + (e.reason ? (e.reason.message || e.reason) : "Neznámá"));
 });
 // -------------------------------------
+let mapDepsLoaded = false;
+let mapDepsLoading = false;
+let mapDepsQueue = [];
+
+function loadMapDependencies(callback) {
+    if (mapDepsLoaded) return callback();
+    if (mapDepsLoading) { mapDepsQueue.push(callback); return; }
+    mapDepsLoading = true;
+    
+    ['https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
+     'https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css',
+     'https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css'
+    ].forEach(href => {
+        const link = document.createElement('link'); link.rel = 'stylesheet'; link.href = href;
+        document.head.appendChild(link);
+    });
+
+    const script = document.createElement('script');
+    script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+    script.onload = () => {
+        const mcScript = document.createElement('script');
+        mcScript.src = 'https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js';
+        mcScript.onload = () => {
+            mapDepsLoaded = true;
+            callback();
+            mapDepsQueue.forEach(cb => cb());
+            mapDepsQueue = [];
+        };
+        document.body.appendChild(mcScript);
+    };
+    document.body.appendChild(script);
+}
+
 function toggleContact(){const w=document.getElementById('contactWin');if(w.style.display==='flex'){w.style.display='none';return;}w.style.display='flex';w.style.flexDirection='column';}
 
 // --- HELPER: Ochranná funkce pro akce vyžadující přihlášení ---
@@ -193,6 +226,7 @@ async function ulozitProfil(){await fetch('/api/ulozit-profil',{method:'POST',he
 async function poslatPrispevek(){document.getElementById('btnKoupit').innerHTML='<div class="spin" style="margin:0 auto"></div>';try{const d=await(await fetch('/api/vytvorit-platbu',{method:'POST'})).json();if(d.url)window.location.href=d.url;}catch(e){document.getElementById('btnKoupit').innerText='Zkusit znovu';}}
 
 function aktualizovatMapu(v){
+    loadMapDependencies(() => {
     window._lastMapData = v;
     const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
     const tileUrl = isDark ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png' : 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
@@ -208,6 +242,7 @@ function aktualizovatMapu(v){
     const icon=L.divIcon({className:'custom-map-marker',iconSize:[11,11],iconAnchor:[5,5]});
     v.forEach(x=>{if(x.etapy&&x.etapy[0]?.lat){const m=L.marker([x.etapy[0].lat,x.etapy[0].lng],{icon});m.bindPopup(`<div style="text-align:center;padding:4px;"><h4 style="margin:0 0 8px;">${x.lokace}</h4><button onclick="otevritGoogleMaps('${x.id}')" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border:none;padding:6px 14px;border-radius:9px;cursor:pointer;font-weight:700;font-size:.78rem;">Navigovat k cíli</button></div>`);markerCluster.addLayer(m);pts.push([x.etapy[0].lat,x.etapy[0].lng]);}});
     if(pts.length)mainMap.fitBounds(L.latLngBounds(pts).pad(0.15));
+    });
 }
 
 async function nactiDnik(){
@@ -227,16 +262,16 @@ async function nactiDnik(){
             <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;">
                 <div><h3 style="font-size:1.15rem;font-weight:800;letter-spacing:-.02em;margin-bottom:3px;">${x.lokace}</h3><p style="font-family:var(--fm);font-size:.62rem;color:var(--t2);">${x.datumUlozeni||''}</p></div>
                 <div style="display:flex; gap:6px;">
-                    <button class="btn bgh bi" style="width:28px; height:28px; border-radius:8px;" onclick="event.stopPropagation(); window.smazat('${x.id}')" title="Smazat"><i class="ti ti-trash"></i></button>
+                    <button class="btn bgh bi" style="width:28px; height:28px; border-radius:8px;" onclick="event.stopPropagation(); window.smazat('${x.id}')" title="Smazat"><svg class="ti ti-trash" width="1.2em" height="1.2em" aria-hidden="true" ><use href="#ti-trash"></use></svg></button>
                 </div>
             </div>
             <div class="pr"><span class="chip ${x.verejny?'ci':'cm'}">${x.verejny?'Veřejný':'Soukromý'}</span><button class="btn bgh" style="padding:4px 11px;font-size:.7rem;border-radius:8px;" onclick="event.stopPropagation();prepnoutSoukromi('${x.id}',${!x.verejny})">Změnit</button></div>
            <div class="sr"><div></div><div style="text-align:right;"><span class="sl">Komentáře</span><span class="sv">${x.komentare?.length||0}</span></div></div>
             <div class="ar-unified" style="display:grid; grid-template-columns: repeat(4, 1fr); gap:8px; margin-top:16px; justify-items: center;">
-                <button class="btn bg bi" onclick="event.stopPropagation();otevritGoogleMaps('${x.id}')" style="justify-content:center; border-radius:10px; height:42px; width:100%;" title="Mapa"><i class="ti ti-map-2"></i></button>
-                <button class="btn bg bi btn-ig" onclick="event.stopPropagation();exportujIGZListu('${x.id}', event)" style="justify-content:center; border-radius:10px; height:42px; width:100%;" title="Instagram"><i class="ti ti-brand-instagram"></i></button>
+                <button class="btn bg bi" onclick="event.stopPropagation();otevritGoogleMaps('${x.id}')" style="justify-content:center; border-radius:10px; height:42px; width:100%;" title="Mapa"><svg class="ti ti-map-2" width="1.2em" height="1.2em" aria-hidden="true" ><use href="#ti-map-2"></use></svg></button>
+                <button class="btn bg bi btn-ig" onclick="event.stopPropagation();exportujIGZListu('${x.id}', event)" style="justify-content:center; border-radius:10px; height:42px; width:100%;" title="Instagram"><svg class="ti ti-brand-instagram" width="1.2em" height="1.2em" aria-hidden="true" ><use href="#ti-brand-instagram"></use></svg></button>
                 <button class="btn bg bi btn-strava" onclick="event.stopPropagation();nahrajStravaZListu('${x.id}')" style="justify-content:center; border-radius:10px; height:42px; width:100%;" title="Strava"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="display:block; margin: 0 auto;"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/></svg></button>
-                <button class="btn bg bi btn-qr" onclick="event.stopPropagation(); window.generovatQRVyletu('${x.shareId || ''}','${x.id}')" style="justify-content:center; border-radius:10px; height:42px; width:100%;" title="QR Kód"><i class="ti ti-qrcode"></i></button>
+                <button class="btn bg bi btn-qr" onclick="event.stopPropagation(); window.generovatQRVyletu('${x.shareId || ''}','${x.id}')" style="justify-content:center; border-radius:10px; height:42px; width:100%;" title="QR Kód"><svg class="ti ti-qrcode" width="1.2em" height="1.2em" aria-hidden="true" ><use href="#ti-qrcode"></use></svg></button>
                 <button class="btn ${x.dokonceno?'bgh':'bp'}" style="justify-content:center; border-radius:10px; grid-column: span 4; margin-top:4px; width:100%;" onclick="event.stopPropagation();prepnoutStav('${x.id}',${!x.dokonceno})">${x.dokonceno?'Hotovo':'Splnit'}</button>
             </div>`;
 
@@ -280,7 +315,7 @@ async function hodnoceniVyletu(id, val){
     vykresliHvezdicky(id,val);nactiDnik();
 }
 function vykresliHvezdicky(id, cur=0){
-    let h='';for(let i=1;i<=5;i++){h+=`<i class="ti ti-star${i<=cur?' ti-star-filled':''} star ${i<=cur?'lit':''}" onclick="hodnoceniVyletu('${id}',${i})"></i>`;}
+    let h='';for(let i=1;i<=5;i++){h+=`<svg class="ti ti-star${i<=cur?' ti-star-filled':''} star ${i<=cur?'lit':''}" width="1.2em" height="1.2em" aria-hidden="true"  onclick="hodnoceniVyletu('${id}',${i})"><use href="#ti-star"></use></svg>`;}
     document.getElementById('resTopRating').innerHTML=h;
 }
 
@@ -746,6 +781,7 @@ async function ulozitCiziVylet() {
 
 // 2. ZCELA NOVĂ FUNKCE - Kreslí polyline trasu na mapu
 function vykresliTrasuNaMape(v) {
+    loadMapDependencies(() => {
     if (!mainMap) return;
     if (curPolyline) { mainMap.removeLayer(curPolyline); curPolyline = null; } 
     
@@ -769,6 +805,7 @@ function vykresliTrasuNaMape(v) {
     } else if (pts.length === 1) {
         mainMap.setView(pts[0], 12);
     }
+    });
 }
 
 async function zpracovatGPX(input) {
@@ -805,7 +842,7 @@ async function zpracovatGPX(input) {
             if(res.uspech) {
                 curDraft.gpxTrasa = path; 
                 vykresliTrasuNaMape(curDraft); 
-                btn.innerHTML = '<i class="ti ti-circle-check-filled" style="color:#10b981;font-size:1.1rem;"></i>';
+                btn.innerHTML = '<svg class="ti ti-circle-check-filled" width="1.2em" height="1.2em" aria-hidden="true"  style="color:#10b981;font-size:1.1rem;"><use href="#ti-circle-check-filled"></use></svg>';
                 setTimeout(() => btn.innerHTML = origHtml, 3000);
             } else alert("Chyba DB uložení: " + res.chyba);
         } catch(err) { alert("Chyba při čtení XML souboru GPX."); btn.innerHTML = origHtml; }
@@ -967,10 +1004,10 @@ async function otevritVerejnyProfil(id) {
                 
                 const btnFriend = document.getElementById('btnPridatPritele');
                 if (p.jePritel) {
-                    btnFriend.innerHTML = '<i class="ti ti-user-minus" style="margin-right:4px;"></i> <span>Odebrat</span>';
+                    btnFriend.innerHTML = '<svg class="ti ti-user-minus" width="1.2em" height="1.2em" aria-hidden="true"  style="margin-right:4px;"><use href="#ti-user-minus"></use></svg> <span>Odebrat</span>';
                     btnFriend.className = 'btn bgh';
                 } else {
-                    btnFriend.innerHTML = '<i class="ti ti-user-plus" style="margin-right:4px;"></i> <span>Přidat přítele</span>';
+                    btnFriend.innerHTML = '<svg class="ti ti-user-plus" width="1.2em" height="1.2em" aria-hidden="true"  style="margin-right:4px;"><use href="#ti-user-plus"></use></svg> <span>Přidat přítele</span>';
                     btnFriend.className = 'btn bg';
                 }
             } else { pubActions.style.display = 'none'; }
@@ -1232,7 +1269,7 @@ async function nactiMujProfil() {
                             <h2 style="font-size:1.8rem; font-weight:800; margin-bottom:4px;">${u.prezdivka}</h2>
                             <p style="color:var(--t2); font-size:0.9rem;">ÄŚlenem od: ${new Date(u.datumRegistrace).toLocaleDateString()}</p>
                         </div>
-                        <button class="btn bgh" onclick="prepniProfilPrihlaseni()" title="Odhlásit se"><i class="ti ti-logout" style="font-size:1.2rem;"></i></button>
+                        <button class="btn bgh" onclick="prepniProfilPrihlaseni()" title="Odhlásit se"><svg class="ti ti-logout" width="1.2em" height="1.2em" aria-hidden="true"  style="font-size:1.2rem;"><use href="#ti-logout"></use></svg></button>
                     </div>
                     
                     <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:12px;">
@@ -1423,7 +1460,7 @@ window.nactiAdminAkceVypis = async function() {
                         <strong style="font-family:var(--fs); display:block; margin-bottom:4px;">${x.nazev}</strong>
                         <span style="font-size:0.75rem; color:var(--t2);">${x.datum} | ${x.misto}</span>
                     </div>
-                    <button class="btn bgh" style="color:#ef4444; border:1px solid rgba(239,68,68,0.2); padding:6px 10px;" onclick="smazatAkci('${x._id}')" title="Smazat akci"><i class="ti ti-trash"></i></button>
+                    <button class="btn bgh" style="color:#ef4444; border:1px solid rgba(239,68,68,0.2); padding:6px 10px;" onclick="smazatAkci('${x._id}')" title="Smazat akci"><svg class="ti ti-trash" width="1.2em" height="1.2em" aria-hidden="true" ><use href="#ti-trash"></use></svg></button>
                 </div>
             `).join('');
         } else {
@@ -1793,14 +1830,14 @@ async function nactiSeznamPratel() {
                 <label style="display:block; font-size:0.7rem; color:var(--t2); margin-bottom:8px; font-weight:800; text-transform:uppercase; letter-spacing:0.5px;">Tvůj kĂłd pro přátele</label>
                 <div style="display:flex; gap:10px;">
                     <input type="text" value="${mujProfil ? mujProfil._id : ''}" id="mujFriendlyCodeSocial" class="f" style="margin:0; font-family:'Space Mono'; text-align:center; font-weight:bold; letter-spacing:1px; background:rgba(0,0,0,0.2); font-size:0.8rem;" readonly>
-                    <button class="btn bg bi" onclick="navigator.clipboard.writeText('${mujProfil ? mujProfil._id : ''}'); alert('KĂłd zkopírován!')" title="Kopírovat"><i class="ti ti-copy"></i></button>
+                    <button class="btn bg bi" onclick="navigator.clipboard.writeText('${mujProfil ? mujProfil._id : ''}'); alert('KĂłd zkopírován!')" title="Kopírovat"><svg class="ti ti-copy" width="1.2em" height="1.2em" aria-hidden="true" ><use href="#ti-copy"></use></svg></button>
                 </div>
             </div>
             <div style="background:rgba(255,255,255,0.03); padding:16px; border-radius:18px; border:1px solid rgba(255,255,255,0.05);">
                 <label style="display:block; font-size:0.7rem; color:var(--t2); margin-bottom:10px; font-weight:800; text-transform:uppercase; letter-spacing:0.5px;">Najít přítele podle Gmailu</label>
                 <div style="display:flex; gap:8px;">
                     <input type="text" id="gmailSearchIn" class="f" placeholder="example@gmail.com" style="margin:0; font-size:0.85rem;">
-                    <button class="btn bp" style="padding:0 15px;" onclick="hledatPrateleGmail()"><i class="ti ti-search"></i></button>
+                    <button class="btn bp" style="padding:0 15px;" onclick="hledatPrateleGmail()"><svg class="ti ti-search" width="1.2em" height="1.2em" aria-hidden="true" ><use href="#ti-search"></use></svg></button>
                 </div>
                 <div id="gmailSearchResult" style="margin-top:12px;"></div>
             </div>
@@ -1825,7 +1862,7 @@ async function hledatPrateleGmail() {
         if (res.uspech) {
             const u = res.user, avId = `av-search-${u.id}`;
             setTimeout(() => renderovatAvatar(document.getElementById(avId), u.avatar, u.jmeno), 0);
-            r.innerHTML = `<div class="dc au" style="display:flex; align-items:center; gap:12px; padding:10px; margin:0;"><div id="${avId}" class="av" style="width:34px; height:34px;"></div><div style="flex:1;"><span style="font-size:0.85rem; font-weight:700;">${u.jmeno}</span></div><button class="btn bp bi" onclick="pridatPriteleGmail('${u.id}')" style="width:32px; height:32px;"><i class="ti ti-user-plus"></i></button></div>`;
+            r.innerHTML = `<div class="dc au" style="display:flex; align-items:center; gap:12px; padding:10px; margin:0;"><div id="${avId}" class="av" style="width:34px; height:34px;"></div><div style="flex:1;"><span style="font-size:0.85rem; font-weight:700;">${u.jmeno}</span></div><button class="btn bp bi" onclick="pridatPriteleGmail('${u.id}')" style="width:32px; height:32px;"><svg class="ti ti-user-plus" width="1.2em" height="1.2em" aria-hidden="true" ><use href="#ti-user-plus"></use></svg></button></div>`;
         } else r.innerHTML = `<p style="font-size:0.75rem; color:#ef4444; margin:0;">${res.chyba}</p>`;
     } catch (err) { r.innerHTML = '<p>Chyba hledání.</p>'; }
 }
@@ -1846,7 +1883,7 @@ async function nactiActualFriends() {
                 return `<div style="display:flex; align-items:center; gap:12px; margin-bottom:12px; background:rgba(255,255,255,0.02); padding:10px; border-radius:14px; border:1px solid rgba(255,255,255,0.03);">
                     <div id="${avId}" class="av" style="width:36px; height:36px; cursor:pointer;" onclick="otevritVerejnyProfil('${p.id}')"></div>
                     <div style="flex:1;"><strong style="font-size:0.85rem; display:block;">${p.jmeno}</strong></div>
-                    <div style="display:flex; gap:6px;"><button class="btn bg bi" onclick="otevritChatV2('${p.id}', '${p.jmeno}')" style="width:32px; height:32px;"><i class="ti ti-message"></i></button><button class="btn bgh bi" onclick="pridatPriteleGmail('${p.id}')" style="width:32px; height:32px; color:#ef4444;" title="Odebrat"><i class="ti ti-user-minus"></i></button></div>
+                    <div style="display:flex; gap:6px;"><button class="btn bg bi" onclick="otevritChatV2('${p.id}', '${p.jmeno}')" style="width:32px; height:32px;"><svg class="ti ti-message" width="1.2em" height="1.2em" aria-hidden="true" ><use href="#ti-message"></use></svg></button><button class="btn bgh bi" onclick="pridatPriteleGmail('${p.id}')" style="width:32px; height:32px; color:#ef4444;" title="Odebrat"><svg class="ti ti-user-minus" width="1.2em" height="1.2em" aria-hidden="true" ><use href="#ti-user-minus"></use></svg></button></div>
                 </div>`;
             }).join('');
         } else c.innerHTML = '<p style="text-align:center; padding:10px; color:var(--t2); font-size:0.8rem;">Nemáte zatím žádné přátele.</p>';
@@ -1975,7 +2012,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div style="display:flex; align-items:center; gap:10px; padding:10px; background:rgba(255,255,255,0.03); border-radius:10px; margin-bottom:6px; cursor:pointer;" onclick="pridatPriteleGmail('${u._id}'); toggleFriendSearch();">
                             <div style="width:34px; height:34px; border-radius:50%; background:var(--a1); color:white; display:flex; align-items:center; justify-content:center; font-weight:bold;">${u.jmeno.charAt(0)}</div>
                             <div style="flex:1; font-size:0.85rem; font-weight:bold;">${u.jmeno} ${u.prijmeni||''}</div>
-                            <button class="btn bp bi" style="width:28px; height:28px; padding:0;"><i class="ti ti-plus"></i></button>
+                            <button class="btn bp bi" style="width:28px; height:28px; padding:0;"><svg class="ti ti-plus" width="1.2em" height="1.2em" aria-hidden="true" ><use href="#ti-plus"></use></svg></button>
                         </div>
                     `).join('');
                 } else { resList.innerHTML = '<p style="font-size:0.75rem; color:var(--t2); text-align:center;">Nikoho jsme nenašli.</p>'; }
@@ -2014,7 +2051,7 @@ async function nactiPrateleCw() {
                 <div style="display:flex; align-items:center; gap:12px; padding:10px; border-bottom:1px solid rgba(255,255,255,0.05);">
                     <div style="width:36px; height:36px; border-radius:50%; background:var(--a1); color:white; display:flex; align-items:center; justify-content:center; font-size:0.9rem; font-weight:bold; cursor:pointer;" onclick="otevritVerejnyProfil('${p.id}')">${p.jmeno.charAt(0)}</div>
                     <div style="flex:1; font-size:0.9rem; font-weight:bold;">${p.jmeno}</div>
-                    <button class="btnx" style="color:var(--a1);" onclick="otevritChatV2('${p.id}', '${p.jmeno}')"><i class="ti ti-message-circle" style="font-size:1.4rem;"></i></button>
+                    <button class="btnx" style="color:var(--a1);" onclick="otevritChatV2('${p.id}', '${p.jmeno}')"><svg class="ti ti-message-circle" width="1.2em" height="1.2em" aria-hidden="true"  style="font-size:1.4rem;"><use href="#ti-message-circle"></use></svg></button>
                 </div>
             `).join('');
         } else c.innerHTML = '<p style="text-align:center; padding:20px; color:var(--t2); font-size:0.85rem;">Nemáte zatím žádné přátele. Přidejte si někoho přes ikonku <b>+</b> nahoře!</p>';

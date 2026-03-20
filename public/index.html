@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="VeronaTrip – Váš osobní AI architekt pro plánování výletů. Objevte nová místa, vygenerujte si itinerář na míru a prohlížejte trasy na interaktivní mapě s aktivní komunitou cestovatelů.">
     <title>VERONA — Premium Trip Architect</title>
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#060810">
@@ -12,18 +13,180 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdn.jsdelivr.net">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
+    
     <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
-    <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+    
+    
+    
+    
+    
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
     <link rel="stylesheet" href="/css/style.min.css">
 </head>
 <body>
+<svg width="0" height="0" class="hidden" style="display:none;" aria-hidden="true">
+<symbol id="ti-messages" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M21 14l-3 -3h-7a1 1 0 0 1 -1 -1v-6a1 1 0 0 1 1 -1h9a1 1 0 0 1 1 1v10" />
+  <path d="M14 15v2a1 1 0 0 1 -1 1h-7l-3 3v-10a1 1 0 0 1 1 -1h2" />
+</symbol>
+<symbol id="ti-user-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
+  <path d="M16 19h6" />
+  <path d="M19 16v6" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4" />
+</symbol>
+<symbol id="ti-arrow-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M5 12l14 0" />
+  <path d="M5 12l6 6" />
+  <path d="M5 12l6 -6" />
+</symbol>
+<symbol id="ti-send" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M10 14l11 -11" />
+  <path d="M21 3l-6.5 18a.55 .55 0 0 1 -1 0l-3.5 -7l-7 -3.5a.55 .55 0 0 1 0 -1l18 -6.5" />
+</symbol>
+<symbol id="ti-message-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M3 20l1.3 -3.9c-2.324 -3.437 -1.426 -7.872 2.1 -10.374c3.526 -2.501 8.59 -2.296 11.845 .48c3.255 2.777 3.695 7.266 1.029 10.501c-2.666 3.235 -7.615 4.215 -11.574 2.293l-4.7 1" />
+</symbol>
+<symbol id="ti-bell-ringing" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M10 5a2 2 0 0 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6" />
+  <path d="M9 17v1a3 3 0 0 0 6 0v-1" />
+  <path d="M21 6.727a11.05 11.05 0 0 0 -2.794 -3.727" />
+  <path d="M3 6.727a11.05 11.05 0 0 1 2.792 -3.727" />
+</symbol>
+<symbol id="ti-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M10 5a2 2 0 1 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6" />
+  <path d="M9 17v1a3 3 0 0 0 6 0v-1" />
+</symbol>
+<symbol id="ti-trophy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M8 21l8 0" />
+  <path d="M12 17l0 4" />
+  <path d="M7 4l10 0" />
+  <path d="M17 4v8a5 5 0 0 1 -10 0v-8" />
+  <path d="M3 9a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+  <path d="M17 9a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+</symbol>
+<symbol id="ti-brand-instagram" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M4 8a4 4 0 0 1 4 -4h8a4 4 0 0 1 4 4v8a4 4 0 0 1 -4 4h-8a4 4 0 0 1 -4 -4l0 -8" />
+  <path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" />
+  <path d="M16.5 7.5v.01" />
+</symbol>
+<symbol id="ti-user-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
+  <path d="M9 10a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
+  <path d="M6.168 18.849a4 4 0 0 1 3.832 -2.849h4a4 4 0 0 1 3.834 2.855" />
+</symbol>
+<symbol id="ti-chevron-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M6 9l6 6l6 -6" />
+</symbol>
+<symbol id="ti-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</symbol>
+<symbol id="ti-coffee" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M3 14c.83 .642 2.077 1.017 3.5 1c1.423 .017 2.67 -.358 3.5 -1c.83 -.642 2.077 -1.017 3.5 -1c1.423 -.017 2.67 .358 3.5 1" />
+  <path d="M8 3a2.4 2.4 0 0 0 -1 2a2.4 2.4 0 0 0 1 2" />
+  <path d="M12 3a2.4 2.4 0 0 0 -1 2a2.4 2.4 0 0 0 1 2" />
+  <path d="M3 10h14v5a6 6 0 0 1 -6 6h-2a6 6 0 0 1 -6 -6v-5" />
+  <path d="M16.746 16.726a3 3 0 1 0 .252 -5.555" />
+</symbol>
+<symbol id="ti-login" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M15 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2" />
+  <path d="M21 12h-13l3 -3" />
+  <path d="M11 15l-3 -3" />
+</symbol>
+<symbol id="ti-logout" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2" />
+  <path d="M9 12h12l-3 -3" />
+  <path d="M18 15l3 -3" />
+</symbol>
+<symbol id="ti-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454l0 .008" />
+</symbol>
+<symbol id="ti-edit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" />
+  <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415" />
+  <path d="M16 5l3 3" />
+</symbol>
+<symbol id="ti-bookmark-filled" viewBox="0 0 24 24" fill="currentColor" stroke="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M14 2a5 5 0 0 1 5 5v14a1 1 0 0 1 -1.555 .832l-5.445 -3.63l-5.444 3.63a1 1 0 0 1 -1.55 -.72l-.006 -.112v-14a5 5 0 0 1 5 -5h4z" />
+</symbol>
+<symbol id="ti-qrcode" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M4 5a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1l0 -4" />
+  <path d="M7 17l0 .01" />
+  <path d="M14 5a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1l0 -4" />
+  <path d="M7 7l0 .01" />
+  <path d="M4 15a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1l0 -4" />
+  <path d="M17 7l0 .01" />
+  <path d="M14 14l3 0" />
+  <path d="M20 14l0 .01" />
+  <path d="M14 14l0 3" />
+  <path d="M14 20l3 0" />
+  <path d="M17 17l3 0" />
+  <path d="M20 17l0 3" />
+</symbol>
+<symbol id="ti-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M4 7l16 0" />
+  <path d="M10 11l0 6" />
+  <path d="M14 11l0 6" />
+  <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
+  <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
+</symbol>
+<symbol id="ti-map-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M12 18.5l-3 -1.5l-6 3v-13l6 -3l6 3l6 -3v7.5" />
+  <path d="M9 4v13" />
+  <path d="M15 7v5.5" />
+  <path d="M21.121 20.121a3 3 0 1 0 -4.242 0c.418 .419 1.125 1.045 2.121 1.879c1.051 -.89 1.759 -1.516 2.121 -1.879" />
+  <path d="M19 18v.01" />
+</symbol>
+<symbol id="ti-star" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873l-6.158 -3.245" />
+</symbol>
+<symbol id="ti-star-filled" viewBox="0 0 24 24" fill="currentColor" stroke="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M8.243 7.34l-6.38 .925l-.113 .023a1 1 0 0 0 -.44 1.684l4.622 4.499l-1.09 6.355l-.013 .11a1 1 0 0 0 1.464 .944l5.706 -3l5.693 3l.1 .046a1 1 0 0 0 1.352 -1.1l-1.091 -6.355l4.624 -4.5l.078 -.085a1 1 0 0 0 -.633 -1.62l-6.38 -.926l-2.852 -5.78a1 1 0 0 0 -1.794 0l-2.853 5.78z" />
+</symbol>
+<symbol id="ti-circle-check-filled" viewBox="0 0 24 24" fill="currentColor" stroke="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M17 3.34a10 10 0 1 1 -14.995 8.984l-.005 -.324l.005 -.324a10 10 0 0 1 14.995 -8.336zm-1.293 5.953a1 1 0 0 0 -1.32 -.083l-.094 .083l-3.293 3.292l-1.293 -1.292l-.094 -.083a1 1 0 0 0 -1.403 1.403l.083 .094l2 2l.094 .083a1 1 0 0 0 1.226 0l.094 -.083l4 -4l.083 -.094a1 1 0 0 0 -.083 -1.32z" />
+</symbol>
+<symbol id="ti-heart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M19.5 12.572l-7.5 7.428l-7.5 -7.428a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572" />
+</symbol>
+<symbol id="ti-heart-filled" viewBox="0 0 24 24" fill="currentColor" stroke="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M6.979 3.074a6 6 0 0 1 4.988 1.425l.037 .033l.034 -.03a6 6 0 0 1 4.733 -1.44l.246 .036a6 6 0 0 1 3.364 10.008l-.18 .185l-.048 .041l-7.45 7.379a1 1 0 0 1 -1.313 .082l-.094 -.082l-7.493 -7.422a6 6 0 0 1 3.176 -10.215z" />
+</symbol>
+<symbol id="ti-user-minus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4c.348 0 .686 .045 1.009 .128" />
+  <path d="M16 19h6" />
+</symbol>
+<symbol id="ti-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M7 9.667a2.667 2.667 0 0 1 2.667 -2.667h8.666a2.667 2.667 0 0 1 2.667 2.667v8.666a2.667 2.667 0 0 1 -2.667 2.667h-8.666a2.667 2.667 0 0 1 -2.667 -2.667l0 -8.666" />
+  <path d="M4.012 16.737a2.005 2.005 0 0 1 -1.012 -1.737v-10c0 -1.1 .9 -2 2 -2h10c.75 0 1.158 .385 1.5 1" />
+</symbol>
+<symbol id="ti-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M3 10a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" />
+  <path d="M21 21l-6 -6" />
+</symbol>
+<symbol id="ti-message" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M8 9h8" />
+  <path d="M8 13h6" />
+  <path d="M18 4a3 3 0 0 1 3 3v8a3 3 0 0 1 -3 3h-5l-5 3v-3h-2a3 3 0 0 1 -3 -3v-8a3 3 0 0 1 3 -3h12" />
+</symbol>
+<symbol id="ti-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M12 5l0 14" />
+  <path d="M5 12l14 0" />
+</symbol>
+<symbol id="ti-shield-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M12 3a12 12 0 0 0 8.5 3a12 12 0 0 1 -8.5 15a12 12 0 0 1 -8.5 -15a12 12 0 0 0 8.5 -3" />
+  <path d="M11 11a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
+  <path d="M12 12l0 2.5" />
+</symbol>
+<symbol id="ti-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065" />
+  <path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" />
+</symbol>
+</svg>
+
 
 <!-- Toast Kontejner na vyskakovací hlásičky -->
 <div id="toastContainer" style="position:fixed; bottom:24px; right:24px; z-index:99999; display:flex; flex-direction:column; gap:12px; pointer-events:none;"></div>
@@ -52,7 +215,7 @@
 
 <div id="lightbox" class="lbx" onclick="this.style.display='none'">
     <div class="lbxx">✕</div>
-    <img id="lightboxImg" src="" alt="">
+    <img id="lightboxImg" src="" alt="Detail fotografie" loading="lazy" width="800" height="600" style="width: auto; max-width: 90vw; height: auto;">
 </div>
 
 <div id="profileModal" class="overlay" onclick="if(event.target===this)this.style.display='none'">
@@ -95,9 +258,9 @@
                 </div>
                 
                 <div id="adminPanelWrapper" style="display:none; margin-top:10px;">
-                    <p class="ey" style="margin-bottom:8px;"><i class="ti ti-shield-lock" style="color:#ef4444;"></i> Speciální sekce</p>
+                    <p class="ey" style="margin-bottom:8px;"><svg class="ti ti-shield-lock" width="1.2em" height="1.2em" aria-hidden="true"  style="color:#ef4444;"><use href="#ti-shield-lock"></use></svg> Speciální sekce</p>
                     <button class="btn bg" style="width:100%; justify-content:center; border:1px solid #ef4444;" onclick="otevritAdminAkce()">
-                        <i class="ti ti-settings" style="margin-right:8px;"></i> Správa akcí a událostí (CMS)
+                        <svg class="ti ti-settings" width="1.2em" height="1.2em" aria-hidden="true"  style="margin-right:8px;"><use href="#ti-settings"></use></svg> Správa akcí a událostí (CMS)
                     </button>
                 </div>
             </div>
@@ -108,7 +271,7 @@
 <div id="adminAkceModal" class="overlay" onclick="if(event.target===this)this.style.display='none'">
     <div class="mb" style="max-width: 600px; padding: 24px;">
         <div class="mh" style="margin-bottom: 20px;">
-            <h2 class="mt" style="display:flex; align-items:center; gap:8px;"><i class="ti ti-shield-lock" style="color:#ef4444;"></i> Správa Akcí</h2>
+            <h2 class="mt" style="display:flex; align-items:center; gap:8px;"><svg class="ti ti-shield-lock" width="1.2em" height="1.2em" aria-hidden="true"  style="color:#ef4444;"><use href="#ti-shield-lock"></use></svg> Správa Akcí</h2>
             <button class="btnx" aria-label="Zavřít"  onclick="document.getElementById('adminAkceModal').style.display='none'">✕</button>
         </div>
         
@@ -207,12 +370,12 @@
 
 <div id="chatWidget">
     <div class="cw-header" id="cwHeaderMain">
-        <div style="font-weight: 800; display: flex; align-items: center; gap: 8px;"><i class="ti ti-messages" style="color:var(--a1);"></i> Chat</div>
-        <button class="btn bgh bi" aria-label="Hledat přátele" style="width:32px; height:32px; padding:0;" onclick="toggleFriendSearch()"><i class="ti ti-user-plus"></i></button>
+        <div style="font-weight: 800; display: flex; align-items: center; gap: 8px;"><svg class="ti ti-messages" width="1.2em" height="1.2em" aria-hidden="true"  style="color:var(--a1);"><use href="#ti-messages"></use></svg> Chat</div>
+        <button class="btn bgh bi" aria-label="Hledat přátele" style="width:32px; height:32px; padding:0;" onclick="toggleFriendSearch()"><svg class="ti ti-user-plus" width="1.2em" height="1.2em" aria-hidden="true" ><use href="#ti-user-plus"></use></svg></button>
     </div>
 
     <div class="cw-header" id="cwHeaderActive" style="display: none;">
-        <button class="btn bgh bi" aria-label="Zavřít chat" style="width:32px; height:32px; padding:0;" onclick="zavritAktivniChat()"><i class="ti ti-arrow-left"></i></button>
+        <button class="btn bgh bi" aria-label="Zavřít chat" style="width:32px; height:32px; padding:0;" onclick="zavritAktivniChat()"><svg class="ti ti-arrow-left" width="1.2em" height="1.2em" aria-hidden="true" ><use href="#ti-arrow-left"></use></svg></button>
         <div id="chatName" style="font-weight: 800; flex: 1; text-align: right; margin-right: 10px; font-size: 0.95rem;">Jméno</div>
         <div class="av" id="chatAvatar" style="width:28px; height:28px;"></div>
     </div>
@@ -235,7 +398,7 @@
         <div id="chatHistory" style="flex:1; overflow-y:auto; padding:15px; display:flex; flex-direction:column; gap:10px;"></div>
         <div style="padding: 10px; border-top: 1px solid rgba(255,255,255,0.1); display:flex; gap:8px;">
             <input type="text" id="chatInput" class="f" placeholder="Napište zprávu..." style="margin:0; flex:1; font-size: 0.85rem;" onkeypress="if(event.key==='Enter') poslatZpravu()">
-            <button class="btn bp" onclick="poslatZpravu()"><i class="ti ti-send"></i></button>
+            <button class="btn bp" onclick="poslatZpravu()"><svg class="ti ti-send" width="1.2em" height="1.2em" aria-hidden="true" ><use href="#ti-send"></use></svg></button>
         </div>
     </div>
 </div>
@@ -246,8 +409,8 @@
             <div class="pa2" id="pubAvatar" style="cursor:default;">U</div>
             <p id="pubBio" style="font-size:.85rem;color:var(--t2);margin-top:14px;line-height:1.6;"></p>
             <div id="pubActions" style="display:none; justify-content:center; gap:8px; margin-top:20px;">
-                <button class="btn bgh" id="btnPridatPritele" onclick="pridatOdebratPritele()"><i class="ti ti-user-plus" style="margin-right:4px;"></i> <span>Přidat</span></button>
-                <button class="btn bp" onclick="otevritChat()"><i class="ti ti-message-circle" style="margin-right:4px;"></i> Napsat zprávu</button>
+                <button class="btn bgh" id="btnPridatPritele" onclick="pridatOdebratPritele()"><svg class="ti ti-user-plus" width="1.2em" height="1.2em" aria-hidden="true"  style="margin-right:4px;"><use href="#ti-user-plus"></use></svg> <span>Přidat</span></button>
+                <button class="btn bp" onclick="otevritChat()"><svg class="ti ti-message-circle" width="1.2em" height="1.2em" aria-hidden="true"  style="margin-right:4px;"><use href="#ti-message-circle"></use></svg> Napsat zprávu</button>
             </div>
         </div>
         <div class="hr"></div>
@@ -269,7 +432,7 @@
 <div id="notifikaceModal" class="overlay" onclick="if(event.target===this)this.style.display='none'">
     <div class="mb" style="max-width: 440px; min-height: 400px; padding: 24px; display:flex; flex-direction:column; background: linear-gradient(160deg, var(--bg) 0%, rgba(99,102,241,0.05) 100%);">
         <div class="mh" style="margin-bottom: 20px;">
-            <h2 style="display:flex; align-items:center; gap:8px;"><i class="ti ti-bell-ringing"></i> Notifikace</h2>
+            <h2 style="display:flex; align-items:center; gap:8px;"><svg class="ti ti-bell-ringing" width="1.2em" height="1.2em" aria-hidden="true" ><use href="#ti-bell-ringing"></use></svg> Notifikace</h2>
             <button class="btnx" aria-label="Zavřít"  onclick="document.getElementById('notifikaceModal').style.display='none'">✕</button>
         </div>
         <div id="notifikaceList" style="flex-grow:1; overflow-y:auto; display:flex; flex-direction:column; gap:12px;"></div>
@@ -282,7 +445,7 @@
     <div class="mb au achievement-card" style="text-align:center; max-width:400px; background:linear-gradient(160deg, #1e1b4b, #060810); border: 2px solid #6366f1;">
         <div class="confetti-canvas"></div>
         <div id="achIconBox" style="width:100px; height:100px; border-radius:30px; background:linear-gradient(135deg, #6366f1, #a855f7); color:#fff; font-size:3.5rem; display:flex; align-items:center; justify-content:center; margin:0 auto 24px; box-shadow: 0 0 40px rgba(99,102,241,0.6); animation: ach-bounce 1s infinite alternate;">
-            <i class="ti ti-trophy" id="achIcon"></i>
+            <svg class="ti ti-trophy" width="1.2em" height="1.2em" aria-hidden="true"  id="achIcon"><use href="#ti-trophy"></use></svg>
         </div>
         <p class="ey" style="color:#a855f7; font-weight:800; letter-spacing:0.2em;">ÚSPĚCH ODEMČEN!</p>
         <h2 id="achTitle" style="font-size:2rem; font-weight:800; margin-bottom:12px; color:#fff;">Dobyvatel</h2>
@@ -290,10 +453,10 @@
         
         <div style="display:flex; gap:10px;">
             <button id="btnAchShare" class="btn bp bf" onclick="sdiletAchievementIG()" style="background:linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); border:none;">
-                <i class="ti ti-brand-instagram"></i> Sdílet Story
+                <svg class="ti ti-brand-instagram" width="1.2em" height="1.2em" aria-hidden="true" ><use href="#ti-brand-instagram"></use></svg> Sdílet Story
             </button>
             <button class="btn bg" onclick="nastavitAchievementProfilovku()">
-                <i class="ti ti-user-circle"></i> Jako profilovku
+                <svg class="ti ti-user-circle" width="1.2em" height="1.2em" aria-hidden="true" ><use href="#ti-user-circle"></use></svg> Jako profilovku
             </button>
         </div>
         <button class="btn bgh bf" style="margin-top:12px; border:none;" onclick="document.getElementById('achievementModal').style.display='none'">Skvělé!</button>
@@ -316,44 +479,44 @@
         <div class="nav-act">
             <div class="profile-dropdown">
                 <div class="dropdown-trigger" id="dropdownTrigger" onclick="toggleProfileDropdown()">
-                    <i class="ti ti-user-circle" style="font-size:1.4rem;"></i>
+                    <svg class="ti ti-user-circle" width="1.2em" height="1.2em" aria-hidden="true"  style="font-size:1.4rem;"><use href="#ti-user-circle"></use></svg>
                     <span>Profil</span>
-                    <i class="ti ti-chevron-down" style="font-size:0.8rem; margin-left:4px;"></i>
+                    <svg class="ti ti-chevron-down" width="1.2em" height="1.2em" aria-hidden="true"  style="font-size:0.8rem; margin-left:4px;"><use href="#ti-chevron-down"></use></svg>
                 </div>
                 <div class="dropdown-menu" id="profileDropdown">
                     <button class="dropdown-item" onclick="document.getElementById('profileModal').style.display='flex'; toggleProfileDropdown()">
                         <span>Můj Profil</span>
-                        <i class="ti ti-user"></i>
+                        <svg class="ti ti-user" width="1.2em" height="1.2em" aria-hidden="true" ><use href="#ti-user"></use></svg>
                     </button>
                     <button class="dropdown-item" id="dropSocial" onclick="prepniTab('komunita'); toggleProfileDropdown()" style="display:none;">
                         <span>Komunitní Chat</span>
-                        <i class="ti ti-messages"></i>
+                        <svg class="ti ti-messages" width="1.2em" height="1.2em" aria-hidden="true" ><use href="#ti-messages"></use></svg>
                     </button>
                     <div class="dropdown-divider"></div>
                     <div class="dropdown-divider"></div>
                     <button class="dropdown-item" id="dropNotif" onclick="otevritNotifikaceModal(); toggleProfileDropdown()" style="display:none;">
                         <span>Upozornění</span>
-                        <i class="ti ti-bell"></i>
+                        <svg class="ti ti-bell" width="1.2em" height="1.2em" aria-hidden="true" ><use href="#ti-bell"></use></svg>
                     </button>
                     <button class="dropdown-item" onclick="document.getElementById('donateModal').style.display='flex'; toggleProfileDropdown()">
                         <span>Podpořit Verona</span>
-                        <i class="ti ti-coffee"></i>
+                        <svg class="ti ti-coffee" width="1.2em" height="1.2em" aria-hidden="true" ><use href="#ti-coffee"></use></svg>
                     </button>
                     <button class="dropdown-item" id="dropLogin" onclick="location.href='/auth/google'">
                         <span>Přihlásit se</span>
-                        <i class="ti ti-login"></i>
+                        <svg class="ti ti-login" width="1.2em" height="1.2em" aria-hidden="true" ><use href="#ti-login"></use></svg>
                     </button>
                     <button class="dropdown-item" id="dropLogout" onclick="location.href='/auth/logout'" style="display:none; color:#ef4444;">
                         <span>Odhlásit se</span>
-                        <i class="ti ti-logout"></i>
+                        <svg class="ti ti-logout" width="1.2em" height="1.2em" aria-hidden="true" ><use href="#ti-logout"></use></svg>
                     </button>
                 </div>
             </div>
             <button class="btn bgh bi" style="font-size: 0.75rem; letter-spacing: 0.05em; width: auto; padding: 0 12px; margin-right: 8px;" onclick="toggleChatWidget()" title="Chat a Přátelé">
                 <span>Chat</span>
-                <span class="m-ico" style="margin-left:6px;"><i class="ti ti-message-circle"></i></span>
+                <span class="m-ico" style="margin-left:6px;"><svg class="ti ti-message-circle" width="1.2em" height="1.2em" aria-hidden="true" ><use href="#ti-message-circle"></use></svg></span>
             </button>
-            <button class="btn bgh bi" aria-label="Přepnout režim" style="font-size: 0.75rem; letter-spacing: 0.05em; width: auto; padding: 0 12px;" onclick="prepniRezim()"><span>Režim</span><span class="m-ico"><i class="ti ti-moon"></i></span></button>
+            <button class="btn bgh bi" aria-label="Přepnout režim" style="font-size: 0.75rem; letter-spacing: 0.05em; width: auto; padding: 0 12px;" onclick="prepniRezim()"><span>Režim</span><span class="m-ico"><svg class="ti ti-moon" width="1.2em" height="1.2em" aria-hidden="true" ><use href="#ti-moon"></use></svg></span></button>
         </div>
     </div>
 </nav>
@@ -549,7 +712,7 @@
                 <div class="rtop" style="position:relative;">
                     <div style="position:absolute; top:0; right:0;" class="no-print">
                         <button class="btn bgh bi" id="btnEditTrip" aria-label="Upravit texty" onclick="toggleEditTrip()" title="Upravit texty">
-                            <i class="ti ti-edit" style="font-size:1.2rem;"></i>
+                            <svg class="ti ti-edit" width="1.2em" height="1.2em" aria-hidden="true"  style="font-size:1.2rem;"><use href="#ti-edit"></use></svg>
                         </button>
                     </div>
                     <p class="ey" id="resDiffText">AI Koncept</p>
@@ -566,7 +729,7 @@
                             <button class="btn bp" onclick="ulozitNovyAI()" id="btnSaveAI">Uložit do deníku</button>
                             <button class="btn bg" onclick="ulozitCiziVylet()" id="btnSavePublic" style="display:none; color:#10b981; border-color:#10b98133;">
                                 <span style="display:block;">Uložit do mého deníku</span>
-                                <i class="ti ti-bookmark-filled" style="display:block; font-size:1.1rem;"></i>
+                                <svg class="ti ti-bookmark-filled" width="1.2em" height="1.2em" aria-hidden="true"  style="display:block; font-size:1.1rem;"><use href="#ti-bookmark-filled"></use></svg>
                             </button>
                             
                             <button class="btn bgh bi" id="btnUploadStrava" aria-label="Nahrát záznam ze Stravy" onclick="document.getElementById('gpxUpload').click()" title="Nahrát záznam ze Stravy" style="background:#fc4c02; color:#fff; border:none; padding:10px;">
@@ -575,14 +738,14 @@
                             <input type="file" id="gpxUpload" accept=".gpx" style="display:none;" onchange="zpracovatGPX(this)">
 
                             <button class="btn bgh bi" id="btnShareIG" aria-label="Exportovat pro Instagram Stories" onclick="exportovatNaInstagram(event)" title="Exportovat pro Instagram Stories" style="color:#d946ef; border-color:rgba(217,70,239,0.3); padding:10px;">
-                                <i class="ti ti-brand-instagram" style="font-size:1.4rem;"></i>
+                                <svg class="ti ti-brand-instagram" width="1.2em" height="1.2em" aria-hidden="true"  style="font-size:1.4rem;"><use href="#ti-brand-instagram"></use></svg>
                             </button>   
                             
                             <button class="btn bgh bi" id="btnShareTrip" aria-label="Sdílet s přáteli" onclick="sdiletVylet(curOpenTripId, document.getElementById('resTitle').innerText)" style="display:none;" title="Sdílet s přáteli">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:block;"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
                             </button>
                             <button class="btn bgh bi" id="btnShowQR" aria-label="Zobrazit QR kód" onclick="otevritQRZDetailu()" style="display:none;" title="Zobrazit QR kód">
-                                <i class="ti ti-qrcode" style="font-size:1.4rem;"></i>
+                                <svg class="ti ti-qrcode" width="1.2em" height="1.2em" aria-hidden="true"  style="font-size:1.4rem;"><use href="#ti-qrcode"></use></svg>
                             </button>
                         </div>
 
@@ -601,7 +764,7 @@
                             <div class="av" id="myMiniAvatar">V</div>
                             <div style="flex:1;">
                                 <textarea id="newCommentText" class="f" rows="2" placeholder="Napište komentář k trase…" style="margin-bottom:8px;"></textarea>
-                                <button class="btn bp" style="font-size:.8rem;padding:8px 16px; border-radius:10px;" onclick="odeslatKomentar()">Odeslat komentář <i class="ti ti-send" style="margin-left:4px;"></i></button>
+                                <button class="btn bp" style="font-size:.8rem;padding:8px 16px; border-radius:10px;" onclick="odeslatKomentar()">Odeslat komentář <svg class="ti ti-send" width="1.2em" height="1.2em" aria-hidden="true"  style="margin-left:4px;"><use href="#ti-send"></use></svg></button>
                             </div>
                         </div>
                     </div>
