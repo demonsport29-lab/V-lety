@@ -1,0 +1,22 @@
+[
+  {
+    "id": "evt-001",
+    "nazev": "Výšlap na Sněžku při východu slunce",
+    "datumZacatek": "2026-04-15T04:30:00Z",
+    "datumKonec": "2026-04-15T12:00:00Z",
+    "misto": "Pec pod Sněžkou, Česká republika",
+    "popis": "Připojte se k naší elitní cestovatelské skupině a zažijte nezapomenutelný východ slunce na nejvyšší hoře ČR. Cesta zahrnuje teplý čaj na vrcholu, licencovaného průvodce a parádní výhledy. Doporučujeme pevnou obuv a čelovky.",
+    "obrazek": "https://images.unsplash.com/photo-1551632811-561732d1e306?q=80&w=800&auto=format&fit=crop",
+    "vstupenkaUrl": "https://ticketportal.cz/event/snezka2026"
+  },
+  {
+    "id": "evt-002",
+    "nazev": "Večerní putování starou Prahou s průvodcem",
+    "datumZacatek": "2026-05-10T19:00:00Z",
+    "datumKonec": "2026-05-10T22:00:00Z",
+    "misto": "Staroměstské náměstí, Praha",
+    "popis": "Objevte temná zákoutí a skryté legendy historické Prahy. Tento unikátní zážitek vás provede uličkami, kam se běžně turisté nepodívají. Zakončení proběhne ve stylové středověké krčmě.",
+    "obrazek": "https://images.unsplash.com/photo-1519677100203-a0e668c92439?q=80&w=800&auto=format&fit=crop",
+    "vstupenkaUrl": "https://ticketportal.cz/event/praha-legendy"
+  }
+]
