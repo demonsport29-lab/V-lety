@@ -56,6 +56,10 @@ const tripRoutes = require('./routes/tripRoutes');
 const feedRoutes = require('./routes/feedRoutes');
 const miscRoutes = require('./routes/miscRoutes');
 
+// Statické stránky
+app.get('/soukromi', (req, res) => res.sendFile(path.join(__dirname, 'public', 'soukromi.html')));
+app.get('/podminky', (req, res) => res.sendFile(path.join(__dirname, 'public', 'podminky.html')));
+
 app.use(authRoutes);
 app.use(tripRoutes);
 app.use(feedRoutes);

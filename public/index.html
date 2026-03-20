@@ -22,6 +22,8 @@
     
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
+    <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
     <link rel="stylesheet" href="/css/style.min.css">
 </head>
 <body>
@@ -454,7 +456,6 @@
         <div id="notifikaceList" style="flex-grow:1; overflow-y:auto; display:flex; flex-direction:column; gap:12px;"></div>
     </div>
 </div>
-</div>
 
 
 <div id="achievementModal" class="overlay" style="z-index: 100000;" onclick="if(event.target===this)this.style.display='none'">
@@ -591,8 +592,8 @@
             <p style="font-size: 0.75rem; color: var(--t3); margin-top: 6px;">© 2026 Premium Trip Architect. Všechna práva vyhrazena.</p>
         </div>
         <div style="display: flex; gap: 16px;">
-            <a href="#" style="color: var(--t2); font-size: 0.8rem; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='var(--t1)'" onmouseout="this.style.color='var(--t2)'">Ochrana soukromí</a>
-            <a href="#" style="color: var(--t2); font-size: 0.8rem; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='var(--t1)'" onmouseout="this.style.color='var(--t2)'">Podmínky použití</a>
+            <a href="/soukromi" style="color: var(--t2); font-size: 0.8rem; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='var(--t1)'" onmouseout="this.style.color='var(--t2)'">Ochrana soukromí</a>
+            <a href="/podminky" style="color: var(--t2); font-size: 0.8rem; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='var(--t1)'" onmouseout="this.style.color='var(--t2)'">Podmínky použití</a>
             <a href="mailto:info@veronaapp.eu" style="color: var(--t2); font-size: 0.8rem; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='var(--t1)'" onmouseout="this.style.color='var(--t2)'">Podpora</a>
         </div>
     </div>

@@ -1,12 +1,8 @@
 let curDraft=null,curOpenTripId=null,prihlaseno=false,mainMap=null,markerCluster=null,mujProfil=null,pripraveneFotky=[],curPolyline=null,lastSocNeprecteno=0,vListBackup=[];
-// --- DOČASNÁ PAST NA MOBILNÍ CHYBY ---
-window.onerror = function(msg, url, line) {
-    alert("Mobilní chyba: " + msg + "\nŘádek: " + line);
-};
+// --- Produkční error logging ---
 window.addEventListener("unhandledrejection", function(e) {
-    alert("Mobilní chyba (Promise): " + (e.reason ? (e.reason.message || e.reason) : "Neznámá"));
+    console.error("[Verona] Neošetřená chyba:", e.reason);
 });
-// -------------------------------------
 let mapDepsLoaded = false;
 let mapDepsLoading = false;
 let mapDepsQueue = [];
@@ -316,7 +312,8 @@ async function hodnoceniVyletu(id, val){
 }
 function vykresliHvezdicky(id, cur=0){
     let h='';for(let i=1;i<=5;i++){h+=`<svg class="ti ti-star${i<=cur?' ti-star-filled':''} star ${i<=cur?'lit':''}" width="1.2em" height="1.2em" aria-hidden="true"  onclick="hodnoceniVyletu('${id}',${i})"><use href="#ti-star"></use></svg>`;}
-    document.getElementById('resTopRating').innerHTML=h;
+    const ratingEl = document.getElementById('resTopRating');
+    if (ratingEl) ratingEl.innerHTML = h;
 }
 
 function vykresliKomentare(k){
@@ -1203,7 +1200,8 @@ function prepniTab(tab, updateUrl = true){
 
 
 async function nactiExplore() {
-    const c = document.getElementById('exploreGrid');
+    // exploreGrid je alternativní ID - fallback na verejneStream
+    const c = document.getElementById('exploreGrid') || document.getElementById('verejneStream');
     if(!c) return;
     c.innerHTML = '<div class="spin" style="margin:40px auto; display:block;"></div>';
     try {
@@ -1283,7 +1281,7 @@ async function nactiMujProfil() {
                         </div>
                         <div class="dc au" style="text-align:center; padding:16px; border-radius:20px;">
                             <span style="font-size:1.5rem; font-weight:900; color:var(--a1); display:block;">${u.achievementy?.length || 0}</span>
-                            <span style="font-size:0.65rem; color:var(--t2); text-transform:uppercase; font-weight:800; letter-spacing:0.05em;">Mšspěchy</span>
+                            <span style="font-size:0.65rem; color:var(--t2); text-transform:uppercase; font-weight:800; letter-spacing:0.05em;">Úspěchy</span>
                         </div>
                     </div>
 
@@ -1305,11 +1303,12 @@ async function nactiMujProfil() {
 }
 
 
-// Podpora pro tlačítko "Zpět"
+// Podpora pro tlačítko "Zpět" — funguje i pro hosty
 window.addEventListener('popstate', () => {
-    if (!prihlaseno) return;
-    const hash = window.location.hash.replace('#', '');
-    prepniTab(['komunita', 'planovac', 'verejne', 'akce'].includes(hash) ? hash : 'landing', false);
+    const params = new URLSearchParams(window.location.search);
+    const tab = params.get('v');
+    const validni = ['komunita', 'planovac', 'verejne', 'akce', 'landing'];
+    prepniTab(validni.includes(tab) ? tab : 'landing', false);
 });
 
 // VYKRESLENMĹ¤ AKCMĹ¤ (S perfektně vycentrovanými SVG ikonami)
@@ -1356,7 +1355,7 @@ async function nactiAkce() {
 // NezapomeĹ přidat `await nactiAkce();` do funkce init() hned vedle `await nactiVerejneVylety();`!
 function prihlasitNewsletter() {
     const btn = document.getElementById('btnNews');
-    btn.innerHTML = 'Ă˘Ĺ›â€ś Jste na seznamu!';
+    btn.innerHTML = '✅ Jste na seznamu!';
     btn.style.background = 'var(--a4)'; 
     localStorage.setItem('verona_news', '1'); 
     setTimeout(() => { document.getElementById('newsletterModal').style.display='none'; }, 2000);
@@ -1366,7 +1365,8 @@ let mujChart = null; // Proměnná pro uchování grafu, aby se nenačítal pře
 async function otevritMujProfil() {
     // 1. Zobrazíme okno
     document.getElementById('profileModal').style.display = 'flex';
-    document.getElementById('mujFriendlyCode').value = mujProfil._id;
+    const friendlyCodeEl = document.getElementById('mujFriendlyCode');
+    if (friendlyCodeEl) friendlyCodeEl.value = mujProfil._id;
     
     // Zobrazení tlačítka pro speciální administrátorskou sekci
     if (mujProfil.isAdmin || (mujProfil.email && mujProfil.email === 'demonsport29@gmail.com')) {
@@ -1518,7 +1518,7 @@ async function toggleEditTrip() {
     const title = document.getElementById('resTitle');
     const body = document.getElementById('resBody');
     const textKontejner = document.getElementById('resText');
-if (textKontejner) textKontejner.innerHTML = v.text || v.itinerar || '';
+    if (textKontejner && curDraft) textKontejner.innerHTML = curDraft.text || curDraft.itinerar || '';
     if (!isEditingTrip) {
         // ZAPNUTÍ REŽIMU ÚPRAV
         isEditingTrip = true;
@@ -1596,18 +1596,19 @@ async function kontrolaNotifikaci(prvniStart) {
         if(!res.uspech) return;
         
         const badge = document.getElementById('notifBadge');
-        if(res.neprectenoLita > 0) {
-            badge.style.display = 'flex';
-            badge.innerText = res.neprectenoLita > 9 ? '9+' : res.neprectenoLita;
-        } else {
-            badge.style.display = 'none';
+        if (badge) {
+            if(res.neprectenoLita > 0) {
+                badge.style.display = 'flex';
+                badge.innerText = res.neprectenoLita > 9 ? '9+' : res.neprectenoLita;
+            } else {
+                badge.style.display = 'none';
+            }
         }
         
         const socBadge = document.getElementById('socialBadge');
         if (socBadge && res.data) {
             const nepZpravy = res.data.filter(x => x.typ === 'zprava' && !x.precteno).length;
             socBadge.style.display = nepZpravy > 0 ? 'flex' : 'none';
-            // Pokud přibylo nepřečtených zpráv a není to první start, ukážeme toast
             if (nepZpravy > lastSocNeprecteno && !prvniStart) {
                 const posledniZprava = res.data.filter(x => x.typ === 'zprava' && !x.precteno)[0];
                 ukazToast('Nová zpráva', posledniZprava ? posledniZprava.text : 'Máte novou zprávu v Social Hubu.');
@@ -1827,10 +1828,10 @@ async function nactiSeznamPratel() {
     c.innerHTML = `
         <div style="margin-bottom:20px; display:flex; flex-direction:column; gap:15px;">
             <div style="background:rgba(255,255,255,0.03); padding:16px; border-radius:18px; border:1px solid rgba(255,255,255,0.05);">
-                <label style="display:block; font-size:0.7rem; color:var(--t2); margin-bottom:8px; font-weight:800; text-transform:uppercase; letter-spacing:0.5px;">Tvůj kĂłd pro přátele</label>
+                <label style="display:block; font-size:0.7rem; color:var(--t2); margin-bottom:8px; font-weight:800; text-transform:uppercase; letter-spacing:0.5px;">Tvůj kód pro přátele</label>
                 <div style="display:flex; gap:10px;">
                     <input type="text" value="${mujProfil ? mujProfil._id : ''}" id="mujFriendlyCodeSocial" class="f" style="margin:0; font-family:'Space Mono'; text-align:center; font-weight:bold; letter-spacing:1px; background:rgba(0,0,0,0.2); font-size:0.8rem;" readonly>
-                    <button class="btn bg bi" onclick="navigator.clipboard.writeText('${mujProfil ? mujProfil._id : ''}'); alert('KĂłd zkopírován!')" title="Kopírovat"><svg class="ti ti-copy" width="1.2em" height="1.2em" aria-hidden="true" ><use href="#ti-copy"></use></svg></button>
+                    <button class="btn bg bi" onclick="navigator.clipboard.writeText('${mujProfil ? mujProfil._id : ''}'); alert('Kód zkopírován!')" title="Kopírovat"><svg class="ti ti-copy" width="1.2em" height="1.2em" aria-hidden="true" ><use href="#ti-copy"></use></svg></button>
                 </div>
             </div>
             <div style="background:rgba(255,255,255,0.03); padding:16px; border-radius:18px; border:1px solid rgba(255,255,255,0.05);">
@@ -1842,9 +1843,9 @@ async function nactiSeznamPratel() {
                 <div id="gmailSearchResult" style="margin-top:12px;"></div>
             </div>
             <div style="background:rgba(255,255,255,0.03); padding:16px; border-radius:18px; border:1px solid rgba(255,255,255,0.05);">
-                <label style="display:block; font-size:0.7rem; color:var(--t2); margin-bottom:8px; font-weight:800; text-transform:uppercase; letter-spacing:0.5px;">Přidat přítele přes kĂłd</label>
+                <label style="display:block; font-size:0.7rem; color:var(--t2); margin-bottom:8px; font-weight:800; text-transform:uppercase; letter-spacing:0.5px;">Přidat přítele přes kód</label>
                 <div style="display:flex; gap:10px;">
-                    <input type="text" id="friendCodeInSoc" class="f" placeholder="Vlož kĂłd..." style="margin:0; font-size:0.85rem;">
+                    <input type="text" id="friendCodeInSoc" class="f" placeholder="Vlož kód..." style="margin:0; font-size:0.85rem;">
                     <button class="btn bp" style="padding:0 15px;" onclick="pridatPritelePresKodSoc()">Přidat</button>
                 </div>
             </div>
@@ -1893,13 +1894,11 @@ async function pridatPritelePresKodSoc() {
     const k = document.getElementById('friendCodeInSoc').value.trim(); if(!k) return;
     try {
         const res = await (await fetch('/api/pridat-pritele-kod', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({kod:k}) })).json();
-        if (res.uspech) { ukazToast('Přátelství', 'Nový přítel byl přidán přes kĂłd!'); prepniSocialTab('friends'); }
-        else alert(res.chyba || 'Neplatný kĂłd nebo uživatel už existuje.');
+        if (res.uspech) { ukazToast('Přátelství', 'Nový přítel byl přidán přes kód!'); prepniSocialTab('friends'); }
+        else alert(res.chyba || 'Neplatný kód nebo uživatel již existuje.')
     } catch(err) { alert('Chyba spojení.'); }
 }
-function otevritChatV2(id, jm) { 
-    alert('Privátní chat s ' + jm + ' bude brzy dostupný! Nyní prosím využijte komunitní feed.'); 
-}
+// otevritChatV2 je definována níže jako window.otevritChatV2
 
 // --- FUNKCE PRO ZOBRAZENÍ DESIGN QR KÓDU ---
 async function ukazatQR(tripId) {

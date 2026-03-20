@@ -404,25 +404,30 @@
         .rbody{padding:28px;background:var(--gb);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid var(--gbd);border-top:none;border-radius:0 0 var(--rlg) var(--rlg);}
 
         /* SHIMMER TEXT */
-         }
-            100% { background-position: 200% center; }
+        @keyframes shimmer-gpu {
+            from { transform: translateX(-100%); }
+            to { transform: translateX(50%); }
+        }
         .shimmer-text {
-    color: var(--t1);
-    font-weight: 800;
-    text-align: center;
-    letter-spacing: -0.02em;
-    background: none;
-    -webkit-background-clip: unset;
-    -webkit-text-fill-color: unset;
-    animation: none;
-}
-.shimmer-text::after { content: ''; position: absolute; top: 0; left: 0; width: 200%; height: 100%; background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%); transform: translateX(-100%); animation: shimmer-gpu 3s infinite; pointer-events: none; }
-        [data-theme="light"] .shimmer-text {
-    color: var(--a1);
-    background: none;
-    -webkit-background-clip: unset;
-    -webkit-text-fill-color: unset;
-}
+            color: var(--t1);
+            font-weight: 800;
+            text-align: center;
+            letter-spacing: -0.02em;
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+        .shimmer-text::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 200%; height: 100%;
+            background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%);
+            transform: translateX(-100%);
+            animation: shimmer-gpu 3s infinite;
+            pointer-events: none;
+        }
+        [data-theme="light"] .shimmer-text { color: var(--a1); }
 
         /* 📱 EXTREME MOBILE OPTIMIZATION */
         .m-ico { display: none; } /* Defaultně skryté ikony na PC */
@@ -518,33 +523,12 @@
             z-index: 1;
         }
 
-        /* SHIMMER TEXT */
-        
-            100% { background-position: 200% center; }
+        /* Oprava spinner kontrastu ve světlém režimu */
+        [data-theme="light"] .spin {
+            border-color: rgba(0,0,0,0.12);
+            border-top-color: var(--a1);
         }
-        .shimmer-text {
-    color: var(--t1);
-    font-weight: 800;
-    text-align: center;
-    letter-spacing: -0.02em;
-    background: none;
-    -webkit-background-clip: unset;
-    -webkit-text-fill-color: unset;
-    animation: none;
-}
-        [data-theme="light"] .shimmer-text {
-    color: var(--a1);
-    background: none;
-    -webkit-background-clip: unset;
-    -webkit-text-fill-color: unset;
-}
 
-        @media (max-width: 768px) {
-            .pg { grid-template-columns: 1fr; }
-            .sidebar { position: static; }
-            .nav-in { padding: 0 16px; }
-            .tabs { display: none !important; }
-        }
 /* --- SOCIÁLNÍ PANEL (PRAVÁ STRANA) --- */
 .social-sidebar {
     position: fixed;
