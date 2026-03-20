@@ -245,15 +245,31 @@
             <div style="flex: 1.5 1 340px; display:flex; flex-direction:column; gap: 20px;">
                 <div>
                     <p class="ey" style="margin-bottom:8px;">Aktivita v aplikaci</p>
-                    <div style="height: 170px; background: rgba(0,0,0,0.15); border: 1px solid var(--gbd); border-radius: var(--rsm); padding: 12px;">
-                        <canvas id="profilGraf"></canvas>
-                    </div>
+                    <div class="profile-activity-section">
+    <!-- Sémantická legenda -->
+    <div class="activity-legend">
+        <span class="legend-item"><span class="dot dot-blue"></span> Itineráře</span>
+        <span class="legend-item"><span class="dot dot-green"></span> Uložená místa</span>
+        <span class="legend-item"><span class="dot dot-purple"></span> Sdíleno</span>
+    </div>
+    <!-- Strukturovaný seznam aktivit (Timeline) -->
+    <ul class="activity-timeline">
+        <li class="timeline-item"><div class="timeline-icon dot-blue"></div><div class="timeline-content"><strong>Vytvořen plán pro Sněžku</strong><span class="timeline-date">Před 2 dny</span></div></li>
+        <li class="timeline-item"><div class="timeline-icon dot-green"></div><div class="timeline-content"><strong>Uložena akce: Koncert O2 Arena</strong><span class="timeline-date">Před 5 dny</span></div></li>
+        <li class="timeline-item"><div class="timeline-icon dot-purple"></div><div class="timeline-content"><strong>Sdílen výlet se 3 přáteli</strong><span class="timeline-date">Před týdnem</span></div></li>
+    </ul>
+</div>
                 </div>
 
                 <div>
                     <p class="ey" style="margin-bottom:8px;">Moje úspěchy</p>
                     <div id="profilMedaile" style="display:flex; gap:10px; flex-wrap:wrap; max-height: 180px; overflow-y: auto; padding-right: 5px;">
-                        <div class="spin" style="margin: 20px auto;"></div>
+                        <div class="achievements-grid">
+    <div class="achievement-badge unlocked"><div class="ach-icon"><svg class="ti ti-map-2" width="24" height="24" aria-hidden="true"><use href="#ti-map-2"></use></svg></div><div class="ach-title">První krok</div></div>
+    <div class="achievement-badge unlocked"><div class="ach-icon"><svg class="ti ti-trophy" width="24" height="24" aria-hidden="true"><use href="#ti-trophy"></use></svg></div><div class="ach-title">Objevitel</div></div>
+    <div class="achievement-badge locked"><div class="ach-icon"><svg class="ti ti-shield-lock" width="24" height="24" aria-hidden="true"><use href="#ti-shield-lock"></use></svg></div><div class="ach-title">Společenský typ</div></div>
+    <div class="achievement-badge locked"><div class="ach-icon"><svg class="ti ti-shield-lock" width="24" height="24" aria-hidden="true"><use href="#ti-shield-lock"></use></svg></div><div class="ach-title">Plánovač</div></div>
+</div>
                     </div>
                 </div>
                 
