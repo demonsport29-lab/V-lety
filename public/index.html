@@ -398,6 +398,23 @@
     </div>
 </div>
 
+<div id="budgetModal" class="overlay" onclick="if(event.target===this)this.style.display='none'">
+    <div class="mb" style="max-width: 500px;">
+        <div class="mh">
+            <h2 class="mt">Rozpočet a Vyrovnání</h2>
+            <button class="btnx" aria-label="Zavřít" onclick="document.getElementById('budgetModal').style.display='none'">✕</button>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:8px;">
+            <input type="text" id="budgetKdo" class="f" placeholder="Kdo platil (např. Petr)" style="margin:0;">
+            <input type="text" id="budgetZaCo" class="f" placeholder="Za co (např. Benzín)" style="margin:0;">
+            <input type="number" id="budgetKolik" class="f" placeholder="Kolik Kč (např. 500)" style="margin:0;">
+            <button class="btn bp bf" onclick="pridatVydaj()">Přidat výdaj</button>
+        </div>
+        <div id="budgetList" style="margin-top: 20px;"></div>
+        <div id="budgetSplit" style="margin-top: 20px; font-weight: bold; padding: 10px; background: rgba(0,0,0,0.1); border-radius: var(--rsm);"></div>
+    </div>
+</div>
+
 <style>
     #chatWidget {
         position: fixed !important; 
@@ -591,18 +608,7 @@
             <button class="btn bp blg" onclick="location.href='/auth/google'">Přihlásit se a začít</button>
         </div>
     </div>
-    <div style="margin-top: 32px; display: flex; align-items: center; justify-content: center; gap: 12px; animation: fadeIn 1s ease-in-out 0.5s both;">
-            <div style="display: flex; margin-right: 8px;">
-                <div style="width: 34px; height: 34px; border-radius: 50%; border: 2px solid var(--bg); background: url('https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&q=80&fm=webp') center/cover; z-index: 4;"></div>
-                <div style="width: 34px; height: 34px; border-radius: 50%; border: 2px solid var(--bg); background: url('https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&q=80&fm=webp') center/cover; margin-left: -12px; z-index: 3;"></div>
-                <div style="width: 34px; height: 34px; border-radius: 50%; border: 2px solid var(--bg); background: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=80&fm=webp') center/cover; margin-left: -12px; z-index: 2;"></div>
-                <div style="width: 34px; height: 34px; border-radius: 50%; border: 2px solid var(--bg); background: linear-gradient(135deg, var(--a1), var(--a3)); display: flex; align-items: center; justify-content: center; color: white; font-size: 0.65rem; font-weight: 800; margin-left: -12px; z-index: 1;">+5k</div>
-            </div>
-            <div style="text-align: left;">
-                <div style="display: flex; gap: 2px; color: #fbbf24; font-size: 0.85rem; margin-bottom: 2px;">★★★★★</div>
-                <span style="font-size: 0.75rem; color: var(--t2); font-family: var(--fm);">Zamilováno cestovateli</span>
-            </div>
-        </div>
+    
     <div style="margin-top: 60px; display: flex; flex-wrap: wrap; justify-content: center; gap: 24px;">
         <div class="card" style="text-align: center; flex: 1 1 300px; max-width: 340px;">
             <div style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, var(--a1), var(--a2)); color: white; display: flex; align-items: center; justify-content: center; font-family: var(--fm); font-weight: 700; margin: 0 auto 20px;">AI</div>
@@ -779,6 +785,9 @@
                     <div class="no-print" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
                         <div style="display:flex; gap:8px; align-items:center;">
                             <button class="btn bp" onclick="ulozitNovyAI()" id="btnSaveAI">Uložit do deníku</button>
+                            <button class="btn bgh" onclick="otevritRozpocet()" id="btnSpravovatRozpocet" style="color: #6366f1; border-color: rgba(99,102,241,0.3);">
+                                Spravovat rozpočet
+                            </button>
                             <button class="btn bg" onclick="ulozitCiziVylet()" id="btnSavePublic" style="display:none; color:#10b981; border-color:#10b98133;">
                                 <span style="display:block;">Uložit do mého deníku</span>
                                 <svg class="ti ti-bookmark-filled" width="1.2em" height="1.2em" aria-hidden="true"  style="display:block; font-size:1.1rem;"><use href="#ti-bookmark-filled"></use></svg>

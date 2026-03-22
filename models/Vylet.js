@@ -7,6 +7,7 @@ const vyletSchema = new mongoose.Schema({
     hodnoceni: { type: Number, default: 0 }, 
     datumUlozeni: String,
     gpxTrasa: { type: Array, default: [] },
+    rozpocet: [{ kdo: String, zaCo: String, kolik: Number, id: String }],
     shareId: { type: String, unique: true, sparse: true }
 });
 
