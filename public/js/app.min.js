@@ -433,7 +433,7 @@ async function generovat(){
             if(shareBtn) shareBtn.style.display = 'none';
             
             document.getElementById('resCard').style.display='block';
-            document.getElementById('budgetWidget').style.display='block';
+            document.getElementById('budgetWidget').style.display='flex';
             vykreslitRozpocet();
             window.scrollTo({top:document.getElementById('resCard').offsetTop-80,behavior:'smooth'});
         }else alert('Chyba: '+(res.chyba||'Neznámý problém při komunikaci s AI.'));
@@ -929,7 +929,7 @@ function otevritDetailVyletu(v){
     vykresliKomentare(v.komentare||[]);
     curDraft=v;
     document.getElementById('resCard').style.display='block';
-    document.getElementById('budgetWidget').style.display='block';
+    document.getElementById('budgetWidget').style.display='flex';
     vykreslitRozpocet();
     window.scrollTo({top:document.getElementById('resCard').offsetTop-80,behavior:'smooth'});
     

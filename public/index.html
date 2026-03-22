@@ -740,7 +740,8 @@
         </aside>
 
         <div class="planner-main">
-            <div id="resCard" class="rc" style="display:none;">
+            <div id="tripDetailWrapper" style="display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-start; margin-bottom: 20px;">
+                <div id="resCard" class="rc" style="display:none; flex: 1 1 400px; margin-bottom: 0;">
                 <div id="printHeader" style="display:none; justify-content:space-between; align-items:flex-start; margin-bottom: 24px; border-bottom: 2px solid #000; padding-bottom: 16px;">
                     <div style="display:flex; align-items:center; gap: 12px; margin-top: 10px;">
                         <div style="width:34px;height:34px;border-radius:10px;background:black;color:white;display:flex;align-items:center;justify-content:center;font-size:16px;font-family:var(--fm);font-weight:700;">V</div>
@@ -812,11 +813,10 @@
                                 <button class="btn bp" style="font-size:.8rem;padding:8px 16px; border-radius:10px;" onclick="odeslatKomentar()">Odeslat komentář <svg class="ti ti-send" width="1.2em" height="1.2em" aria-hidden="true"  style="margin-left:4px;"><use href="#ti-send"></use></svg></button>
                             </div>
                         </div>
-                    </div>
                 </div>
             </div>
 
-            <div class="rc" id="budgetWidget" style="display:none; margin-top: 20px;">
+            <div class="rc" id="budgetWidget" style="display:none; width: 340px; flex-shrink: 0; margin-top: 0; margin-bottom: 0; flex-direction: column;">
                 <div class="rtop" style="display:flex; justify-content:space-between; align-items:center;">
                     <h2 style="font-size:1.6rem; font-weight:800; letter-spacing:-.02em; margin:0;">Rozpočet a Vyrovnání</h2>
                     <button class="btn bp" onclick="exportRozpocetJPG()" id="btnExportJPG">
@@ -833,6 +833,7 @@
                     <div id="budgetList" style="margin-top: 15px;"></div>
                     <div id="budgetSplit" style="padding:15px; background:var(--bg-input); border-radius:10px; margin-top:15px; font-weight: 600;"></div>
                 </div>
+            </div>
             </div>
 
             <div id="globalMap" class="mw"></div>
