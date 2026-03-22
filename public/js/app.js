@@ -433,6 +433,8 @@ async function generovat(){
             if(shareBtn) shareBtn.style.display = 'none';
             
             document.getElementById('resCard').style.display='block';
+            document.getElementById('budgetWidget').style.display='block';
+            vykreslitRozpocet();
             window.scrollTo({top:document.getElementById('resCard').offsetTop-80,behavior:'smooth'});
         }else alert('Chyba: '+(res.chyba||'Neznámý problém při komunikaci s AI.'));
     }catch(e){alert('Chyba spojení: '+e.message);}
@@ -501,14 +503,6 @@ async function exportujIGZListu(id, event) {
 window.exportujIGZListu = exportujIGZListu;
 
 // ROZPOČET A VYROVNÁNÍ NÁKLADŮ
-function otevritRozpocet() {
-    if (!curDraft) return;
-    if (!curDraft.rozpocet) curDraft.rozpocet = [];
-    document.getElementById('budgetModal').style.display = 'flex';
-    vykreslitRozpocet();
-}
-
-window.otevritRozpocet = otevritRozpocet;
 
 async function pridatVydaj() {
     const kdo = document.getElementById('budgetKdo').value.trim();
@@ -655,6 +649,41 @@ function vykreslitRozpocet() {
 }
 
 window.vykreslitRozpocet = vykreslitRozpocet;
+
+async function exportRozpocetJPG() {
+    if (typeof html2canvas === 'undefined') {
+        alert('Knihovna html2canvas není prozatím načtena.');
+        return;
+    }
+    const widget = document.getElementById('budgetWidget');
+    const form = document.getElementById('budgetForm');
+    const btnExport = document.getElementById('btnExportJPG');
+    
+    // Schovat formulář a tlačítko před přescreenováním
+    if (form) form.style.display = 'none';
+    if (btnExport) btnExport.style.display = 'none';
+    
+    try {
+        const canvas = await html2canvas(widget, {
+            backgroundColor: '#060810',
+            scale: 2,
+            useCORS: true
+        });
+        
+        const link = document.createElement('a');
+        link.download = 'Rozpocet.jpg';
+        link.href = canvas.toDataURL('image/jpeg', 0.9);
+        link.click();
+    } catch (e) {
+        console.error('Chyba při exportu rozpočtu:', e);
+        alert('Nepodařilo se vyfotit rozpočet.');
+    } finally {
+        // Vrátit zpět
+        if (form) form.style.display = 'flex';
+        if (btnExport) btnExport.style.display = 'inline-flex';
+    }
+}
+window.exportRozpocetJPG = exportRozpocetJPG;
 
 // NOVÁ DESIGN QR FUNKCE
 async function generovatQRVyletu(shareId, id) {
@@ -900,6 +929,8 @@ function otevritDetailVyletu(v){
     vykresliKomentare(v.komentare||[]);
     curDraft=v;
     document.getElementById('resCard').style.display='block';
+    document.getElementById('budgetWidget').style.display='block';
+    vykreslitRozpocet();
     window.scrollTo({top:document.getElementById('resCard').offsetTop-80,behavior:'smooth'});
     
     // Novinka: Nakreslí trasu!
