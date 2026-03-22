@@ -398,22 +398,7 @@
     </div>
 </div>
 
-<div id="budgetModal" class="overlay" onclick="if(event.target===this)this.style.display='none'">
-    <div class="mb" style="max-width: 500px;">
-        <div class="mh">
-            <h2 class="mt">Rozpočet a Vyrovnání</h2>
-            <button class="btnx" aria-label="Zavřít" onclick="document.getElementById('budgetModal').style.display='none'">✕</button>
-        </div>
-        <div style="display:flex; flex-direction:column; gap:8px;">
-            <input type="text" id="budgetKdo" class="f" placeholder="Kdo platil (např. Petr)" style="margin:0;">
-            <input type="text" id="budgetZaCo" class="f" placeholder="Za co (např. Benzín)" style="margin:0;">
-            <input type="number" id="budgetKolik" class="f" placeholder="Kolik Kč (např. 500)" style="margin:0;">
-            <button class="btn bp bf" onclick="pridatVydaj()">Přidat výdaj</button>
-        </div>
-        <div id="budgetList" style="margin-top: 20px;"></div>
-        <div id="budgetSplit" style="margin-top: 20px; font-weight: bold; padding: 10px; background: rgba(0,0,0,0.1); border-radius: var(--rsm);"></div>
-    </div>
-</div>
+
 
 <style>
     #chatWidget {
@@ -785,9 +770,6 @@
                     <div class="no-print" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
                         <div style="display:flex; gap:8px; align-items:center;">
                             <button class="btn bp" onclick="ulozitNovyAI()" id="btnSaveAI">Uložit do deníku</button>
-                            <button class="btn bgh" onclick="otevritRozpocet()" id="btnSpravovatRozpocet" style="color: #6366f1; border-color: rgba(99,102,241,0.3);">
-                                Spravovat rozpočet
-                            </button>
                             <button class="btn bg" onclick="ulozitCiziVylet()" id="btnSavePublic" style="display:none; color:#10b981; border-color:#10b98133;">
                                 <span style="display:block;">Uložit do mého deníku</span>
                                 <svg class="ti ti-bookmark-filled" width="1.2em" height="1.2em" aria-hidden="true"  style="display:block; font-size:1.1rem;"><use href="#ti-bookmark-filled"></use></svg>
@@ -810,9 +792,14 @@
                             </button>
                         </div>
 
-                        <button class="btn bp" id="btnCalendarAdd" onclick="document.getElementById('calendarModal').style.display='flex'">
-                            <span style="font-size:0.85rem; font-weight:700; display:block;">Přidat do kalendáře</span>
-                        </button>
+                        <div style="display:flex; gap:8px;">
+                            <button class="btn bgh" onclick="window.otevritRozpocet()" id="btnSpravovatRozpocet" style="color: #6366f1; border-color: rgba(99,102,241,0.3);">
+                                Spravovat rozpočet
+                            </button>
+                            <button class="btn bp" id="btnCalendarAdd" onclick="document.getElementById('calendarModal').style.display='flex'">
+                                <span style="font-size:0.85rem; font-weight:700; display:block;">Přidat do kalendáře</span>
+                            </button>
+                        </div>
                     </div>
 
                     
@@ -842,6 +829,23 @@
 </div>
 
 </main>
+
+<div id="budgetModal" class="overlay" onclick="if(event.target===this)this.style.display='none'">
+    <div class="mb" style="max-width: 500px;">
+        <div class="mh">
+            <h2 class="mt">Rozpočet a Vyrovnání</h2>
+            <button class="btnx" aria-label="Zavřít" onclick="document.getElementById('budgetModal').style.display='none'">✕</button>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:8px;">
+            <input type="text" id="budgetKdo" class="f" placeholder="Kdo platil (např. Petr)" style="margin:0;">
+            <input type="text" id="budgetZaCo" class="f" placeholder="Za co (např. Benzín)" style="margin:0;">
+            <input type="number" id="budgetKolik" class="f" placeholder="Kolik Kč (např. 500)" style="margin:0;">
+            <button class="btn bp bf" onclick="pridatVydaj()">Přidat výdaj</button>
+        </div>
+        <div id="budgetList" style="margin-top: 20px;"></div>
+        <div id="budgetSplit" style="margin-top: 20px; font-weight: bold; padding: 10px; background: rgba(0,0,0,0.1); border-radius: var(--rsm);"></div>
+    </div>
+</div>
 
 <div class="cf">
     <button class="cb" aria-label="Nápověda" onclick="toggleContact()" style="font-family: var(--fm); font-weight: 700;">?</button>

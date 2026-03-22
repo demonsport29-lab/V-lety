@@ -500,6 +500,162 @@ async function exportujIGZListu(id, event) {
 }
 window.exportujIGZListu = exportujIGZListu;
 
+// ROZPOČET A VYROVNÁNÍ NÁKLADŮ
+function otevritRozpocet() {
+    if (!curDraft) return;
+    if (!curDraft.rozpocet) curDraft.rozpocet = [];
+    document.getElementById('budgetModal').style.display = 'flex';
+    vykreslitRozpocet();
+}
+
+window.otevritRozpocet = otevritRozpocet;
+
+async function pridatVydaj() {
+    const kdo = document.getElementById('budgetKdo').value.trim();
+    const zaCo = document.getElementById('budgetZaCo').value.trim();
+    const kolik = parseFloat(document.getElementById('budgetKolik').value);
+    
+    if (!kdo || !zaCo || isNaN(kolik) || kolik <= 0) {
+        alert('Vyplňte správně všechna pole.');
+        return;
+    }
+    
+    if (!curDraft) curDraft = {};
+    if (!curDraft.rozpocet) curDraft.rozpocet = [];
+    
+    const novyVydaj = {
+        id: Date.now().toString(),
+        kdo: kdo,
+        zaCo: zaCo,
+        kolik: kolik
+    };
+    
+    curDraft.rozpocet.push(novyVydaj);
+    
+    document.getElementById('budgetKdo').value = '';
+    document.getElementById('budgetZaCo').value = '';
+    document.getElementById('budgetKolik').value = '';
+    
+    vykreslitRozpocet();
+    
+    if (curOpenTripId) {
+        try {
+            await fetch('/api/upravit-vylet', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: curOpenTripId, rozpocet: curDraft.rozpocet })
+            });
+        } catch(e) { console.error('Nelze uložit rozpočet: ', e); }
+    }
+}
+
+window.pridatVydaj = pridatVydaj;
+
+async function smazatVydaj(id) {
+    if (!curDraft || !curDraft.rozpocet) return;
+    
+    curDraft.rozpocet = curDraft.rozpocet.filter(v => v.id !== id);
+    vykreslitRozpocet();
+    
+    if (curOpenTripId) {
+        try {
+            await fetch('/api/upravit-vylet', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: curOpenTripId, rozpocet: curDraft.rozpocet })
+            });
+        } catch(e) { console.error('Nelze aktualizovat rozpočet: ', e); }
+    }
+}
+
+window.smazatVydaj = smazatVydaj;
+
+function vykreslitRozpocet() {
+    const listEl = document.getElementById('budgetList');
+    const splitEl = document.getElementById('budgetSplit');
+    
+    if (!curDraft || !curDraft.rozpocet || curDraft.rozpocet.length === 0) {
+        listEl.innerHTML = '<p style="color:var(--t2); font-size:0.9rem;">Zatím žádné výdaje.</p>';
+        splitEl.innerHTML = '';
+        return;
+    }
+    
+    // Vykreslení seznamu
+    let html = '<div style="display:flex; flex-direction:column; gap:8px;">';
+    let celkem = 0;
+    const utratyLidi = {};
+    
+    curDraft.rozpocet.forEach(v => {
+        html += `
+        <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.2); padding:10px; border-radius:var(--rsm); border:1px solid var(--gbd);">
+            <div>
+                <strong style="color:var(--a1); font-weight: 800;">${v.kdo}</strong> platil(a) za <strong>${v.zaCo}</strong>
+            </div>
+            <div style="display:flex; align-items:center; gap:12px;">
+                <span style="font-weight:bold; font-family: var(--fm);">${v.kolik} Kč</span>
+                <button class="btn bgh bi" style="padding:4px;" aria-label="Smazat výdaj" onclick="smazatVydaj('${v.id}')"><span style="color: #ef4444; font-weight: bold;">✕</span></button>
+            </div>
+        </div>`;
+        
+        celkem += v.kolik;
+        if (!utratyLidi[v.kdo]) utratyLidi[v.kdo] = 0;
+        utratyLidi[v.kdo] += v.kolik;
+    });
+    html += '</div>';
+    listEl.innerHTML = html;
+    
+    // Matematika - Split bill
+    const lide = Object.keys(utratyLidi);
+    const pocetLidi = lide.length;
+    
+    if (pocetLidi <= 1) {
+        splitEl.innerHTML = `<p style="margin:0; font-family: var(--fm);">Celkem utraceno: <strong style="color:var(--t1); font-size: 1.1rem;">${celkem} Kč</strong></p>`;
+        return;
+    }
+    
+    const prumer = celkem / pocetLidi;
+    const bilance = [];
+    
+    lide.forEach(osoba => {
+        bilance.push({
+            kdo: osoba,
+            rozdil: utratyLidi[osoba] - prumer
+        });
+    });
+    
+    const dluznici = bilance.filter(b => b.rozdil < -0.01).sort((a,b) => a.rozdil - b.rozdil); // ti co zaplatili méně
+    const veritele = bilance.filter(b => b.rozdil > 0.01).sort((a,b) => b.rozdil - a.rozdil);  // ti co zaplatili více
+    
+    let vyrovnaniHtml = `<p style="margin-bottom:12px; font-family: var(--fm); font-size: 0.95rem;">Celkem utraceno: <strong style="color:var(--t1); font-size: 1.1rem;">${celkem} Kč</strong> <span style="color:var(--t2); font-size: 0.8rem;">(cca ${Math.round(prumer)} Kč na osobu)</span></p>`;
+    vyrovnaniHtml += `<ul style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:6px;">`;
+    
+    let i = 0;
+    let j = 0;
+    
+    while (i < dluznici.length && j < veritele.length) {
+        const dluznik = dluznici[i];
+        const veritel = veritele[j];
+        
+        const castka = Math.min(Math.abs(dluznik.rozdil), veritel.rozdil);
+        
+        vyrovnaniHtml += `<li style="font-size:0.9rem; background: rgba(16, 185, 129, 0.1); padding: 8px 12px; border-radius: 8px; border-left: 3px solid #10b981; display:flex; align-items:center; gap:8px;">
+            <span>💸</span>
+            <span><strong style="color:#ef4444; font-weight:800;">${dluznik.kdo}</strong> pošle <strong style="color:#10b981; font-family:var(--fm); font-size:1.05em;">${Math.round(castka)} Kč</strong> pro <strong style="color:var(--t1); font-weight:800;">${veritel.kdo}</strong></span>
+        </li>`;
+        
+        dluznik.rozdil += castka;
+        veritel.rozdil -= castka;
+        
+        if (Math.abs(dluznik.rozdil) < 0.01) i++;
+        if (veritel.rozdil < 0.01) j++;
+    }
+    
+    vyrovnaniHtml += `</ul>`;
+    splitEl.innerHTML = vyrovnaniHtml;
+}
+
+window.vykreslitRozpocet = vykreslitRozpocet;
+
 // NOVÁ DESIGN QR FUNKCE
 async function generovatQRVyletu(shareId, id) {
     let sid = shareId;
