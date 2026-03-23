@@ -247,7 +247,7 @@ async function nactiDnik(){
     aktualizovatMapu(v);
     const d=document.getElementById('diary'),sel=document.getElementById('feedTripSelect');
     sel.innerHTML='<option value="">Bez navázaného výletu</option>';
-    if(!v.length){d.innerHTML=`<div class="es"><p style="font-size:.9rem;">Deník je prázdný. Vygenerujte svůj první výlet v plánovači.</p></div>`;return;}
+    if(!v.length){d.innerHTML=`<div class="es" style="grid-column: 1 / -1; width: 100%; text-align: center; padding: 50px 20px; background: rgba(255,255,255,0.02); border: 1px dashed rgba(255,255,255,0.15); border-radius: 16px;"><p style="font-size: 1rem; color: var(--t2); margin: 0;">Deník je prázdný. Vygenerujte si svůj první výlet v plánovači výše.</p></div>`;return;}
     d.innerHTML='';
     v.forEach((x,i)=>{
         sel.innerHTML+=`<option value="${x.id}">${x.lokace}</option>`;
