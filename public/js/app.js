@@ -1656,6 +1656,39 @@ window.nactiAdminAkceVypis = async function() {
     } catch(e) { list.innerHTML = '<p>Chyba spojení.</p>'; }
 };
 
+window.importovatAkciZJSON = function() {
+    const input = prompt("Vložte JSON vygenerovaný umělou inteligencí (Mistral):");
+    if (!input) return;
+
+    try {
+        // Bezpečnostní očištění od markdown formátování (pokud AI přidá ```json ... ```)
+        const cleanInput = input.replace(/```json/g, '').replace(/```/g, '').trim();
+        const data = JSON.parse(cleanInput);
+
+        if (data.nazev) document.getElementById('akceNazev').value = data.nazev;
+        if (data.datum) document.getElementById('akceDatum').value = data.datum;
+        if (data.misto) document.getElementById('akceMisto').value = data.misto;
+        if (data.popis) document.getElementById('akcePopis').value = data.popis;
+        if (data.logoUrl) document.getElementById('akceLogo').value = data.logoUrl;
+        if (data.vstupenkyUrl) document.getElementById('akceVstupenky').value = data.vstupenkyUrl;
+
+        // Vizuální notifikace pro admina
+        const btn = document.querySelector('button[onclick="importovatAkciZJSON()"]');
+        const origText = btn.innerHTML;
+        btn.innerHTML = "✅ Úspěšně načteno!";
+        btn.style.background = "rgba(16, 185, 129, 0.1)";
+        btn.style.color = "#10b981";
+        setTimeout(() => {
+            btn.innerHTML = origText;
+            btn.style.background = "";
+            btn.style.color = "var(--a1)";
+        }, 3000);
+
+    } catch (e) {
+        alert("Chyba při čtení JSONu. Ujistěte se, že vkládáte validní datový formát.\nDetail: " + e.message);
+    }
+};
+
 window.ulozitNovouAkci = async function() {
     const data = {
         nazev: document.getElementById('akceNazev').value.trim(),

@@ -339,7 +339,10 @@
             <textarea id="akcePopis" class="f" rows="2" placeholder="Krátký popis"></textarea>
             <input type="text" id="akceLogo" class="f" placeholder="URL obrázku/loga">
             <input type="text" id="akceVstupenky" class="f" placeholder="URL do prodejní sítě vstupenek">
-            <button class="btn bp bf" onclick="ulozitNovouAkci()">Přidat do databáze</button>
+            <div style="display:flex; gap:10px;">
+                <button class="btn bp bf" style="flex:1;" onclick="ulozitNovouAkci()">Přidat do databáze</button>
+                <button class="btn bgh" style="flex:1; border: 1px dashed var(--a1); color: var(--a1);" onclick="importovatAkciZJSON()" title="Vložit JSON z AI">✨ Importovat z AI</button>
+            </div>
         </div>
         
         <p class="ey" style="margin-bottom:12px;">Seznam spravovaných akcí</p>
