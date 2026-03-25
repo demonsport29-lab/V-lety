@@ -18,5 +18,65 @@
     "popis": "Objevte temná zákoutí a skryté legendy historické Prahy. Tento unikátní zážitek vás provede uličkami, kam se běžně turisté nepodívají. Zakončení proběhne ve stylové středověké krčmě.",
     "obrazek": "https://images.unsplash.com/photo-1519677100203-a0e668c92439?q=80&w=800&auto=format&fit=crop",
     "vstupenkaUrl": "https://ticketportal.cz/event/praha-legendy"
+  },
+  {
+    "id": "evt-003",
+    "nazev": "Pentatonix - UK/European Tour 2026",
+    "datumZacatek": "2026-04-09T19:00:00Z",
+    "datumKonec": "2026-04-09T22:00:00Z",
+    "misto": "O2 arena, Praha",
+    "popis": "Vokální pětice Pentatonix, známá svými pojetími hitů jako Hallelujah, Jolene či Bohemian Rhapsody, se po třech letech vrací do Prahy. Připravte se na účinné zpěvné aranžmá, živou hudbu a nezapomenutelný hudební zážitek plný emocí a energie.",
+    "obrazek": "https://static.ticketportal.cz//images/podujatie/-2147475637/orig_KoRn_2026_20263168346.jpg",
+    "vstupenkaUrl": "https://www.ticketportal.cz/event/Pentatonix-UKEuropean-Tour-2026"
+  },
+  {
+    "id": "evt-004",
+    "nazev": "Tame Impala",
+    "datumZacatek": "2026-04-20T19:00:00Z",
+    "datumKonec": "2026-04-20T22:00:00Z",
+    "misto": "O2 arena, Praha",
+    "popis": "Australský hudební projekt Tame Impala vedený Kevinem Parkerem představí svůj první samostatný koncert v ČR. Hudební psychedelie a vizuálně podmanivé provedení slibují nezapomenutelný hudební večer plný energie a kreativity.",
+    "obrazek": "https://static.ticketportal.cz//images/podujatie/-2147477195/orig_NO_NAME_2026_20241019182044.jpg",
+    "vstupenkaUrl": "https://www.ticketportal.cz/event/Tame-Impala"
+  },
+  {
+    "id": "evt-005",
+    "nazev": "ABBAMANIA THE SHOW - Dancing Queen Tour",
+    "datumZacatek": "2026-04-28T19:00:00Z",
+    "datumKonec": "2026-04-28T22:00:00Z",
+    "misto": "O2 universum, Sál A, Praha",
+    "popis": "Největší světová show inspirovaná hity skupiny ABBA představí nezapomenutelný hudební a taneční zážitek. Dancing Queen Tour přináší nejen legendární skladby, ale i úchvatnou scénu a živý výkon, který okouzlí všechny generace.",
+    "obrazek": "",
+    "vstupenkaUrl": "https://www.ticketportal.cz/venue/-2147483642"
+  },
+  {
+    "id": "evt-006",
+    "nazev": "Reinhold Messner: The Final Expedition",
+    "datumZacatek": "2026-04-28T19:00:00Z",
+    "datumKonec": "2026-04-28T22:00:00Z",
+    "misto": "O2 universum, Sál A, Praha",
+    "popis": "Připravte se na nevšední hudební a filmové představení inspirované životem legendárního horolezce Reinholda Messnera. The Final Expedition slibuje kombinaci hudby, obrazu a emocí, která vás vtáhne do světa dobrodružství a výzev.",
+    "obrazek": "",
+    "vstupenkaUrl": "https://www.ticketportal.cz/venue/-2147483642"
+  },
+  {
+    "id": "evt-007",
+    "nazev": "KoRn",
+    "datumZacatek": "2026-04-01T19:00:00Z",
+    "datumKonec": "2026-04-01T22:00:00Z",
+    "misto": "O2 arena, Praha",
+    "popis": "Kapela KoRn, jedna z nejzásadnějších formací moderní metalové scény, se vrací do Prahy v rámci evropského turné. Průkopníci nu metalu představí svou nejnovější show plnou intenzity, silných riffů a nezaměnitelného zvuku.",
+    "obrazek": "https://static.ticketportal.cz//images/podujatie/-2147475637/orig_KoRn_2026_20263168346.jpg",
+    "vstupenkaUrl": "https://www.ticketportal.cz/event/KoRn--2147477819"
+  },
+  {
+    "id": "evt-008",
+    "nazev": "The City of Prague Philharmonic Orchestra – Vangelis",
+    "datumZacatek": "2026-04-01T19:00:00Z",
+    "datumKonec": "2026-04-01T22:00:00Z",
+    "misto": "O2 universum, Sál A, Praha",
+    "popis": "Pražský filharmonický orchestr představí unikátní koncert věnovaný hudbě Vangelise, mistra elektronické a orchestralní hudby. Připravte se na atmosféru plnou zvuků, která vás přenese do jiného světa.",
+    "obrazek": "",
+    "vstupenkaUrl": "https://www.ticketportal.cz/venue/-2147483642"
   }
 ]
