@@ -1665,10 +1665,9 @@ window.importovatAkciZJSON = async function() {
         const data = JSON.parse(cleanInput);
 
         const btn = document.querySelector('button[onclick="importovatAkciZJSON()"]');
-        const origText = btn.innerHTML;
-        btn.innerHTML = '<div class="spin" style="width:16px;height:16px;border-width:2px;display:inline-block;vertical-align:middle;"></div> Ukládám...';
+        const origText = btn ? btn.innerHTML : "Importovat z AI";
+        if(btn) btn.innerHTML = 'Ukládám...';
 
-        // 1. Zpracování hromadného importu (Pole / Array)
         if (Array.isArray(data)) {
             let uspesno = 0;
             for (const akce of data) {
@@ -1681,11 +1680,9 @@ window.importovatAkciZJSON = async function() {
                 if (resData.uspech) uspesno++;
             }
             alert(`✨ Hromadný import dokončen! Uloženo ${uspesno} z ${data.length} akcí.`);
-            nactiAdminAkceVypis();
-            nactiAkce();
-        } 
-        // 2. Zpracování jedné akce (pouze předvyplní formulář)
-        else {
+            if(typeof nactiAdminAkceVypis === 'function') nactiAdminAkceVypis();
+            if(typeof nactiAkce === 'function') nactiAkce();
+        } else {
             if (data.nazev) document.getElementById('akceNazev').value = data.nazev;
             if (data.datum) document.getElementById('akceDatum').value = data.datum;
             if (data.misto) document.getElementById('akceMisto').value = data.misto;
@@ -1694,16 +1691,10 @@ window.importovatAkciZJSON = async function() {
             if (data.vstupenkyUrl) document.getElementById('akceVstupenky').value = data.vstupenkyUrl;
         }
 
-        // Vizuální notifikace
-        btn.innerHTML = "✅ Hotovo!";
-        btn.style.background = "rgba(16, 185, 129, 0.1)";
-        btn.style.color = "#10b981";
-        setTimeout(() => {
-            btn.innerHTML = origText;
-            btn.style.background = "";
-            btn.style.color = "var(--a1)";
-        }, 3000);
-
+        if(btn) {
+            btn.innerHTML = "✅ Hotovo!";
+            setTimeout(() => { btn.innerHTML = origText; }, 3000);
+        }
     } catch (e) {
         alert("Chyba při čtení JSONu. Ujistěte se, že vkládáte validní datový formát.\nDetail: " + e.message);
     }
