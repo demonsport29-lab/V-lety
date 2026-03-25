@@ -79,4 +79,17 @@ router.post('/api/sleduj/:id', async (req, res) => {
         res.json({ uspech: false, chyba: 'Chyba na serveru.' });
     }
 });
+
+router.get('/auth/logout', (req, res) => {
+    if (req.session) {
+        req.session.destroy((err) => {
+            if (err) console.error("Chyba při mazání session:", err);
+            res.clearCookie('connect.sid');
+            res.redirect('/');
+        });
+    } else {
+        res.redirect('/');
+    }
+});
+
 module.exports = router;

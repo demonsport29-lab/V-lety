@@ -9,6 +9,8 @@ const Akce = require('../models/Akce');
 const Notifikace = require('../models/Notifikace');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY); 
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
+const fs = require('fs');
+const path = require('path');
 
 // Platby
 router.post('/api/vytvorit-platbu', async (req, res) => {
@@ -279,8 +281,20 @@ router.get('/api/moje-staty', async (req, res) => {
 
 router.get('/api/akce', async (req, res) => { 
     try {
-        const akce = await Akce.find().sort({ vytvoreno: -1 });
-        res.json({ uspech: true, data: akce });
+        let akce = await Akce.find().sort({ vytvoreno: -1 });
+        
+        // Fallback: Pokud v DB nic není (nebo selhalo naseedování), načteme z public/events.json
+        if (!akce || akce.length === 0) {
+            const eventsPath = path.join(__dirname, '../public/events.json');
+            if (fs.existsSync(eventsPath)) {
+                const fileData = fs.readFileSync(eventsPath, 'utf8');
+                const allData = JSON.parse(fileData);
+                // Filtrujeme jen ty, které mají Samaritan pole (datum, logoUrl, vstupenkyUrl)
+                akce = allData.filter(a => a.datum && a.logoUrl);
+            }
+        }
+        
+        res.status(200).json({ uspech: true, data: akce });
     } catch (e) {
         res.json({ uspech: false, chyba: e.message });
     } 
