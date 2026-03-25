@@ -232,5 +232,18 @@
     "obrazek": "https://static.ticketportal.cz//images/podujatie/-2147476469/orig_JAN_BENDIG_202592674859.jpg",
     "vstupenkyUrl": "https://www.ticketportal.cz/event/JAN-BENDIG",
     "vstupenkaUrl": "https://www.ticketportal.cz/event/JAN-BENDIG"
+  },
+  {
+    "id": "evt-019",
+    "nazev": "MASTERS OF ROCK 2026",
+    "datum": "16. – 19. července 2026",
+    "datumZacatek": "2026-07-16T12:00:00Z",
+    "datumKonec": "2026-07-19T23:59:00Z",
+    "misto": "Vizovice, Areál likérky R. Jelínek",
+    "popis": "22. ročník mezinárodního metalového festivalu s účastí světových metalových hvězd jako HELLOWEEN a ARCH ENEMY. Festival nabízí jedinečnou atmosféru, skvělou hudbu a nezapomenutelné zážitky pro všechny milovníky metalu.",
+    "logoUrl": "https://static.ticketportal.cz//images/podujatie/1204663/orig_MASTERS_OF_ROCK_2023___Pragokoncert2023_2023113163139.jpg",
+    "obrazek": "https://static.ticketportal.cz//images/podujatie/1204663/orig_MASTERS_OF_ROCK_2023___Pragokoncert20113163139.jpg",
+    "vstupenkyUrl": "https://www.ticketportal.cz/event/MASTERS-OF-ROCK-2026",
+    "vstupenkaUrl": "https://www.ticketportal.cz/event/MASTERS-OF-ROCK-2026"
   }
 ]

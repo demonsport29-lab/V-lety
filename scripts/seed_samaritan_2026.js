@@ -130,6 +130,14 @@ const noveAkce = [
     "popis": "Koncert oblíbeného českého zpěváka Jana Bendiga, který představí své nejnovější hity a klasické písně. Pestrý hudební program plný emocí a energie.",
     "logoUrl": "https://static.ticketportal.cz//images/podujatie/-2147476469/orig_JAN_BENDIG_2026_202592674859.jpg",
     "vstupenkyUrl": "https://www.ticketportal.cz/event/JAN-BENDIG"
+  },
+  {
+    "nazev": "MASTERS OF ROCK 2026",
+    "datum": "16. – 19. července 2026",
+    "misto": "Vizovice, Areál likérky R. Jelínek",
+    "popis": "22. ročník mezinárodního metalového festivalu s účastí světových metalových hvězd jako HELLOWEEN a ARCH ENEMY. Festival nabízí jedinečnou atmosféru, skvělou hudbu a nezapomenutelné zážitky pro všechny milovníky metalu.",
+    "logoUrl": "https://static.ticketportal.cz//images/podujatie/1204663/orig_MASTERS_OF_ROCK_2023___Pragokoncert2023_2023113163139.jpg",
+    "vstupenkyUrl": "https://www.ticketportal.cz/event/MASTERS-OF-ROCK-2026"
   }
 ];
 
