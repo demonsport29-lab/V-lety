@@ -1656,26 +1656,46 @@ window.nactiAdminAkceVypis = async function() {
     } catch(e) { list.innerHTML = '<p>Chyba spojení.</p>'; }
 };
 
-window.importovatAkciZJSON = function() {
+window.importovatAkciZJSON = async function() {
     const input = prompt("Vložte JSON vygenerovaný umělou inteligencí (Mistral):");
     if (!input) return;
 
     try {
-        // Bezpečnostní očištění od markdown formátování (pokud AI přidá ```json ... ```)
         const cleanInput = input.replace(/```json/g, '').replace(/```/g, '').trim();
         const data = JSON.parse(cleanInput);
 
-        if (data.nazev) document.getElementById('akceNazev').value = data.nazev;
-        if (data.datum) document.getElementById('akceDatum').value = data.datum;
-        if (data.misto) document.getElementById('akceMisto').value = data.misto;
-        if (data.popis) document.getElementById('akcePopis').value = data.popis;
-        if (data.logoUrl) document.getElementById('akceLogo').value = data.logoUrl;
-        if (data.vstupenkyUrl) document.getElementById('akceVstupenky').value = data.vstupenkyUrl;
-
-        // Vizuální notifikace pro admina
         const btn = document.querySelector('button[onclick="importovatAkciZJSON()"]');
         const origText = btn.innerHTML;
-        btn.innerHTML = "✅ Úspěšně načteno!";
+        btn.innerHTML = '<div class="spin" style="width:16px;height:16px;border-width:2px;display:inline-block;vertical-align:middle;"></div> Ukládám...';
+
+        // 1. Zpracování hromadného importu (Pole / Array)
+        if (Array.isArray(data)) {
+            let uspesno = 0;
+            for (const akce of data) {
+                const res = await fetch('/api/admin/akce', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(akce)
+                });
+                const resData = await res.json();
+                if (resData.uspech) uspesno++;
+            }
+            alert(`✨ Hromadný import dokončen! Uloženo ${uspesno} z ${data.length} akcí.`);
+            nactiAdminAkceVypis();
+            nactiAkce();
+        } 
+        // 2. Zpracování jedné akce (pouze předvyplní formulář)
+        else {
+            if (data.nazev) document.getElementById('akceNazev').value = data.nazev;
+            if (data.datum) document.getElementById('akceDatum').value = data.datum;
+            if (data.misto) document.getElementById('akceMisto').value = data.misto;
+            if (data.popis) document.getElementById('akcePopis').value = data.popis;
+            if (data.logoUrl) document.getElementById('akceLogo').value = data.logoUrl;
+            if (data.vstupenkyUrl) document.getElementById('akceVstupenky').value = data.vstupenkyUrl;
+        }
+
+        // Vizuální notifikace
+        btn.innerHTML = "✅ Hotovo!";
         btn.style.background = "rgba(16, 185, 129, 0.1)";
         btn.style.color = "#10b981";
         setTimeout(() => {
