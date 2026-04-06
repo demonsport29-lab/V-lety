@@ -861,6 +861,38 @@
     </div>
 </div>
 
+<div id="cookieBanner" style="display:none; position:fixed; bottom:0; left:0; right:0; z-index:999999; background:var(--gb2); border-top:1px solid var(--gbd); padding:20px; box-shadow:0 -10px 40px rgba(0,0,0,0.5);">
+    <div style="max-width:1000px; margin:0 auto; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:20px;">
+        <div style="flex:1; min-width:300px;">
+            <h3 style="margin-bottom:8px; font-weight:800; font-size:1.1rem;"><span style="color:var(--a1);">🍪</span> Ochrana soukromí a Cookies</h3>
+            <p style="font-size:0.9rem; color:var(--t2); line-height:1.5;">Používáme cookies k funkčnosti AI architekta a uložení vašich preferencí. Bez nich by to u nás nefungovalo. Povolíte nám to?</p>
+        </div>
+        <div style="display:flex; gap:10px;">
+            <button class="btn bp" id="btnAcceptCookies" style="border-radius:10px; padding:10px 20px;">Ano, přijímám</button>
+            <button class="btn bgh" id="btnRejectCookies" style="border-radius:10px; padding:10px 20px;">Odmítnout</button>
+        </div>
+    </div>
+</div>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    if (!localStorage.getItem('verona_cookie_consent')) {
+        document.getElementById('cookieBanner').style.display = 'block';
+    }
+    document.getElementById('btnAcceptCookies').onclick = function() {
+        localStorage.setItem('verona_cookie_consent', 'accepted');
+        document.getElementById('cookieBanner').style.display = 'none';
+    };
+    document.getElementById('btnRejectCookies').onclick = function() {
+        localStorage.setItem('verona_cookie_consent', 'rejected');
+        document.getElementById('cookieBanner').style.display = 'none';
+    };
+});
+</script>
+
+<script src="/js/map.js" defer></script>
+<script src="/js/ui.js" defer></script>
+<script src="/js/social.js" defer></script>
+<script src="/js/trips.js" defer></script>
 <script src="/js/app.js" defer></script>
 </body>
 </html>

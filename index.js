@@ -3,6 +3,8 @@ const express = require('express');
 const session = require('express-session');
 const mongoose = require('mongoose');
 const path = require('path');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -11,6 +13,16 @@ let isMaintenanceMode = false;
 
 app.use(express.json({ limit: '50mb' })); 
 app.use(express.static('public'));
+
+app.use(helmet());
+
+const apiLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 100,
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+app.use('/api', apiLimiter);
 
 // 1. Secret switch route
 app.get('/tajny-vypinac/verona/:stav', (req, res) => {
@@ -42,7 +54,11 @@ app.use(session({
     secret: process.env.SESSION_SECRET || 'tajny-verona-klic',
     resave: false,
     saveUninitialized: false,
-    cookie: { secure: false, maxAge: 1000 * 60 * 60 * 24 * 30 }
+    cookie: { 
+        secure: process.env.NODE_ENV === 'production', 
+        httpOnly: true, 
+        maxAge: 1000 * 60 * 60 * 24 * 30 
+    }
 }));
 
 mongoose.connect(process.env.MONGODB_URI)
