@@ -602,6 +602,7 @@ async function pridatPritelePresKodSoc() {
         if (res.uspech) { ukazToast('Přátelství', 'Nový přítel byl přidán přes kód!'); prepniSocialTab('friends'); }
         else alert(res.chyba || 'Neplatný kód nebo uživatel již existuje.')
     } catch(err) { alert('Chyba spojení.'); }
+}
 // --- NOVÝ WIDGET PRO CHAT A PŘÁTELE ---
 function toggleChatWidget() {
     if (!prihlaseno) return alert("Pro přístup k chatu se musíte přihlásit.");
