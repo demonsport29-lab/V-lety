@@ -1,6 +1,6 @@
 // app.js - Inicializace a hlavní parametry
-let curDraft=null,curOpenTripId=null,prihlaseno=false,mainMap=null,markerCluster=null,mujProfil=null,pripraveneFotky=[],curPolyline=null,lastSocNeprecteno=0,vListBackup=[];
-window.curDraft=curDraft; window.curOpenTripId=curOpenTripId; window.prihlaseno=prihlaseno; window.mainMap=mainMap; window.markerCluster=markerCluster; window.mujProfil=mujProfil; window.pripraveneFotky=pripraveneFotky; window.curPolyline=curPolyline; window.lastSocNeprecteno=lastSocNeprecteno; window.vListBackup=vListBackup;
+let curDraft=null,curOpenTripId=null,prihlaseno=false,mujProfil=null,pripraveneFotky=[],lastSocNeprecteno=0,vListBackup=[];
+window.curDraft=curDraft; window.curOpenTripId=curOpenTripId; window.prihlaseno=prihlaseno; window.mujProfil=mujProfil; window.pripraveneFotky=pripraveneFotky; window.lastSocNeprecteno=lastSocNeprecteno; window.vListBackup=vListBackup;
 
 // --- Produkční error logging ---
 window.addEventListener("unhandledrejection", function(e) {
@@ -97,8 +97,6 @@ window.toggleProfileDropdown = toggleProfileDropdown;
 window.prepniRezim = prepniRezim;
 window.zmenitAvatar = zmenitAvatar;
 window.poslatPrispevek = poslatPrispevek;
-window.loadMapDependencies = loadMapDependencies;
-window.aktualizovatMapu = aktualizovatMapu;
 window.nactiDnik = nactiDnik;
 window.ulozitProfil = ulozitProfil;
 window.smazat = window.smazat; // Většina je už jako window.neco
@@ -124,8 +122,6 @@ window.openGallery = openGallery;
 window.doKalendare = doKalendare;
 window.odeslatKontaktV2 = odeslatKontaktV2;
 window.otevritDetailVyletu = otevritDetailVyletu;
-window.ulozitCiziVylet = ulozitCiziVylet;
-window.vykresliTrasuNaMape = vykresliTrasuNaMape;
 window.zpracovatGPX = zpracovatGPX;
 window.toggleLike = toggleLike;
 window.otevritVerejnyProfil = otevritVerejnyProfil;

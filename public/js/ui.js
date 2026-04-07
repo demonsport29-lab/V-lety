@@ -47,23 +47,6 @@ function aktualizujIndikator() {
 
     const mobileActiveTab = document.querySelector('.mnav .tab.active');
     const mobileIndicator = document.getElementById('mobileIndicator');
-    if (mobileActiveTab && mobileIndicator) {
-        mobileIndicator.style.width = `${mobileActiveTab.offsetWidth}px`;
-        mobileIndicator.style.left = `${mobileActiveTab.offsetLeft}px`;
-    }
-}
-window.addEventListener('resize', aktualizujIndikator);
-function prepniRezim(){
-    const currentTheme = document.documentElement.getAttribute('data-theme');
-    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', newTheme);
-    if(window._lastMapData) { aktualizovatMapu(window._lastMapData); }
-}
-function ukazAchievementModal(ach, allowShare = true) {
-    document.getElementById('achIcon').className = `ti ${ach.ikona}`;
-    document.getElementById('achTitle').innerText = ach.nazev;
-    document.getElementById('achDesc').innerText = ach.popis;
-    
     const shareBtn = document.getElementById('btnAchShare');
     if (shareBtn) shareBtn.style.display = allowShare ? 'inline-flex' : 'none';
     
@@ -90,7 +73,7 @@ function prepniTab(tab, updateUrl = true){
     document.getElementById(targetViewId)?.classList.remove('hidden');
 
     if(tab==='landing'){ if(window.nactiStats) nactiStats(); }
-    if(tab==='planovac'){ nactiDnik(); if(mainMap) setTimeout(()=>mainMap.invalidateSize(),200); }
+    if(tab==='planovac'){ nactiDnik(); }
     if(tab==='verejne'){ nactiExplore(); }
     if(tab==='komunita'){ nactiFeed(); vykreslitFriendHub(); }
     if(tab==='profil'){ nactiMujProfil(); }

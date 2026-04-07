@@ -36,15 +36,14 @@ async function nactiVerejneVylety() {
 window.otevritDetailVerejnehoVyletuZListu = function(id) {
     const trip = window.verejneVyletyData.find(t => t.id === id);
     if (trip) {
-        prepniTab('planovac'); // Hodí tě k mapě
-        otevritDetailVyletu(trip); // Nakreslí čáru na mapu a ukáže itinerář
+        prepniTab('planovac');
+        otevritDetailVyletu(trip);
     }
 
 };
 async function nactiDnik(){
     const v=await(await fetch('/api/ulozene-vylety')).json();
     vListBackup = v;
-    aktualizovatMapu(v);
     const d=document.getElementById('diary'),sel=document.getElementById('feedTripSelect');
     sel.innerHTML='<option value="">Bez navázaného výletu</option>';
     if(!v.length){d.innerHTML=`<div class="es" style="grid-column: 1 / -1; width: 100%; text-align: center; padding: 50px 20px; background: rgba(255,255,255,0.02); border: 1px dashed rgba(255,255,255,0.15); border-radius: 16px;"><p style="font-size: 1rem; color: var(--t2); margin: 0;">Deník je prázdný. Vygenerujte si svůj první výlet v plánovači výše.</p></div>`;return;}
@@ -645,10 +644,6 @@ function otevritDetailVyletu(v){
     document.getElementById('budgetWidget').style.display='flex';
     vykreslitRozpocet();
     window.scrollTo({top:document.getElementById('resCard').offsetTop-80,behavior:'smooth'});
-    
-    // Novinka: Nakreslí trasu!
-    vykresliTrasuNaMape(v);
-
 }
 async function ulozitCiziVylet() {
     if (!prihlaseno) return alert('Musíte být přihlášeni.');
