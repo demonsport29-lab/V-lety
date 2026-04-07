@@ -547,6 +547,14 @@
                         <svg class="ti ti-messages" width="1.2em" height="1.2em" aria-hidden="true" ><use href="#ti-messages"></use></svg>
                     </button>
                     <div class="dropdown-divider"></div>
+                    <button class="dropdown-item" onclick="toggleChatWidget(); toggleProfileDropdown()">
+                        <span>Chat a Přátelé</span>
+                        <svg class="ti ti-message-circle" width="1.2em" height="1.2em" aria-hidden="true" ><use href="#ti-message-circle"></use></svg>
+                    </button>
+                    <button class="dropdown-item" onclick="prepniRezim(); toggleProfileDropdown()">
+                        <span>Změnit režim</span>
+                        <svg class="ti ti-moon" width="1.2em" height="1.2em" aria-hidden="true" ><use href="#ti-moon"></use></svg>
+                    </button>
                     <div class="dropdown-divider"></div>
                     <button class="dropdown-item" id="dropNotif" onclick="otevritNotifikaceModal(); toggleProfileDropdown()" style="display:none;">
                         <span>Upozornění</span>
@@ -566,11 +574,6 @@
                     </button>
                 </div>
             </div>
-            <button class="btn bgh bi" style="font-size: 0.75rem; letter-spacing: 0.05em; width: auto; padding: 0 12px; margin-right: 8px;" onclick="toggleChatWidget()" title="Chat a Přátelé">
-                <span>Chat</span>
-                <span class="m-ico" style="margin-left:6px;"><svg class="ti ti-message-circle" width="1.2em" height="1.2em" aria-hidden="true" ><use href="#ti-message-circle"></use></svg></span>
-            </button>
-            <button class="btn bgh bi" aria-label="Přepnout režim" style="font-size: 0.75rem; letter-spacing: 0.05em; width: auto; padding: 0 12px;" onclick="prepniRezim()"><span>Režim</span><span class="m-ico"><svg class="ti ti-moon" width="1.2em" height="1.2em" aria-hidden="true" ><use href="#ti-moon"></use></svg></span></button>
         </div>
     </div>
 </nav>

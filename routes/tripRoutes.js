@@ -21,7 +21,8 @@ router.post('/api/vylet', async (req, res) => {
     // 1. Zjištění počasí z Open-Meteo (Volné API bez klíče)
     let pocasiInfo = "Data o počasí nejsou nyní k dispozici.";
     try {
-        const geoReq = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(misto)}&count=1&language=cs`);
+        const ciloveMisto = misto.includes('->') ? misto.split('->').pop().trim() : misto.trim();
+        const geoReq = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(ciloveMisto)}&count=1&language=cs`);
         const geoRes = await geoReq.json();
         if (geoRes.results && geoRes.results.length > 0) {
             const loc = geoRes.results[0];
@@ -33,7 +34,7 @@ router.post('/api/vylet', async (req, res) => {
             }
         }
     } catch (err) {
-        console.error("Open-Meteo selhalo:", err.message);
+        console.error("Chyba počasí:", err);
     }
     
     // 2. Modifikace promptu pro Gemini
