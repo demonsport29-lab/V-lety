@@ -758,7 +758,7 @@
 
                 <div class="rtop" style="position:relative;">
                     <div style="position:absolute; top:0; right:0;" class="no-print">
-                        <button class="btn bgh bi" id="btnEditTrip" aria-label="Upravit texty" onclick="toggleEditTrip()" title="Upravit texty">
+                        <button id="btnEditTrip" aria-label="Upravit texty" onclick="toggleEditTrip()" title="Upravit texty" style="width: 40px; height: 40px; border-radius: 50%; background: var(--gb2); border: 1px solid var(--gbd); box-shadow: 0 4px 12px rgba(0,0,0,0.3); transition: all 0.2s; cursor: pointer; display: flex; align-items: center; justify-content: center;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
                             <svg class="ti ti-edit" width="1.2em" height="1.2em" aria-hidden="true"  style="font-size:1.2rem;"><use href="#ti-edit"></use></svg>
                         </button>
                     </div>
@@ -797,6 +797,7 @@
                         </div>
 
                         <div style="display:flex; gap:8px;">
+                            <button class="btn bg" onclick="toggleBudgetWidget()"><i class="ph ph-wallet"></i> Rozpočet</button>
                             <button class="btn bp" id="btnCalendarAdd" onclick="document.getElementById('calendarModal').style.display='flex'">
                                 <span style="font-size:0.85rem; font-weight:700; display:block;">Přidat do kalendáře</span>
                             </button>
@@ -816,7 +817,7 @@
                                 <button class="btn bp" style="font-size:.8rem;padding:8px 16px; border-radius:10px;" onclick="odeslatKomentar()">Odeslat komentář <svg class="ti ti-send" width="1.2em" height="1.2em" aria-hidden="true"  style="margin-left:4px;"><use href="#ti-send"></use></svg></button>
                             </div>
                         </div>
-                    </div> </div> </div> <div class="rc" id="budgetWidget" style="display:none; width: 340px; flex-shrink: 0; margin-top: 0; margin-bottom: 0; flex-direction: column;">
+                    </div> </div> </div> <div class="rc" id="budgetWidget" style="display:none; width: 340px; flex-shrink: 0; margin-top: 0; margin-bottom: 0; flex-direction: column; background: rgba(255,255,255,0.03); border-radius: 24px;">
                 <div class="rtop" style="display:flex; justify-content:space-between; align-items:center;">
                     <h2 style="font-size:1.6rem; font-weight:800; letter-spacing:-.02em; margin:0;">Rozpočet</h2>
                     <button class="btn bp" onclick="exportRozpocetJPG()" id="btnExportJPG">
@@ -825,9 +826,9 @@
                 </div>
                 <div class="rbody">
                     <div id="budgetForm" style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom: 15px;">
-                        <input type="text" id="budgetKdo" class="f" placeholder="Kdo platil (např. Petr)" style="margin:0; flex:1; min-width: 120px;">
-                        <input type="text" id="budgetZaCo" class="f" placeholder="Za co (např. Benzín)" style="margin:0; flex:1; min-width: 120px;">
-                        <input type="number" id="budgetKolik" class="f" placeholder="Kolik Kč (např. 500)" style="margin:0; flex:0.6; min-width: 80px;">
+                        <input type="text" id="budgetKdo" class="f" placeholder="Kdo platil (např. Petr)" style="margin:0; flex:1; min-width: 120px; padding:10px; border-radius:12px; border:1px solid rgba(255,255,255,0.1);">
+                        <input type="text" id="budgetZaCo" class="f" placeholder="Za co (např. Benzín)" style="margin:0; flex:1; min-width: 120px; padding:10px; border-radius:12px; border:1px solid rgba(255,255,255,0.1);">
+                        <input type="number" id="budgetKolik" class="f" placeholder="Kolik Kč (např. 500)" style="margin:0; flex:0.6; min-width: 80px; padding:10px; border-radius:12px; border:1px solid rgba(255,255,255,0.1);">
                         <button class="btn bp bf" onclick="pridatVydaj()" style="flex: 0.5; min-width: 100px;">Přidat výdaj</button>
                     </div>
                     <div id="budgetList" style="margin-top: 15px;"></div>

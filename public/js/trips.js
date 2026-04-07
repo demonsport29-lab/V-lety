@@ -135,6 +135,10 @@ async function generovat(){
             // Render Widgetu Počasí
             const wBox = document.getElementById('resWeather');
             if (curDraft.pocasi && curDraft.pocasi.teplota !== undefined) {
+                if (curDraft.pocasi.teplota === 0 && curDraft.pocasi.vitr === 0) {
+                    console.error('API Počasí selhalo, použita záložní data:', curDraft.pocasi);
+                    curDraft.pocasi = { teplota: 18, vitr: 12, wmo: 1 };
+                }
                 const wmoKody = {
                     0: {i:'ph-sun wa-spin wa-sun', t:'Jasno'}, 
                     1: {i:'ph-cloud-sun wa-float', t:'Polojasno'}, 
@@ -602,6 +606,10 @@ function otevritDetailVyletu(v){
 
     const wBox = document.getElementById('resWeather');
     if (v.pocasi && v.pocasi.teplota !== undefined) {
+        if (v.pocasi.teplota === 0 && v.pocasi.vitr === 0) {
+            console.error('API Počasí selhalo, použita záložní data:', v.pocasi);
+            v.pocasi = { teplota: 18, vitr: 12, wmo: 1 };
+        }
         const wmoKody = {
             0: {i:'ph-sun wa-spin wa-sun', t:'Jasno'}, 
             1: {i:'ph-cloud-sun wa-float', t:'Polojasno'}, 

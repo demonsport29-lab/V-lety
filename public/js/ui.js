@@ -196,3 +196,6 @@ function ukazToast(titulek, text) {
         setTimeout(() => t.remove(), 400);
     }, 4500);
 }
+
+window.toggleBudgetWidget = function() { const bw = document.getElementById('budgetWidget'); if (bw) bw.style.display = bw.style.display === 'none' ? 'flex' : 'none'; };
+
