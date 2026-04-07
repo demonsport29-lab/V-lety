@@ -47,10 +47,18 @@ function aktualizujIndikator() {
 
     const mobileActiveTab = document.querySelector('.mnav .tab.active');
     const mobileIndicator = document.getElementById('mobileIndicator');
-    let allowShare = false;
+    if (mobileActiveTab && mobileIndicator) {
+        mobileIndicator.style.width = `${mobileActiveTab.offsetWidth}px`;
+        mobileIndicator.style.left = `${mobileActiveTab.offsetLeft}px`;
+    }
+}
+
+function ukazAchievementModal(ach, allowShare = true) {
+    document.getElementById('achIcon').className = `ti ${ach.ikona}`;
+    document.getElementById('achTitle').innerText = ach.nazev;
+    document.getElementById('achDesc').innerText = ach.popis;
     const shareBtn = document.getElementById('btnAchShare');
     if (shareBtn) shareBtn.style.display = allowShare ? 'inline-flex' : 'none';
-    
     document.getElementById('achievementModal').style.display = 'flex';
     console.log("Achievement UNLOCKED:", ach.nazev);
 }
