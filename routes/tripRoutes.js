@@ -44,7 +44,20 @@ router.post('/api/vylet', async (req, res) => {
     Vrať POUZE VALIDNÍ JSON formát: {"lokace": "Název", "etapy": [{"cas": "09:00", "misto": "Název zastávky", "popis": "Co tam dělat", "lat": 50.08, "lng": 14.42}], "doporuceni": "Tip Architekta na cestu (oblečení apod.)", "pocasi": {"teplota": 0, "vitr": 0, "wmo": 0}, "typ": "mesto", "obtiznost": 2}
     VŽDY vyplň reálné GPS souřadnice lat a lng pro vykreslení trasy v mapě! Použij data o počasí z kontextu výše pro klíč "pocasi". Smaž veškeré formátování textu (ani zpětné uvozovky). JSON musí jít ihned parsovat!`;
     
-    let text = (await model.generateContent(prompt)).response.text();
+    let text = "";
+    let pokus = 0;
+    while (pokus < 3) {
+        try {
+            text = (await model.generateContent(prompt)).response.text();
+            break;
+        } catch (err) {
+            pokus++;
+            if (pokus >= 3) {
+                return res.json({ uspech: false, chyba: 'AI_OVERLOADED', zprava: 'AI modely jsou momentálně přetížené. Zkuste to prosím za malou chvíli.' });
+            }
+            await new Promise(r => setTimeout(r, 2000));
+        }
+    }
     const match = text.match(/\{[\s\S]*\}/); if (match) text = match[0];
     const generatedData = JSON.parse(text);
 

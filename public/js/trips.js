@@ -166,7 +166,9 @@ async function generovat(){
             document.getElementById('budgetWidget').style.display='flex';
             vykreslitRozpocet();
             window.scrollTo({top:document.getElementById('resCard').offsetTop-80,behavior:'smooth'});
-        }else alert('Chyba: '+(res.chyba||'Neznámý problém při komunikaci s AI.'));
+        } else if (res.chyba === 'AI_OVERLOADED') {
+            ukazToast('Přetížení AI', res.zprava);
+        } else alert('Chyba: '+(res.chyba||'Neznámý problém při komunikaci s AI.'));
     }catch(e){alert('Chyba spojení: '+e.message);}
     btn.innerHTML='Sestavit itinerář AI';btn.disabled=false;
 }
