@@ -281,20 +281,8 @@ router.get('/api/moje-staty', async (req, res) => {
 
 router.get('/api/akce', async (req, res) => { 
     try {
-        let akce = await Akce.find().sort({ vytvoreno: -1 });
-        
-        // Fallback: Pokud v DB nic není (nebo selhalo naseedování), načteme z public/events.json
-        if (!akce || akce.length === 0) {
-            const eventsPath = path.join(__dirname, '../public/events.json');
-            if (fs.existsSync(eventsPath)) {
-                const fileData = fs.readFileSync(eventsPath, 'utf8');
-                const allData = JSON.parse(fileData);
-                // Filtrujeme jen ty, které mají Samaritan pole (datum, logoUrl, vstupenkyUrl)
-                akce = allData.filter(a => a.datum && a.logoUrl);
-            }
-        }
-        
-        res.status(200).json({ uspech: true, data: akce });
+        const akceData = require('../data/akce-data');
+        res.status(200).json({ uspech: true, data: akceData });
     } catch (e) {
         res.json({ uspech: false, chyba: e.message });
     } 
