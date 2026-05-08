@@ -236,17 +236,31 @@ router.get('/api/explore', async (req, res) => {
 // RAW DATA PRO VEŘEJNÝ VÝLET (včetně meta dat)
 router.get('/api/public-trip/:shareId', async (req, res) => {
     try {
+        if (!req.params.shareId) return res.status(400).json({ error: 'Chybí parametr ID' });
+        
         const v = await Vylet.findOne({ shareId: req.params.shareId });
-        if (!v) return res.status(404).json({ uspech: false });
+        
+        if (!v) {
+            return res.status(404).json({ error: 'Nenalezeno' });
+        }
+        
         res.json({ uspech: true, data: v });
-    } catch (e) { res.status(500).json({ uspech: false }); }
+    } catch (e) {
+        console.error('Chyba public-trip:', e);
+        res.status(500).json({ error: 'Chyba serveru při načítání výletu' });
+    }
 });
 
 // VEŘEJNÝ PROFIL - Data
 router.get('/api/u/:prezdivka', async (req, res) => {
     try {
+        if (!req.params.prezdivka) return res.status(400).json({ error: 'Chybí parametr přezdívka' });
+        
         const u = await User.findOne({ prezdivka: req.params.prezdivka, verejnyProfil: true });
-        if (!u) return res.status(404).json({ uspech: false });
+        
+        if (!u) {
+            return res.status(404).json({ error: 'Nenalezeno' });
+        }
         
         // Vrátíme jen bezpečné info
         res.json({
@@ -261,7 +275,10 @@ router.get('/api/u/:prezdivka', async (req, res) => {
                 statistiky: u.statistiky
             }
         });
-    } catch (e) { res.status(500).json({ uspech: false }); }
+    } catch (e) {
+        console.error('Chyba u profilu:', e);
+        res.status(500).json({ error: 'Chyba serveru při načítání profilu' });
+    }
 });
 
 // GENEROVÁNÍ DESIGN QR KÓDU

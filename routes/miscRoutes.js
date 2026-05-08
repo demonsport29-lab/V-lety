@@ -7,7 +7,7 @@ const Komentar = require('../models/Komentar');
 const Zprava = require('../models/Zprava');
 const Akce = require('../models/Akce');
 const Notifikace = require('../models/Notifikace');
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY); 
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY || 'sk_test_dummyKey123'); 
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 const fs = require('fs');
 const path = require('path');

@@ -65,9 +65,13 @@ app.use(session({
     }
 }));
 
-mongoose.connect(process.env.MONGODB_URI)
-  .then(() => console.log('✅ MongoDB Připojeno!'))
-  .catch(err => console.error('❌ Chyba DB:', err));
+if (process.env.MONGODB_URI) {
+    mongoose.connect(process.env.MONGODB_URI)
+        .then(() => console.log('✅ Databáze připojena.'))
+        .catch(err => console.error('❌ Chyba DB:', err.message));
+} else {
+    console.warn('⚠️ POZOR: MONGODB_URI není definována. Server běží v režimu bez databáze.');
+}
 
 
 
