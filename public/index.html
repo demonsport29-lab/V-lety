@@ -898,5 +898,24 @@ document.addEventListener("DOMContentLoaded", function() {
 <script src="/js/social.js" defer></script>
 <script src="/js/trips.js" defer></script>
 <script src="/js/app.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js"></script>
+<script>
+window.spustitAnimaciKaret = function() {
+    anime({
+        targets: '.dc',
+        translateY: [50, 0],
+        opacity: [0, 1],
+        delay: anime.stagger(150),
+        easing: 'easeOutQuad',
+        duration: 800
+    });
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+    window.spustitAnimaciKaret();
+});
+</script>
 </body>
 </html>
+
+

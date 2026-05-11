@@ -19,7 +19,7 @@ async function nactiVerejneVylety() {
         const ini = x.autorJmeno ? x.autorJmeno.charAt(0).toUpperCase() : 'U';
         
         return `
-        <div class="dc au" style="animation-delay:${i*.05}s;" onclick="otevritDetailVerejnehoVyletuZListu('${x.id}')">
+        <div class="dc au"  onclick="otevritDetailVerejnehoVyletuZListu('${x.id}')">
             <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;">
                 <div>
                     <h3 style="font-size:1.15rem;font-weight:800;letter-spacing:-.02em;margin-bottom:3px;">${x.lokace}</h3>
@@ -32,6 +32,7 @@ async function nactiVerejneVylety() {
             <div class="sr"><div><span class="sl">Komentáře</span><span class="sv">${x.komentare?.length||0}</span></div></div>
         </div>`;
     }).join('');
+    if (window.spustitAnimaciKaret) setTimeout(window.spustitAnimaciKaret, 50);
 }
 window.otevritDetailVerejnehoVyletuZListu = function(id) {
     const trip = window.verejneVyletyData.find(t => t.id === id);
@@ -730,6 +731,7 @@ async function nactiAkce() {
             </div>
         </div>
     `).join('');
+    if (window.spustitAnimaciKaret) setTimeout(window.spustitAnimaciKaret, 50);
 }
 // ---- 6. ADMIN CMS PRO AKCE ----
 window.otevritAdminAkce = async function() {
@@ -1066,3 +1068,5 @@ function vykreslitDopravu(draft) {
         }
     }
 }
+
+
