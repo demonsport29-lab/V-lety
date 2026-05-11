@@ -5,7 +5,8 @@ const akceData = [
         misto: "POP Airport, Praha",
         popis: "Cesta do pravěku na ploše 4000 m². Prohlédněte si originální kostry dinosaurů, špičkové modely a zažijte virtuální realitu, která vás přenese miliony let zpět.",
         logoUrl: "https://images.unsplash.com/photo-1569091791842-7cfb64e04797?q=80&w=400",
-        vstupenkyUrl: "https://www.ticketportal.cz/event/Dinosauria-Celodenni-vstupenka?target=6&imedium=timeline"
+        vstupenkyUrl: "https://www.ticketportal.cz/event/Dinosauria-Celodenni-vstupenka?target=6&imedium=timeline",
+        doprava: { typ: "vlak", z: "Ostrava", do: "Praha", datumFormatovane: "15.05.2026" }
     },
     {
         nazev: "Morad - Euro Tour 2026",
@@ -13,7 +14,8 @@ const akceData = [
         misto: "Forum Karlín, Praha",
         popis: "Španělská rapová senzace Morad přijíždí do Prahy! Nenechte si ujít energickou show plnou hitů, které bourají evropské hitparády.",
         logoUrl: "https://images.unsplash.com/photo-1493225255756-d9584f8606e9?q=80&w=400",
-        vstupenkyUrl: "https://www.ticketportal.cz/event/Morad-Euro-Tour?target=6&imedium=timeline"
+        vstupenkyUrl: "https://www.ticketportal.cz/event/Morad-Euro-Tour?target=6&imedium=timeline",
+        doprava: { typ: "vlak", z: "Brno", do: "Praha", datumFormatovane: "12.11.2026" }
     },
     {
         nazev: "Eric Clapton Live",

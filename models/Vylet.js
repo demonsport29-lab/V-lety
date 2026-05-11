@@ -8,6 +8,7 @@ const vyletSchema = new mongoose.Schema({
     datumUlozeni: String,
     gpxTrasa: { type: Array, default: [] },
     rozpocet: [{ kdo: String, zaCo: String, kolik: Number, id: String }],
+    doprava: { type: Object },
     shareId: { type: String, unique: true, sparse: true }
 });
 

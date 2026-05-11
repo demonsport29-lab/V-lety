@@ -7,6 +7,7 @@ const akceSchema = new mongoose.Schema({
     popis: { type: String, required: true },
     logoUrl: { type: String, required: true },
     vstupenkyUrl: { type: String, required: true },
+    doprava: { type: Object },
     vytvoreno: { type: Date, default: Date.now }
 });
 
