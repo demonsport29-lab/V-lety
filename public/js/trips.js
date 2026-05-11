@@ -716,18 +716,21 @@ async function nactiAkce() {
                 </div>
                 <p style="font-size:.85rem; color:var(--t2); margin-bottom:18px; line-height:1.6;">${x.popis}</p>
                 
-                                ${x.doprava && x.doprava.typ === 'vlak' ? `
-                <div style="margin-top:auto; margin-bottom:10px;">
-                    <p class="ey" style="margin-bottom:8px;font-size:0.75rem;color:#0055A5;">JAK SE TAM DOSTAT</p>
-                    <a href="https://idos.idnes.cz/vlaky/spojeni/?f=${encodeURIComponent(x.doprava.z || 'Praha')}&t=${encodeURIComponent(x.doprava.do)}${x.doprava.datumFormatovane ? `&date=${x.doprava.datumFormatovane}` : ''}" target="_blank" class="btn" style="background:#0055A5; color:white; width:100%; justify-content:center; border:none; padding:10px; border-radius:var(--rsm);">
-                        Koupit jízdenku (České dráhy)
-                    </a>
-                </div>
-                ` : ''}
+                                <div style="display: flex; flex-direction: column; gap: 10px; margin-top: auto;">
+                    
+                    ${x.odkazSpoj ? `
+                    <a href="${x.odkazSpoj}" target="_blank" style="display: inline-flex; align-items: center; justify-content: center; gap: 10px; background: #0055A5; color: #ffffff; text-decoration: none; padding: 12px 20px; border-radius: 12px; font-weight: 700; font-size: 0.95rem; transition: transform 0.2s, background 0.2s;" onmouseover="this.style.background='#004080'; this.style.transform='translateY(-2px)'" onmouseout="this.style.background='#0055A5'; this.style.transform='translateY(0)'">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15V9a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v6"/><path d="M4 15l2-2h12l2 2"/><path d="M6 13v6a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-6"/><circle cx="8" cy="17" r="1"/><circle cx="16" cy="17" r="1"/></svg>
+                        Najít spoj (IDOS)
+                    </a>` : ''}
 
-                <a href="${x.vstupenkyUrl}" target="_blank" class="btn bp bf" style="text-decoration:none; margin-top:${x.doprava && x.doprava.typ === 'vlak' ? '0' : 'auto'}; display:flex; align-items:center; justify-content:center; gap:8px; line-height:1; padding:12px;">
-                    <span style="display:block; transform:translateY(1px);">Koupit vstupenky</span>
-                </a>
+                    ${(x.odkazListky || x.vstupenkyUrl) ? `
+                    <a href="${x.odkazListky || x.vstupenkyUrl}" target="_blank" style="display: inline-flex; align-items: center; justify-content: center; gap: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #ffffff; text-decoration: none; padding: 12px 20px; border-radius: 12px; font-weight: 600; font-size: 0.9rem; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.15)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 12a1.5 1.5 0 0 1-1.5 1.5v3a2 2 0 0 1-2 2h-12a2 2 0 0 1-2-2v-3a1.5 1.5 0 0 1 0-3v-3a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3a1.5 1.5 0 0 1 1.5 1.5z"></path></svg>
+                        Koupit lístky
+                    </a>` : ''}
+                    
+                </div>
             </div>
         </div>
     `).join('');
