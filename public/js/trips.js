@@ -716,20 +716,35 @@ async function nactiAkce() {
                 </div>
                 <p style="font-size:.85rem; color:var(--t2); margin-bottom:18px; line-height:1.6;">${x.popis}</p>
                 
-                                <div style="display: flex; flex-direction: column; gap: 10px; margin-top: auto;">
+                <div style="display: flex; flex-direction: column; gap: 8px; margin-top: auto; padding-top: 15px;">
                     
                     ${x.odkazSpoj ? `
-                    <a href="${x.odkazSpoj}" target="_blank" style="display: inline-flex; align-items: center; justify-content: center; gap: 10px; background: #0055A5; color: #ffffff; text-decoration: none; padding: 12px 20px; border-radius: 12px; font-weight: 700; font-size: 0.95rem; transition: transform 0.2s, background 0.2s;" onmouseover="this.style.background='#004080'; this.style.transform='translateY(-2px)'" onmouseout="this.style.background='#0055A5'; this.style.transform='translateY(0)'">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15V9a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v6"/><path d="M4 15l2-2h12l2 2"/><path d="M6 13v6a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-6"/><circle cx="8" cy="17" r="1"/><circle cx="16" cy="17" r="1"/></svg>
-                        Najít spoj (IDOS)
+                    <div style="background: linear-gradient(145deg, #1c1c1e, #060810); padding: 20px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 15px 35px rgba(0,0,0,0.5); margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <p style="margin: 0 0 4px 0; font-size: 0.65rem; color: #86868b; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 600;">Doprava k výletu</p>
+                            <h3 style="margin: 0; font-size: 1.05rem; font-weight: 600; color: #f5f5f7;">${x.lokace || 'Cíl výletu'}</h3>
+                        </div>
+                        <a href="${x.odkazSpoj}" target="_blank" style="background: #0071e3; color: white; padding: 10px 18px; border-radius: 98px; font-weight: 600; text-decoration: none; font-size: 0.85rem; transition: transform 0.2s; white-space: nowrap; margin-left: 10px;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                            Zobrazit trasu
+                        </a>
+                    </div>` : ''}
+
+                    ${x.odkazRegiojet ? `
+                    <a href="${x.odkazRegiojet}" target="_blank" style="display: flex; align-items: center; justify-content: center; gap: 8px; background: #FFD600; color: #000000; text-decoration: none; padding: 14px 20px; border-radius: 98px; font-weight: 700; font-size: 0.9rem; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+                        Najít spoj s RegioJet
+                    </a>` : ''}
+
+                    ${x.odkazLeo ? `
+                    <a href="${x.odkazLeo}" target="_blank" style="display: flex; align-items: center; justify-content: center; gap: 8px; background: #000000; border: 1px solid rgba(255,215,0,0.4); color: #FFD700; text-decoration: none; padding: 14px 20px; border-radius: 98px; font-weight: 700; font-size: 0.9rem; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+                        Koupit lístky s Leo Express
                     </a>` : ''}
 
                     ${(x.odkazListky || x.vstupenkyUrl) ? `
-                    <a href="${x.odkazListky || x.vstupenkyUrl}" target="_blank" style="display: inline-flex; align-items: center; justify-content: center; gap: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #ffffff; text-decoration: none; padding: 12px 20px; border-radius: 12px; font-weight: 600; font-size: 0.9rem; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.15)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
+                    <a href="${x.odkazListky || x.vstupenkyUrl}" target="_blank" style="display: flex; align-items: center; justify-content: center; gap: 8px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #ffffff; text-decoration: none; padding: 14px 20px; border-radius: 98px; font-weight: 600; font-size: 0.9rem; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.15)'" onmouseout="this.style.background='rgba(255,255,255,0.08)'">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 12a1.5 1.5 0 0 1-1.5 1.5v3a2 2 0 0 1-2 2h-12a2 2 0 0 1-2-2v-3a1.5 1.5 0 0 1 0-3v-3a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3a1.5 1.5 0 0 1 1.5 1.5z"></path></svg>
                         Koupit lístky
                     </a>` : ''}
-                    
+
                 </div>
             </div>
         </div>
