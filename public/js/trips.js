@@ -282,87 +282,76 @@ window.smazatVydaj = smazatVydaj;
 function vykreslitRozpocet() {
     const listEl = document.getElementById('budgetList');
     const splitEl = document.getElementById('budgetSplit');
-    
+
     if (!curDraft || !curDraft.rozpocet || curDraft.rozpocet.length === 0) {
-        listEl.innerHTML = '<p style="color:var(--t2); font-size:0.9rem;">Zatím žádné výdaje.</p>';
-        splitEl.innerHTML = '';
+        listEl.innerHTML = '<p style="color:var(--t2); font-size:0.9rem; text-align:center; padding: 10px;">Zatím žádné výdaje.</p>';
+        if (splitEl) splitEl.innerHTML = '';
         return;
     }
-    
-    // Vykreslení seznamu
-    let html = '<div style="display:flex; flex-direction:column; gap:8px;">';
+
     let celkem = 0;
     const utratyLidi = {};
-    
+
     curDraft.rozpocet.forEach(v => {
-        html += `
-        <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.2); padding:10px; border-radius:var(--rsm); border:1px solid var(--gbd);">
-            <div>
-                <strong style="color:var(--a1); font-weight: 800;">${v.kdo}</strong> platil(a) za <strong>${v.zaCo}</strong>
-            </div>
-            <div style="display:flex; align-items:center; gap:12px;">
-                <span style="font-weight:bold; font-family: var(--fm);">${v.kolik} Kč</span>
-                <button class="btn bgh bi" style="padding:4px;" aria-label="Smazat výdaj" onclick="smazatVydaj('${v.id}')"><span style="color: #ef4444; font-weight: bold;">✕</span></button>
-            </div>
-        </div>`;
-        
         celkem += v.kolik;
         if (!utratyLidi[v.kdo]) utratyLidi[v.kdo] = 0;
         utratyLidi[v.kdo] += v.kolik;
     });
+
+    let html = `
+    <button onclick="const c = document.getElementById('budgetContentWrapper'); const i = document.getElementById('budgetToggleIcon'); if(c.style.display==='none'){c.style.display='flex'; i.style.transform='rotate(180deg)';}else{c.style.display='none'; i.style.transform='rotate(0deg)';}" style="width:100%; background: linear-gradient(145deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02)); border:1px solid rgba(255,255,255,0.1); color:white; padding:16px; border-radius:16px; font-weight:700; display:flex; justify-content:space-between; align-items:center; cursor:pointer; margin-bottom:16px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+        <div style="display:flex; align-items:center; gap:10px;">
+            <span style="font-size: 1.2rem;">💰</span>
+            <span style="font-size: 0.95rem;">Rozpočet výletu</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:12px;">
+            <span style="color: #10b981; font-family: var(--fm); font-size: 1.05rem;">${celkem} Kč</span>
+            <svg id="budgetToggleIcon" style="transition: transform 0.3s;" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </div>
+    </button>
+    <div id="budgetContentWrapper" style="display:none; flex-direction:column; gap:8px;">
+    `;
+
+    curDraft.rozpocet.forEach(v => {
+        html += `
+        <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.2); padding:12px 16px; border-radius:12px; border:1px solid rgba(255,255,255,0.05);">
+            <div style="font-size: 0.9rem;">
+                <strong style="color:var(--a1); font-weight: 800;">${v.kdo}</strong> platil(a) za <strong style="color:#f5f5f7;">${v.zaCo}</strong>
+            </div>
+            <div style="display:flex; align-items:center; gap:12px;">
+                <span style="font-weight:bold; font-family: var(--fm); color:#f5f5f7;">${v.kolik} Kč</span>
+                <button class="btn bgh bi" style="padding:6px; background:rgba(239,68,68,0.1); border-radius:8px;" aria-label="Smazat výdaj" onclick="smazatVydaj('${v.id}')"><span style="color: #ef4444; font-weight: bold; font-size: 0.8rem;">✕</span></button>
+            </div>
+        </div>`;
+    });
     html += '</div>';
     listEl.innerHTML = html;
-    
-    // Matematika - Split bill
+
     const lide = Object.keys(utratyLidi);
     const pocetLidi = lide.length;
-    
-    if (pocetLidi <= 1) {
-        splitEl.innerHTML = `<p style="margin:0; font-family: var(--fm);">Celkem utraceno: <strong style="color:var(--t1); font-size: 1.1rem;">${celkem} Kč</strong></p>`;
-        return;
-    }
+    if (pocetLidi <= 1) { if(splitEl) splitEl.innerHTML = ''; return; }
     
     const prumer = celkem / pocetLidi;
     const bilance = [];
+    lide.forEach(osoba => { bilance.push({ kdo: osoba, rozdil: utratyLidi[osoba] - prumer }); });
+    const dluznici = bilance.filter(b => b.rozdil < -0.01).sort((a,b) => a.rozdil - b.rozdil);
+    const veritele = bilance.filter(b => b.rozdil > 0.01).sort((a,b) => b.rozdil - a.rozdil);
     
-    lide.forEach(osoba => {
-        bilance.push({
-            kdo: osoba,
-            rozdil: utratyLidi[osoba] - prumer
-        });
-    });
-    
-    const dluznici = bilance.filter(b => b.rozdil < -0.01).sort((a,b) => a.rozdil - b.rozdil); // ti co zaplatili méně
-    const veritele = bilance.filter(b => b.rozdil > 0.01).sort((a,b) => b.rozdil - a.rozdil);  // ti co zaplatili více
-    
-    let vyrovnaniHtml = `<p style="margin-bottom:12px; font-family: var(--fm); font-size: 0.95rem;">Celkem utraceno: <strong style="color:var(--t1); font-size: 1.1rem;">${celkem} Kč</strong> <span style="color:var(--t2); font-size: 0.8rem;">(cca ${Math.round(prumer)} Kč na osobu)</span></p>`;
-    vyrovnaniHtml += `<ul style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:6px;">`;
-    
-    let i = 0;
-    let j = 0;
-    
+    let vyrovnaniHtml = `<ul style="list-style:none; padding:0; margin:0 0 10px 0; display:flex; flex-direction:column; gap:6px;">`;
+    let i = 0, j = 0;
     while (i < dluznici.length && j < veritele.length) {
-        const dluznik = dluznici[i];
-        const veritel = veritele[j];
-        
-        const castka = Math.min(Math.abs(dluznik.rozdil), veritel.rozdil);
-        
+        const dl = dluznici[i]; const ve = veritele[j];
+        const castka = Math.min(Math.abs(dl.rozdil), ve.rozdil);
         vyrovnaniHtml += `<li style="font-size:0.9rem; background: rgba(16, 185, 129, 0.1); padding: 8px 12px; border-radius: 8px; border-left: 3px solid #10b981; display:flex; align-items:center; gap:8px;">
-            <span>💸</span>
-            <span><strong style="color:#ef4444; font-weight:800;">${dluznik.kdo}</strong> pošle <strong style="color:#10b981; font-family:var(--fm); font-size:1.05em;">${Math.round(castka)} Kč</strong> pro <strong style="color:var(--t1); font-weight:800;">${veritel.kdo}</strong></span>
+            <span>💸</span><span><strong style="color:#ef4444; font-weight:800;">${dl.kdo}</strong> pošle <strong style="color:#10b981; font-family:var(--fm); font-size:1.05em;">${Math.round(castka)} Kč</strong> pro <strong style="color:var(--t1); font-weight:800;">${ve.kdo}</strong></span>
         </li>`;
-        
-        dluznik.rozdil += castka;
-        veritel.rozdil -= castka;
-        
-        if (Math.abs(dluznik.rozdil) < 0.01) i++;
-        if (veritel.rozdil < 0.01) j++;
+        dl.rozdil += castka; ve.rozdil -= castka;
+        if (Math.abs(dl.rozdil) < 0.01) i++;
+        if (ve.rozdil < 0.01) j++;
     }
-    
     vyrovnaniHtml += `</ul>`;
-    splitEl.innerHTML = vyrovnaniHtml;
+    if(splitEl) splitEl.innerHTML = vyrovnaniHtml;
 }
-
 window.vykreslitRozpocet = vykreslitRozpocet;
 async function exportRozpocetJPG() {
     if (typeof html2canvas === 'undefined') {
@@ -573,6 +562,26 @@ function otevritDetailVyletu(v){
 
     vykresliKomentare(v.komentare||[]);
     curDraft=v;
+
+    // VYKRESLENÍ ZASTÁVEK (Oprava mizejících etap)
+    let h='<div class="tl">';
+    if (curDraft.etapy && curDraft.etapy.length > 0) {
+        curDraft.etapy.forEach((e,i)=>{
+            const isLast=i===curDraft.etapy.length-1;
+            h+=`<div class="tr">`;
+            h+=`<div class="t-left"><div class="td">${String(i+1).padStart(2,'0')}</div><div class="tt">${e.cas || ''}</div></div>`;
+            h+=`<div class="tc"><h4 style="font-size:1.1rem; margin-bottom:4px; font-weight:800;">${e.misto}</h4><p style="color:var(--t2); line-height:1.5;">${e.popis}</p></div>`;
+            h+=`</div>`;
+            if(!isLast) h+=`<div class="tr-line"></div>`;
+        });
+    } else if (curDraft.popis) {
+        h += curDraft.popis; // Záloha
+    }
+    h+='</div>';
+    if(curDraft.doporuceni) h+=`<div class="ait" style="margin-top:20px; padding:16px; background:rgba(255,255,255,0.05); border-radius:16px; border:1px solid rgba(255,255,255,0.1);"><span style="color:#0071e3; font-weight:900; margin-right:8px;">💡 Tip architekta:</span><span>${curDraft.doporuceni}</span></div>`;
+    
+    document.getElementById('resBody').innerHTML = h;
+
     if (typeof vykreslitDopravu === 'function') vykreslitDopravu(curDraft);
     document.getElementById('resCard').style.display='block';
     document.getElementById('budgetWidget').style.display='flex';
@@ -1061,28 +1070,39 @@ window.nactiPocasiOpenMeteo = async function(nazevLokace) {
 
 function vykreslitDopravu(draft) {
     const d = document.getElementById('resDoprava');
-    if (draft && draft.doprava && draft.doprava.typ === 'vlak') {
-        const queryParams = new URLSearchParams({
-            odkud: draft.doprava.z,
-            kam: draft.doprava.do
-        });
-        if (draft.doprava.datumFormatovane) {
-            queryParams.append('date', draft.doprava.datumFormatovane);
+    if (!d) return;
+
+    if (draft) {
+        let start = 'Praha';
+        let cil = draft.lokace || draft.mesto || 'Cíl výletu';
+
+        if (draft.lokace && draft.lokace.includes('->')) {
+            const parts = draft.lokace.split('->');
+            start = parts[0].trim();
+            cil = parts[1].trim();
         }
-        
+
+        if (draft.doprava && draft.doprava.z) start = draft.doprava.z;
+        if (draft.doprava && draft.doprava.do) cil = draft.doprava.do;
+
+        const datum = (draft.doprava && draft.doprava.datumFormatovane) ? `&date=${draft.doprava.datumFormatovane}` : '';
+        const idosLink = `https://idos.idnes.cz/vlaky/spojeni/?f=${encodeURIComponent(start)}&t=${encodeURIComponent(cil)}${datum}`;
+
         d.innerHTML = `
-            <p class="ey" style="margin-bottom:8px; font-size:0.8rem; color:#0055A5; font-weight:700;">JAK SE TAM DOSTAT</p>
-            <p style="font-size:0.9rem; color:var(--t2); margin-bottom:12px;">Nejpohodlnější cesta je vlakem z ${draft.doprava.z} do ${draft.doprava.do}.</p>
-            <a href="https://idos.idnes.cz/vlaky/spojeni/?f=${encodeURIComponent(draft.doprava.z || 'Praha')}&t=${encodeURIComponent(draft.doprava.do || draft.mesto || 'Brno')}${draft.doprava.datumFormatovane ? `&date=${draft.doprava.datumFormatovane}` : ''}" target="_blank" class="btn" style="background:#0055A5; color:white; border:none; padding:12px 20px; border-radius:10px; font-weight:700; display:inline-flex; align-items:center; gap:8px;">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15V9a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v6"/><path d="M4 15l2-2h12l2 2"/><path d="M6 13v6a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-6"/><circle cx="8" cy="17" r="1"/><circle cx="16" cy="17" r="1"/></svg>
-                Koupit jízdenku (České dráhy)
-            </a>
+            <div style="background: linear-gradient(145deg, #1c1c1e, #060810); padding: 20px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 15px 35px rgba(0,0,0,0.5); margin: 24px 0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                <div>
+                    <p style="margin: 0 0 4px 0; font-size: 0.65rem; color: #86868b; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 600;">Doporučený spoj</p>
+                    <h3 style="margin: 0; font-size: 1.1rem; font-weight: 600; color: #f5f5f7;">${start} <span style="color:#0071e3; margin:0 5px;">→</span> ${cil}</h3>
+                </div>
+                <a href="${idosLink}" target="_blank" style="background: #0071e3; color: white; padding: 10px 18px; border-radius: 98px; font-weight: 600; text-decoration: none; font-size: 0.85rem; transition: transform 0.2s; white-space: nowrap; display: inline-flex; align-items: center; gap: 8px;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15V9a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v6"/><path d="M4 15l2-2h12l2 2"/><path d="M6 13v6a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-6"/><circle cx="8" cy="17" r="1"/><circle cx="16" cy="17" r="1"/></svg>
+                    Najít spoj
+                </a>
+            </div>
         `;
         d.style.display = 'block';
     } else {
-        if(d) {
-            d.style.display = 'none';
-            d.innerHTML = '';
-        }
+        d.style.display = 'none';
+        d.innerHTML = '';
     }
 }
