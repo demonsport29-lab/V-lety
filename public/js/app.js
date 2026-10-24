@@ -26,7 +26,8 @@ async function init(){
                 <button class="btn bp blg" onclick="prepniTab('planovac')">Otevřít můj deník</button>
                 <button class="btn bg blg" onclick="prepniTab('verejne')">Procházet inspiraci</button>
             `;
-
+const lamp = document.getElementById('veronaLampScene');
+            if(lamp) lamp.classList.add('light-on');
 
         } else {
             // Host: Rozcestník se zachovanou možností prohlížení

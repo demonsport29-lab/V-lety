@@ -590,12 +590,32 @@
 
 <main id="main-content">
 <div id="viewLanding" class="wrap view au">
-    <div style="text-align:center; padding: 80px 20px; max-width: 860px; margin: 0 auto;">
-        <p class="ey" style="margin-bottom: 20px; font-size: 0.8rem; letter-spacing: 0.15em;">Premium Trip Architect</p>
-        <h1 style="font-size: 4rem; font-weight: 800; margin-bottom: 28px; letter-spacing: -0.03em; line-height: 1.1;">Inteligentní <span style="background: linear-gradient(135deg, #818cf8, #c084fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; color: transparent; display: inline;">plánování</span> vašich cest</h1>
-        <p style="font-size: 1.15rem; color: var(--t2); margin-bottom: 44px; line-height: 1.7; max-width: 700px; margin-left: auto; margin-right: auto;">Objevujte svět s osobním AI architektem. Generujte itineráře na míru, prozkoumávejte interaktivní mapy a sdílejte své zážitky s komunitou cestovatelů.</p>
-       <div id="landingActionBtns" style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
-            <button class="btn bp blg" onclick="location.href='/auth/google'">Přihlásit se a začít</button>
+    <!-- LAMP LOGIN SCENE -->
+    <div id="veronaLampScene" class="lamp-scene">
+        <div class="lamp-wrapper">
+            <div class="lamp-head"></div>
+            <div class="lamp-stand"></div>
+            <div class="lamp-base"></div>
+            <div class="lamp-cord" onclick="document.getElementById('veronaLampScene').classList.toggle('light-on');" title="Zatáhni za šňůrku!">
+                <div class="cord-line"></div>
+                <div class="cord-knob"></div>
+            </div>
+            <div class="lamp-light"></div>
+            <div class="firefly f1"></div>
+            <div class="firefly f2"></div>
+            <div class="firefly f3"></div>
+            <div class="firefly f4"></div>
+            <div class="firefly f5"></div>
+        </div>
+        <div class="scene-content">
+            <p class="ey" style="margin-bottom: 12px; font-size: 0.8rem; letter-spacing: 0.15em;">Premium Trip Architect</p>
+            <h1 style="font-size: 3.2rem; font-weight: 800; margin-bottom: 20px; letter-spacing: -0.03em; line-height: 1.1;">Vítejte ve <span class="shimmer-text" style="display:inline-block;">Veroně</span></h1>
+            <p class="scene-desc" style="font-size: 1.1rem; color: var(--t2); margin-bottom: 40px; line-height: 1.6;">Zatáhněte za šňůrku, rozsviťte AI architekta a objevte kouzlo inteligentního plánování.</p>
+            <div id="landingActionBtns" class="scene-actions" style="display: flex; gap: 16px; flex-wrap: wrap;">
+                <button class="btn bp blg" onclick="location.href='/auth/google'" style="box-shadow: 0 4px 20px rgba(99,102,241,0.5);">
+                    Přihlásit se přes Google
+                </button>
+            </div>
         </div>
     </div>
     
