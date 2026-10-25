@@ -703,4 +703,11 @@ svg.ti { vertical-align: middle; flex-shrink: 0; }
 @keyframes swing-cord { 0% { transform: rotate(0deg); } 50% { transform: rotate(3deg); } 100% { transform: rotate(0deg); } }
 @keyframes pulse-light { 0% { opacity: 0.85; filter: blur(5px); } 100% { opacity: 1; filter: blur(8px); } }
 @media(max-width: 768px) { .lamp-scene { flex-direction: column; min-height: 600px; text-align: center; } .lamp-wrapper { position: relative; left: 0; top: 0; margin-top: 40px; margin-bottom: 20px; transform: scale(0.8); } .scene-content { margin-left: 0; text-align: center; padding: 0 20px; } .scene-actions { justify-content: center; } }
-    
+/* FÁZE 1: MAGIC GLOW CARDS (Bez chyb ve VS Code) */
+.glow-card { position: relative; border-radius: 20px; background: rgba(255, 255, 255, 0.02); overflow: hidden; }
+.glow-card::before { content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0; border-radius: inherit; padding: 2px; background: radial-gradient(400px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(99, 102, 241, 0.6), transparent 40%); -webkit-mask: linear-gradient(#ffffff, #ffffff) content-box, linear-gradient(#ffffff, #ffffff); -webkit-mask-composite: destination-out; mask-composite: exclude; opacity: 0; transition: opacity 0.3s ease; pointer-events: none; z-index: 10; }
+.glow-card:hover::before { opacity: 1; }
+.glow-card::after { content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(400px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(99, 102, 241, 0.12), transparent 40%); opacity: 0; transition: opacity 0.3s ease; pointer-events: none; z-index: 0; }
+.glow-card:hover::after { opacity: 1; }
+.glow-content { position: relative; z-index: 1; padding: 32px 20px; height: 100%; border-radius: inherit; }
+[data-theme="light"] .glow-card { background: rgba(0, 0, 0, 0.02); }

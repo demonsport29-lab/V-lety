@@ -164,3 +164,13 @@ window.toggleFriendSearch = toggleFriendSearch;
 window.prepniCwTab = prepniCwTab;
 window.nactiKonverzaceCw = nactiKonverzaceCw;
 window.nactiPrateleCw = nactiPrateleCw;
+// FÁZE 1: MAGIC GLOW CARDS - Sledování pozice kurzoru
+document.addEventListener('mousemove', function(e) {
+    document.querySelectorAll('.glow-card').forEach(card => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        card.style.setProperty('--mouse-x', `${x}px`);
+        card.style.setProperty('--mouse-y', `${y}px`);
+    });
+});
