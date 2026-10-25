@@ -59,7 +59,20 @@ router.post('/api/vylet', async (req, res) => {
         }
     }
     const match = text.match(/\{[\s\S]*\}/); if (match) text = match[0];
-    const generatedData = JSON.parse(text);
+    
+    let generatedData;
+    try {
+        // Nejprve se pokusíme text vyčistit (pro případ, že AI vrátí nesmyslné značky kolem JSONu)
+        text = text.replace(/```json/gi, '').replace(/```/gi, '').trim();
+        generatedData = JSON.parse(text);
+    } catch (parseError) {
+        console.error("AI vrátilo poškozený JSON:", text);
+        return res.json({ 
+            uspech: false, 
+            chyba: 'JSON_PARSE_ERROR', 
+            zprava: 'Umělá inteligence měla výpadek a data vygenerovala špatně. Zkuste to prosím znovu.' 
+        });
+    }
 
     // Update stats if logged in
     if (req.session.userId) {
