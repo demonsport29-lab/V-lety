@@ -710,6 +710,7 @@
                     <div class="acb" id="b-doprava" style="max-height:380px;"><div class="aci">
                         <label class="fr"><input type="checkbox" class="ai-filter" value="Doprava autem"> Autem</label>
                         <label class="fr"><input type="checkbox" class="ai-filter" value="Doprava vlakem"> Vlakem</label>
+                        <label class="fr"><input type="checkbox" class="ai-filter" value="Doprava autobusem"> Autobusem</label>
                         <label class="fr"><input type="checkbox" class="ai-filter" value="Na kole"> Kolo / Cykloturistika</label>
                         <label class="fr"><input type="checkbox" class="ai-filter" value="Pěšky"> Pěšky</label>
                     </div></div>
@@ -772,8 +773,8 @@
         </aside>
 
         <div class="planner-main">
-            <div id="tripDetailWrapper" style="display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-start; margin-bottom: 20px;">
-                <div id="resCard" class="rc" style="display:none; flex: 1 1 400px; margin-bottom: 0;">
+            <div id="tripDetailWrapper" style="display: flex; flex-direction: column; gap: 20px; margin-bottom: 20px;">
+                <div id="resCard" class="rc" style="display:none; width: 100%; margin-bottom: 0;">
                 <div id="printHeader" style="display:none; justify-content:space-between; align-items:flex-start; margin-bottom: 24px; border-bottom: 2px solid #000; padding-bottom: 16px;">
                     <div style="display:flex; align-items:center; gap: 12px; margin-top: 10px;">
                         <div style="width:34px;height:34px;border-radius:10px;background:black;color:white;display:flex;align-items:center;justify-content:center;font-size:16px;font-family:var(--fm);font-weight:700;">V</div>
@@ -809,11 +810,6 @@
                                 <svg class="ti ti-bookmark-filled" width="1.2em" height="1.2em" aria-hidden="true"  style="display:block; font-size:1.1rem;"><use href="#ti-bookmark-filled"></use></svg>
                             </button>
                             
-                            <button class="btn bgh bi" id="btnUploadStrava" aria-label="Nahrát záznam ze Stravy" onclick="document.getElementById('gpxUpload').click()" title="Nahrát záznam ze Stravy" style="background:#fc4c02; color:#fff; border:none; padding:10px;">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="display:block;"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/></svg>
-                            </button>
-                            <input type="file" id="gpxUpload" accept=".gpx" style="display:none;" onchange="zpracovatGPX(this)">
-
                             <button class="btn bgh bi" id="btnShareIG" aria-label="Exportovat pro Instagram Stories" onclick="exportovatNaInstagram(event)" title="Exportovat pro Instagram Stories" style="color:#d946ef; border-color:rgba(217,70,239,0.3); padding:10px;">
                                 <svg class="ti ti-brand-instagram" width="1.2em" height="1.2em" aria-hidden="true"  style="font-size:1.4rem;"><use href="#ti-brand-instagram"></use></svg>
                             </button>   
@@ -827,7 +823,7 @@
                         </div>
 
                         <div style="display:flex; gap:8px;">
-                            <button class="btn bg" onclick="toggleBudgetWidget()"><i class="ph ph-wallet"></i> Rozpočet</button>
+                            <button class="btn bg" onclick="toggleBudgetWidget()">Rozpočet</button>
                             <button class="btn bp" id="btnCalendarAdd" onclick="document.getElementById('calendarModal').style.display='flex'">
                                 <span style="font-size:0.85rem; font-weight:700; display:block;">Přidat do kalendáře</span>
                             </button>

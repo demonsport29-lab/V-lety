@@ -197,5 +197,13 @@ function ukazToast(titulek, text) {
     }, 4500);
 }
 
-window.toggleBudgetWidget = function() { const bw = document.getElementById('budgetWidget'); if (bw) bw.style.display = bw.style.display === 'none' ? 'flex' : 'none'; };
+window.toggleBudgetWidget = function() {
+    const bw = document.getElementById('budgetWidget');
+    if (!bw) return;
+    const isHidden = bw.style.display === 'none' || bw.style.display === '';
+    bw.style.display = isHidden ? 'flex' : 'none';
+    if (isHidden) {
+        bw.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+};
 

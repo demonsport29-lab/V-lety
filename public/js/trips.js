@@ -165,7 +165,7 @@ async function generovat(){
             if(shareBtn) shareBtn.style.display = 'none';
             
             document.getElementById('resCard').style.display='block';
-            document.getElementById('budgetWidget').style.display='flex';
+            document.getElementById('budgetWidget').style.display='none';
             vykreslitRozpocet();
             window.scrollTo({top:document.getElementById('resCard').offsetTop-80,behavior:'smooth'});
         } else if (res.chyba === 'AI_OVERLOADED') {
@@ -584,7 +584,7 @@ function otevritDetailVyletu(v){
 
     if (typeof vykreslitDopravu === 'function') vykreslitDopravu(curDraft);
     document.getElementById('resCard').style.display='block';
-    document.getElementById('budgetWidget').style.display='flex';
+    document.getElementById('budgetWidget').style.display='none';
     vykreslitRozpocet();
     window.scrollTo({top:document.getElementById('resCard').offsetTop-80,behavior:'smooth'});
 }
@@ -1085,8 +1085,13 @@ function vykreslitDopravu(draft) {
         if (draft.doprava && draft.doprava.z) start = draft.doprava.z;
         if (draft.doprava && draft.doprava.do) cil = draft.doprava.do;
 
+        const vybraneDopravy = Array.from(document.querySelectorAll('.ai-filter:checked')).map(c => c.value);
+        const jeAutobus = vybraneDopravy.includes('Doprava autobusem');
+        const jeVlak = vybraneDopravy.includes('Doprava vlakem');
+        const idosTyp = (jeAutobus && !jeVlak) ? 'autobusy' : (jeAutobus && jeVlak ? 'vlakyautobusymhdvse' : 'vlaky');
+
         const datum = (draft.doprava && draft.doprava.datumFormatovane) ? `&date=${draft.doprava.datumFormatovane}` : '';
-        const idosLink = `https://idos.idnes.cz/vlaky/spojeni/?f=${encodeURIComponent(start)}&t=${encodeURIComponent(cil)}${datum}`;
+        const idosLink = `https://idos.idnes.cz/${idosTyp}/spojeni/?f=${encodeURIComponent(start)}&t=${encodeURIComponent(cil)}${datum}`;
 
         d.innerHTML = `
             <div style="background: linear-gradient(145deg, #1c1c1e, #060810); padding: 20px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 15px 35px rgba(0,0,0,0.5); margin: 24px 0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
