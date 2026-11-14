@@ -9,12 +9,12 @@ const akceData = [
         doprava: { typ: "vlak", z: "Ostrava", do: "Praha", datumFormatovane: "15.05.2026" }
     },
     {
-        nazev: "Morad - Euro Tour 2026",
-        datum: "12. Listopadu 2026",
-        misto: "Forum Karlín, Praha",
-        popis: "Španělská rapová senzace Morad přijíždí do Prahy! Nenechte si ujít energickou show plnou hitů, které bourají evropské hitparády.",
-        logoUrl: "https://images.unsplash.com/photo-1493225255756-d9584f8606e9?q=80&w=400",
-        vstupenkyUrl: "https://www.ticketportal.cz/event/Morad-Euro-Tour?target=6&imedium=timeline",
+        nazev: "ZRÁDCI: POSLEDNÍ STŮL",
+        datum: "2. 12. 2026",
+        misto: "O2 arena",
+        popis: "Přijďte zažít velkolepý finálový večer té nejopravdovější hry na život a smrt. Čeká vás napětí, emoce, zrada i jedinečná show, na kterou jen tak nezapomenete.",
+        logoUrl: "https://static.ticketportal.cz//images/podujatie/-2147474688/orig_202691113487_ZRA_DCI__POSLEDNAT_STLRL.jpg?tag=6E9B472FA68CDA25DF17A5C8B4BC014E&tag=5220D32A2DD5FBF9152C412119492515",
+        vstupenkyUrl: "https://www.ticketportal.cz/event/ZRADCI-POSLEDNI-STUL?imedium=timeline",
         doprava: { typ: "vlak", z: "Brno", do: "Praha", datumFormatovane: "12.11.2026" }
     },
     {
