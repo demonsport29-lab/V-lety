@@ -61,7 +61,7 @@ const lamp = document.getElementById('veronaLampScene');
 
     // Deep Linking
     const urlParams = new URLSearchParams(window.location.search);
-    const sdilenyId = urlParams.get('vylet');
+    const sdilenyId = urlParams.get('vylet') || urlParams.get('trip');
     if (sdilenyId) {
         try {
             const res = await (await fetch('/api/sdileny-vylet/' + sdilenyId)).json();
@@ -174,3 +174,23 @@ document.addEventListener('mousemove', function(e) {
         card.style.setProperty('--mouse-y', `${y}px`);
     });
 });
+
+if (typeof window.toggleBudgetWidget !== 'function') {
+    window.toggleBudgetWidget = function() {
+        const w = document.getElementById('budgetWidget');
+        if (!w) return;
+        const skryto = w.style.display === 'none' || !w.style.display;
+        w.style.display = skryto ? 'flex' : 'none';
+        if (skryto && typeof vykreslitRozpocet === 'function') vykreslitRozpocet();
+    };
+}
+
+if (typeof window.toggleAcc !== 'function') {
+    window.toggleAcc = function(accId, bodyId) {
+        const acc = document.getElementById(accId);
+        const body = document.getElementById(bodyId);
+        if (!acc || !body) return;
+        acc.classList.toggle('open');
+        body.style.maxHeight = acc.classList.contains('open') ? '380px' : '0px';
+    };
+}

@@ -371,6 +371,7 @@ let mujChart = null; // Proměnná pro uchování grafu, aby se nenačítal pře
 async function otevritMujProfil() {
     // 1. Zobrazíme okno
     document.getElementById('profileModal').style.display = 'flex';
+    if (!mujProfil) return;
     const friendlyCodeEl = document.getElementById('mujFriendlyCode');
     if (friendlyCodeEl) friendlyCodeEl.value = mujProfil._id;
     
