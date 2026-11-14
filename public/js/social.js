@@ -745,8 +745,9 @@ async function ulozitProfil(){await fetch('/api/ulozit-profil',{method:'POST',he
     const STORAGE_KEY = 'verona_social_state_v1';
 
     function escHtml(str) {
-        const mapa = { '&': '&', '<': '<', '>': '>', '"': '"', "'": ''' };
-        return String(str || '').replace(/[&<>"']/g, ch => mapa[ch]);
+        return String(str || '').replace(/[&<>"']/g, function(ch) {
+            return String.fromCharCode(38, 35) + ch.charCodeAt(0) + ';';
+        });
     }
     window.escHtml = escHtml;
 
