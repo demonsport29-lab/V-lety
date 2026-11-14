@@ -34,8 +34,10 @@ async function nactiFeed(){
     if(!f.length){c.innerHTML=`<div class="es"><p style="font-size:.88rem;">Komunita je zatím prázdná. Napište první zprávu!</p></div>`;return;}
     
     // Změna názvů v poli pro psaní
-    document.querySelector('.clabel').innerText = '// Chat s komunitou';
-    document.getElementById('btnOdeslatFeed').innerText = 'Odeslat do chatu';
+    const clabelEl = document.querySelector('.clabel');
+    if (clabelEl) clabelEl.innerText = '// Chat s komunitou';
+    const btnFeedEl = document.getElementById('btnOdeslatFeed');
+    if (btnFeedEl) btnFeedEl.innerText = 'Odeslat do chatu';
     
     c.innerHTML=f.map((p,i)=>{
         const isMine = prihlaseno && mujProfil && p.autorId === mujProfil._id;
@@ -743,12 +745,8 @@ async function ulozitProfil(){await fetch('/api/ulozit-profil',{method:'POST',he
     const STORAGE_KEY = 'verona_social_state_v1';
 
     function escHtml(str) {
-        return String(str || '')
-            .replace(/&/g, '&')
-            .replace(/</g, '<')
-            .replace(/>/g, '>')
-            .replace(/"/g, '"')
-            .replace(/'/g, ''');
+        const mapa = { '&': '&', '<': '<', '>': '>', '"': '"', "'": ''' };
+        return String(str || '').replace(/[&<>"']/g, ch => mapa[ch]);
     }
     window.escHtml = escHtml;
 
