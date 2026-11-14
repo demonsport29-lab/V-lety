@@ -281,7 +281,9 @@ async function generovat(){
             if (typeof vykreslitDopravu === 'function') vykreslitDopravu(curDraft);
             
             const shareBtn = document.getElementById('btnShareTrip');
-            if(shareBtn) shareBtn.style.display = 'none';
+            if(shareBtn) shareBtn.style.display = 'inline-flex';
+            const qrBtn = document.getElementById('btnShowQR');
+            if(qrBtn) qrBtn.style.display = 'inline-flex';
             
             document.getElementById('resCard').style.display='block';
             document.getElementById('budgetWidget').style.display='none';
@@ -318,19 +320,71 @@ function pridatEtapu(){const d=document.createElement('div');d.className='man-et
 async function ulozitVlastni(){const l=document.getElementById('manLokace').value.trim();if(!l)return alert('Zadejte název výletu.');const etapyEls=Array.from(document.querySelectorAll('.man-etapa'));let h='<div class="tl">';etapyEls.forEach((e,i)=>{const isLast=i===etapyEls.length-1;h+=`<div class="tr"><div class="t-left"><div class="td">${String(i+1).padStart(2,'0')}</div><div class="tt">${e.querySelector('.e-cas').value}</div></div><div class="tc"><h4>${e.querySelector('.e-misto').value}</h4><p>${e.querySelector('.e-popis').value}</p></div></div>`;if(!isLast)h+=`<div class="tr-line"></div>`;});h+='</div>';await fetch('/api/ulozit-vylet',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({lokace:l,popis:h,obtiznost:parseInt(document.getElementById('manObtiznost').value),typ:'vlastni',etapy:[]})});document.getElementById('manualModal').style.display='none';nactiDnik();}
 // NATIVNÍ SDÍLENÍ (Nyní odkazuje na konkrétní výlet)
 
-async function sdiletVylet(id, lokace) {
-    const res = await (await fetch('/api/ulozit-vylet-share-id/' + id)).json(); // Potřebujeme shareId
-    const sid = res.shareId || id;
-    const url = window.location.origin + '/s/' + sid;
-    
-    if (navigator.share) {
-        navigator.share({ title: `Výlet: ${lokace}`, url });
-    } else {
-        await navigator.clipboard.writeText(url);
-        alert('Odkaz zkopírován do schránky!');
+async function sdiletVylet(tripId, nazevVyletu) {
+    if (!curDraft) return alert('Nejprve vygenerujte nebo otevřete výlet.');
+
+    let aktivniId = tripId || curOpenTripId;
+
+    if (!aktivniId && typeof ulozitVylet === 'function') {
+        try {
+            await ulozitVylet(true);
+            aktivniId = curOpenTripId;
+        } catch (e) {}
     }
 
+    const kod = aktivniId
+        ? `VRN-${String(aktivniId).slice(-6).toUpperCase()}`
+        : `VRN-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+
+    const sdileciUrl = `${window.location.origin}${window.location.pathname}?trip=${encodeURIComponent(aktivniId || kod)}`;
+    curDraft.shareCode = kod;
+
+    let modal = document.getElementById('shareCodeModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'shareCodeModal';
+        modal.className = 'social-modal-backdrop';
+        document.body.appendChild(modal);
+    }
+
+    modal.style.display = 'flex';
+    modal.innerHTML = `
+        <div class="social-modal-card" style="max-width:440px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+                <div>
+                    <p class="ey" style="margin:0 0 4px 0;">Sdílení výletu</p>
+                    <h3 style="margin:0; font-size:1.25rem;">${nazevVyletu || curDraft.lokace}</h3>
+                </div>
+                <button type="button" class="btnx" onclick="document.getElementById('shareCodeModal').style.display='none'">✕</button>
+            </div>
+            <p style="font-size:0.88rem; color:var(--t2); margin-bottom:14px;">Pošli tento kód nebo odkaz přátelům:</p>
+
+            <div class="share-code-box">
+                <span class="sl">Kód výletu</span>
+                <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-top:4px;">
+                    <strong style="font-family:var(--fm); font-size:1.35rem; letter-spacing:0.08em; color:var(--a1);">${kod}</strong>
+                    <button type="button" class="btn bp" onclick="kopirovatText('${kod}', 'Kód zkopírován')">Kopírovat kód</button>
+                </div>
+            </div>
+
+            <div style="display:flex; gap:8px; margin-top:12px;">
+                <input type="text" readonly class="f" value="${sdileciUrl}" style="margin:0; font-size:0.82rem;">
+                <button type="button" class="btn bg" onclick="kopirovatText('${sdileciUrl}', 'Odkaz zkopírován')">Odkaz</button>
+            </div>
+
+            <button type="button" class="btn bp bf" style="margin-top:14px;" onclick="document.getElementById('shareCodeModal').style.display='none'; if(typeof sdiletVyletDoChatu==='function') sdiletVyletDoChatu('${(nazevVyletu || curDraft.lokace).replace(/'/g, '')}', '${kod}')">
+                Poslat příteli do chatu
+            </button>
+        </div>
+    `;
 }
+
+window.kopirovatText = function(text, hlaska) {
+    navigator.clipboard.writeText(text).then(() => {
+        if (typeof ukazToast === 'function') ukazToast('Hotovo', hlaska);
+        else alert(hlaska);
+    });
+};
 async function exportujIGZListu(id, event) {
     const x = vListBackup.find(t=>t.id===id);
     if(x) {
@@ -732,6 +786,7 @@ function otevritDetailVyletu(v){
     
     document.getElementById('resBody').innerHTML = h;
 
+    if (typeof nactiPocasiOpenMeteo === 'function' && curDraft.lokace) nactiPocasiOpenMeteo(curDraft.lokace);
     if (typeof vykreslitDopravu === 'function') vykreslitDopravu(curDraft);
     document.getElementById('resCard').style.display='block';
     document.getElementById('budgetWidget').style.display='none';

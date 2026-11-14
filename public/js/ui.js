@@ -207,3 +207,19 @@ window.toggleBudgetWidget = function() {
     }
 };
 
+window.nastavTema = function(tema) {
+    document.documentElement.setAttribute('data-theme', tema);
+    document.body.setAttribute('data-theme', tema);
+    localStorage.setItem('verona_theme', tema);
+};
+
+window.toggleTheme = function() {
+    const aktualni = document.documentElement.getAttribute('data-theme') || 'dark';
+    window.nastavTema(aktualni === 'dark' ? 'light' : 'dark');
+};
+
+(function() {
+    const ulozene = localStorage.getItem('verona_theme') || 'dark';
+    window.nastavTema(ulozene);
+})();
+

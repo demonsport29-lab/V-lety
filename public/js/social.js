@@ -734,3 +734,550 @@ window.otevritChatV2 = function(id, jmeno, avatar) {
 };
 function zmenitAvatar(){const i=document.createElement('input');i.type='file';i.accept='image/*';i.onchange=e=>{const r=new FileReader();r.onloadend=()=>{mujProfil.avatar=r.result;document.getElementById('profAvatar').style.backgroundImage=`url(${r.result})`;document.getElementById('profAvatar').innerText='';};r.readAsDataURL(e.target.files[0]);};i.click();}
 async function ulozitProfil(){await fetch('/api/ulozit-profil',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prezdivka:document.getElementById('profPrezdivka').value,vek:document.getElementById('profVek').value,telefon:document.getElementById('profTelefon').value,bio:document.getElementById('profBio').value,avatar:mujProfil.avatar||''})});document.getElementById('profileModal').style.display='none';alert('Profil uložen!');location.reload();}
+
+/* ==========================================================================
+   ROZŠÍŘENÍ SOCIAL.JS: Facebook Nástěnka + Instagram/Messenger Přátelé & Chat
+   ========================================================================== */
+(function() {
+    const STORAGE_KEY = 'verona_social_state_v1';
+
+    function escHtml(str) {
+        return String(str || '')
+            .replace(/&/g, '&')
+            .replace(/</g, '<')
+            .replace(/>/g, '>')
+            .replace(/"/g, '"')
+            .replace(/'/g, ''');
+    }
+    window.escHtml = escHtml;
+
+    function ziskejAktualnihoUzivatele() {
+        const jmenoEl = document.getElementById('userNameDisplay') || document.querySelector('.user-name');
+        const jmeno = (window.currentUser && window.currentUser.name) || (jmenoEl && jmenoEl.innerText.trim()) || 'Já (Cestovatel)';
+        return {
+            id: (window.currentUser && window.currentUser.id) || 'me',
+            name: jmeno,
+            avatar: jmeno.slice(0, 2).toUpperCase()
+        };
+    }
+
+    const vychoziData = {
+        users: [
+            { id: 'u1', name: 'Tereza Nováková', handle: '@tereza.trips', bio: 'Milovnice Šumavy a vlakových výletů', online: true, status: 'friend' },
+            { id: 'u2', name: 'Lukáš Dvořák', handle: '@lukas.hory', bio: 'Krkonoše, ferraty a focení', online: true, status: 'friend' },
+            { id: 'u3', name: 'Klára Veselá', handle: '@klara.v', bio: 'Kavárny, hrady a víkendové úniky z Prahy', online: false, status: 'friend' },
+            { id: 'u4', name: 'Jakub Marek', handle: '@jakub.bike', bio: 'Cyklostezky a bikepacking po ČR', online: true, status: 'suggested' },
+            { id: 'u5', name: 'Natálie Králová', handle: '@naty.k', bio: 'Hledám parťáky na jednodenní túry', online: false, status: 'incoming_request' }
+        ],
+        posts: [
+            {
+                id: 'p1',
+                authorId: 'u1',
+                authorName: 'Tereza Nováková',
+                tag: 'Tip na výlet',
+                text: 'Pokud pojedete o víkendu na trase Praha - Plzeň, určitě se stavte na vyhlídku u Radyně. Ráno tam nebyl skoro nikdo a výhled stál za to!',
+                tripRef: { title: 'Praha - Plzeň', code: 'VRN-PLZ92' },
+                createdAt: Date.now() - 1000 * 60 * 55,
+                likes: ['u2', 'u3'],
+                comments: [
+                    {
+                        id: 'c1',
+                        authorId: 'u2',
+                        authorName: 'Lukáš Dvořák',
+                        text: 'Díky za tip! Dá se tam dojít v pohodě od vlaku?',
+                        createdAt: Date.now() - 1000 * 60 * 30,
+                        likes: ['u1']
+                    }
+                ]
+            },
+            {
+                id: 'p2',
+                authorId: 'u2',
+                authorName: 'Lukáš Dvořák',
+                tag: 'Hledám parťáka',
+                text: 'Někdo v sobotu ráno směr Český ráj? Tempo střední, cca 16 km okruh kolem Prachovských skal.',
+                tripRef: null,
+                createdAt: Date.now() - 1000 * 60 * 190,
+                likes: ['u1'],
+                comments: []
+            }
+        ],
+        messages: {
+            u1: [
+                { id: 'm1', senderId: 'u1', text: 'Ahoj! Už máš naplánovaný ten víkendový výlet?', time: Date.now() - 1000 * 60 * 40, seen: true },
+                { id: 'm2', senderId: 'me', text: 'Čau! Právě to ladím v plánovači, za chvíli ti pošlu kód trasy.', time: Date.now() - 1000 * 60 * 35, seen: true }
+            ],
+            u2: [
+                { id: 'm3', senderId: 'u2', text: 'Nazdar, bereš v sobotu i foťák?', time: Date.now() - 1000 * 60 * 120, seen: true }
+            ],
+            u3: []
+        }
+    };
+
+    let state = (() => {
+        try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            return raw ? JSON.parse(raw) : vychoziData;
+        } catch (e) {
+            return vychoziData;
+        }
+    })();
+
+    let aktualniFiltrNastenky = 'all';
+    let pripojenyVyletDraft = null;
+    let aktivniMessengerTab = 'chats';
+    let vybranyChatUzivatelId = null;
+
+    function ulozStav() {
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
+    }
+
+    function formatCasRelativne(ts) {
+        const diffMin = Math.max(1, Math.floor((Date.now() - ts) / 60000));
+        if (diffMin < 60) return `před ${diffMin} min`;
+        const diffHod = Math.floor(diffMin / 60);
+        if (diffHod < 24) return `před ${diffHod} h`;
+        return new Date(ts).toLocaleDateString('cs-CZ', { day: 'numeric', month: 'short' });
+    }
+
+    window.prepnoutHlavniSekci = function(sekce, btnEl) {
+        document.querySelectorAll('.app-nav-pills .nav-pill').forEach(b => b.classList.remove('active'));
+        if (btnEl) btnEl.classList.add('active');
+        else {
+            const targetBtn = document.querySelector(`.app-nav-pills .nav-pill[data-sec="${sekce}"]`);
+            if (targetBtn) targetBtn.classList.add('active');
+        }
+
+        const plannerMain = document.querySelector('.planner-main');
+        const obal = plannerMain ? plannerMain.parentElement : null;
+        if (obal) {
+            Array.from(obal.children).forEach(el => {
+                if (el.classList.contains('app-nav-pills')) return;
+                if (el.id === 'socialWallSection') {
+                    el.style.display = sekce === 'wall' ? 'block' : 'none';
+                } else if (el.id === 'messengerSection') {
+                    el.style.display = sekce === 'messenger' ? 'block' : 'none';
+                } else {
+                    el.style.display = sekce === 'planner' ? '' : 'none';
+                }
+            });
+        }
+
+        if (sekce === 'wall') vykresliNastenku();
+        if (sekce === 'messenger') vykresliMessenger();
+    };
+
+    window.pripojitAktualniVyletDoPrispevku = function() {
+        if (!window.curDraft || !window.curDraft.lokace) {
+            alert('Nejprve v Plánovači vygenerujte nebo otevřete výlet, který chcete připojit.');
+            return;
+        }
+        pripojenyVyletDraft = {
+            title: window.curDraft.lokace,
+            code: window.curDraft.shareCode || `VRN-${Math.random().toString(36).substring(2, 8).toUpperCase()}`
+        };
+        const prev = document.getElementById('wallAttachedTripPreview');
+        if (prev) {
+            prev.style.display = 'flex';
+            prev.innerHTML = `
+                <span>🗺️ Připojený výlet: <strong>${escHtml(pripojenyVyletDraft.title)}</strong> (${escHtml(pripojenyVyletDraft.code)})</span>
+                <button type="button" onclick="odpojitVyletZPrispevku()" style="background:none; border:none; color:#ef4444; font-weight:800; cursor:pointer;">✕</button>
+            `;
+        }
+    };
+
+    window.odpojitVyletZPrispevku = function() {
+        pripojenyVyletDraft = null;
+        const prev = document.getElementById('wallAttachedTripPreview');
+        if (prev) prev.style.display = 'none';
+    };
+
+    window.publikovatPrispevek = function() {
+        const ta = document.getElementById('wallPostText');
+        const tag = document.getElementById('wallPostTag')?.value || 'Zážitek z cest';
+        const text = (ta?.value || '').trim();
+        if (!text && !pripojenyVyletDraft) return alert('Napište prosím zprávu nebo připojte výlet.');
+
+        const me = ziskejAktualnihoUzivatele();
+        state.posts.unshift({
+            id: 'p_' + Date.now(),
+            authorId: me.id,
+            authorName: me.name,
+            tag,
+            text,
+            tripRef: pripojenyVyletDraft ? { ...pripojenyVyletDraft } : null,
+            createdAt: Date.now(),
+            likes: [],
+            comments: []
+        });
+
+        ta.value = '';
+        odpojitVyletZPrispevku();
+        ulozStav();
+        vykresliNastenku();
+    };
+
+    window.filtrujNastenku = function(tag, btnEl) {
+        aktualniFiltrNastenky = tag;
+        document.querySelectorAll('.fb-chip').forEach(c => c.classList.remove('active'));
+        if (btnEl) btnEl.classList.add('active');
+        vykresliNastenku();
+    };
+
+    window.prepnoutLikePrispevku = function(postId) {
+        const post = state.posts.find(p => p.id === postId);
+        if (!post) return;
+        const me = ziskejAktualnihoUzivatele();
+        const idx = post.likes.indexOf(me.id);
+        if (idx >= 0) post.likes.splice(idx, 1);
+        else post.likes.push(me.id);
+        ulozStav();
+        vykresliNastenku();
+    };
+
+    window.smazatPrispevek = function(postId) {
+        if (!confirm('Opravdu chcete smazat tento příspěvek?')) return;
+        state.posts = state.posts.filter(p => p.id !== postId);
+        ulozStav();
+        vykresliNastenku();
+    };
+
+    // Zachová případnou původní funkci pridatKomentar pro detaily výletů
+    const puvodniPridatKomentar = window.pridatKomentar;
+    window.pridatKomentar = function(postId) {
+        const input = document.getElementById(`commentInput_${postId}`);
+        if (!input && typeof puvodniPridatKomentar === 'function') {
+            return puvodniPridatKomentar.apply(this, arguments);
+        }
+        const text = (input?.value || '').trim();
+        if (!text) return;
+
+        const post = state.posts.find(p => p.id === postId);
+        if (!post) return;
+
+        const me = ziskejAktualnihoUzivatele();
+        post.comments.push({
+            id: 'c_' + Date.now(),
+            authorId: me.id,
+            authorName: me.name,
+            text,
+            createdAt: Date.now(),
+            likes: []
+        });
+
+        input.value = '';
+        ulozStav();
+        vykresliNastenku();
+    };
+
+    window.prepnoutLikeKomentare = function(postId, commentId) {
+        const post = state.posts.find(p => p.id === postId);
+        const comment = post?.comments.find(c => c.id === commentId);
+        if (!comment) return;
+        if (!Array.isArray(comment.likes)) comment.likes = [];
+        const me = ziskejAktualnihoUzivatele();
+        const idx = comment.likes.indexOf(me.id);
+        if (idx >= 0) comment.likes.splice(idx, 1);
+        else comment.likes.push(me.id);
+        ulozStav();
+        vykresliNastenku();
+    };
+
+    const puvodniSmazatKomentar = window.smazatKomentar;
+    window.smazatKomentar = function(postId, commentId) {
+        const post = state.posts.find(p => p.id === postId);
+        if (!post && typeof puvodniSmazatKomentar === 'function') {
+            return puvodniSmazatKomentar.apply(this, arguments);
+        }
+        if (!post) return;
+        post.comments = post.comments.filter(c => c.id !== commentId);
+        ulozStav();
+        vykresliNastenku();
+    };
+
+    window.vykresliNastenku = function() {
+        const list = document.getElementById('wallFeedList');
+        if (!list) return;
+        const me = ziskejAktualnihoUzivatele();
+        const myAv = document.getElementById('wallMyAvatar');
+        if (myAv) myAv.innerText = me.avatar;
+
+        const filtrovane = aktualniFiltrNastenky === 'all'
+            ? state.posts
+            : state.posts.filter(p => p.tag === aktualniFiltrNastenky);
+
+        if (filtrovane.length === 0) {
+            list.innerHTML = `<div class="rc" style="text-align:center; padding:32px; color:var(--t2);">V této kategorii zatím nejsou žádné příspěvky. Buďte první!</div>`;
+            return;
+        }
+
+        list.innerHTML = filtrovane.map(post => {
+            const jeMujPrispevek = post.authorId === me.id;
+            const mamLike = post.likes.includes(me.id);
+            const inicialy = escHtml(post.authorName.slice(0, 2).toUpperCase());
+
+            const tripCardHtml = post.tripRef ? `
+                <div class="fb-trip-embed">
+                    <div>
+                        <span class="sl">Sdílený itinerář · Kód ${escHtml(post.tripRef.code)}</span>
+                        <div style="font-weight:800; font-size:1rem; margin-top:2px;">🗺️ ${escHtml(post.tripRef.title)}</div>
+                    </div>
+                    <button type="button" class="btn bg" style="font-size:0.8rem;" onclick="kopirovatText('${escHtml(post.tripRef.code)}', 'Kód trasy zkopírován')">Zkopírovat kód</button>
+                </div>
+            ` : '';
+
+            const komentareHtml = post.comments.map(c => {
+                const muzuSmazatKomentar = (c.authorId === me.id) || jeMujPrispevek;
+                const cLikes = Array.isArray(c.likes) ? c.likes.length : 0;
+                const cLiked = Array.isArray(c.likes) && c.likes.includes(me.id);
+                return `
+                    <div class="fb-comment-item">
+                        <div class="av" style="width:30px; height:30px; font-size:0.72rem; flex-shrink:0;">${escHtml(c.authorName.slice(0, 2).toUpperCase())}</div>
+                        <div style="flex:1;">
+                            <div class="fb-comment-bubble">
+                                <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+                                    <strong style="font-size:0.82rem;">${escHtml(c.authorName)}</strong>
+                                    ${muzuSmazatKomentar ? `<button type="button" class="fb-del-link" onclick="smazatKomentar('${post.id}', '${c.id}')">Smazat</button>` : ''}
+                                </div>
+                                <div style="font-size:0.88rem; margin-top:2px; line-height:1.4;">${escHtml(c.text)}</div>
+                            </div>
+                            <div class="fb-comment-meta">
+                                <span>${formatCasRelativne(c.createdAt)}</span>
+                                <button type="button" class="fb-mini-like ${cLiked ? 'liked' : ''}" onclick="prepnoutLikeKomentare('${post.id}', '${c.id}')">
+                                    To se mi líbí ${cLikes > 0 ? `(${cLikes})` : ''}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            return `
+                <article class="rc fb-post-card">
+                    <div class="fb-post-header">
+                        <div style="display:flex; align-items:center; gap:12px;">
+                            <div class="av">${inicialy}</div>
+                            <div>
+                                <div style="font-weight:800; font-size:0.95rem;">${escHtml(post.authorName)}</div>
+                                <div style="font-size:0.76rem; color:var(--t2); display:flex; align-items:center; gap:6px;">
+                                    <span>${formatCasRelativne(post.createdAt)}</span>
+                                    <span>•</span>
+                                    <span class="fb-tag-pill">${escHtml(post.tag)}</span>
+                                </div>
+                            </div>
+                        </div>
+                        ${jeMujPrispevek ? `<button type="button" class="btn bgh bi" style="padding:6px 10px; font-size:0.78rem; color:#ef4444;" onclick="smazatPrispevek('${post.id}')">Smazat</button>` : ''}
+                    </div>
+
+                    <p class="fb-post-text">${escHtml(post.text)}</p>
+                    ${tripCardHtml}
+
+                    <div class="fb-stats-bar">
+                        <span>${post.likes.length > 0 ? `❤️ ${post.likes.length} To se mi líbí` : 'Buďte první, komu se to líbí'}</span>
+                        <span>${post.comments.length} komentářů</span>
+                    </div>
+
+                    <div class="fb-actions-bar">
+                        <button type="button" class="fb-action-btn ${mamLike ? 'liked' : ''}" onclick="prepnoutLikePrispevku('${post.id}')">
+                            ${mamLike ? '❤️ Líbí se mi' : '🤍 To se mi líbí'}
+                        </button>
+                        <button type="button" class="fb-action-btn" onclick="document.getElementById('commentInput_${post.id}').focus()">
+                            💬 Komentovat
+                        </button>
+                        <button type="button" class="fb-action-btn" onclick="kopirovatText('${escHtml(post.text)}', 'Text příspěvku zkopírován')">
+                            ↗️ Sdílet
+                        </button>
+                    </div>
+
+                    <div class="fb-comments-box">
+                        ${komentareHtml}
+                        <div class="fb-comment-form">
+                            <input type="text" id="commentInput_${post.id}" class="f" placeholder="Napište komentář..." style="margin:0; border-radius:99px; padding:8px 14px; font-size:0.85rem;" onkeydown="if(event.key==='Enter') pridatKomentar('${post.id}')">
+                            <button type="button" class="btn bp" style="border-radius:99px; padding:8px 16px; font-size:0.82rem;" onclick="pridatKomentar('${post.id}')">Odeslat</button>
+                        </div>
+                    </div>
+                </article>
+            `;
+        }).join('');
+    };
+
+    window.prepniMessengerTab = function(tab, btnEl) {
+        aktivniMessengerTab = tab;
+        document.querySelectorAll('.ms-tab').forEach(t => t.classList.remove('active'));
+        if (btnEl) btnEl.classList.add('active');
+        vykresliMessenger();
+    };
+
+    window.vyhledatUzivateleAChaty = function() {
+        vykresliMessenger();
+    };
+
+    window.spravovatPratelstvi = function(userId, akce) {
+        const u = state.users.find(x => x.id === userId);
+        if (!u) return;
+        if (akce === 'add') u.status = 'pending';
+        if (akce === 'accept') {
+            u.status = 'friend';
+            if (!state.messages[userId]) state.messages[userId] = [];
+        }
+        if (akce === 'remove') u.status = 'suggested';
+        ulozStav();
+        vykresliMessenger();
+    };
+
+    window.otevritChatSPratelem = function(userId) {
+        vybranyChatUzivatelId = userId;
+        if (!state.messages[userId]) state.messages[userId] = [];
+        state.messages[userId].forEach(m => { m.seen = true; });
+        ulozStav();
+        vykresliMessenger();
+    };
+
+    window.odeslatZpravuVChatu = function(userId, vlastniText) {
+        const input = document.getElementById('msMessageInput');
+        const text = (vlastniText !== undefined ? vlastniText : (input?.value || '')).trim();
+        if (!text || !userId) return;
+
+        if (!state.messages[userId]) state.messages[userId] = [];
+        state.messages[userId].push({
+            id: 'm_' + Date.now(),
+            senderId: 'me',
+            text,
+            time: Date.now(),
+            seen: true
+        });
+
+        if (input) input.value = '';
+        ulozStav();
+        vykresliMessenger();
+
+        const thread = document.getElementById('msThreadBody');
+        if (thread) thread.scrollTop = thread.scrollHeight;
+    };
+
+    window.sdiletVyletDoChatu = function(nazevVyletu, kod) {
+        prepnoutHlavniSekci('messenger');
+        const prvniPritel = state.users.find(u => u.status === 'friend');
+        const cilId = vybranyChatUzivatelId || prvniPritel?.id;
+        if (!cilId) return alert('Nemáte zatím žádné přátele v seznamu.');
+        vybranyChatUzivatelId = cilId;
+        odeslatZpravuVChatu(cilId, `🗺️ Pozvánka na výlet: ${nazevVyletu} (Kód: ${kod})`);
+    };
+
+    window.vykresliMessenger = function() {
+        const search = (document.getElementById('msSearchInput')?.value || '').trim().toLowerCase();
+        const pratele = state.users.filter(u => u.status === 'friend');
+        const countEl = document.getElementById('msFriendsCount');
+        if (countEl) countEl.innerText = `${pratele.length} přátel`;
+
+        const strip = document.getElementById('msActiveStrip');
+        if (strip) {
+            strip.innerHTML = pratele.map(p => `
+                <button type="button" class="ms-story-user ${vybranyChatUzivatelId === p.id ? 'selected' : ''}" onclick="otevritChatSPratelem('${p.id}')">
+                    <div class="ms-story-ring ${p.online ? 'online' : ''}">
+                        <div class="av" style="width:44px; height:44px; font-size:0.85rem;">${escHtml(p.name.slice(0, 2).toUpperCase())}</div>
+                        ${p.online ? '<span class="ms-online-dot"></span>' : ''}
+                    </div>
+                    <span class="ms-story-name">${escHtml(p.name.split(' ')[0])}</span>
+                </button>
+            `).join('');
+        }
+
+        const listEl = document.getElementById('msSidebarList');
+        if (listEl) {
+            let polozky = state.users.filter(u =>
+                !search || u.name.toLowerCase().includes(search) || u.handle.toLowerCase().includes(search)
+            );
+
+            if (aktivniMessengerTab === 'chats' || aktivniMessengerTab === 'friends') {
+                polozky = polozky.filter(u => u.status === 'friend');
+            } else if (aktivniMessengerTab === 'discover') {
+                polozky = polozky.filter(u => u.status !== 'friend');
+            }
+
+            if (polozky.length === 0) {
+                listEl.innerHTML = `<div style="padding:20px; text-align:center; color:var(--t2); font-size:0.85rem;">Žádní uživatelé neodpovídají filtru.</div>`;
+            } else {
+                listEl.innerHTML = polozky.map(u => {
+                    const zpravy = state.messages[u.id] || [];
+                    const posledni = zpravy[zpravy.length - 1];
+                    const jeVybrany = vybranyChatUzivatelId === u.id;
+
+                    let akceHtml = '';
+                    if (u.status === 'suggested') {
+                        akceHtml = `<button type="button" class="btn bp" style="padding:5px 10px; font-size:0.75rem;" onclick="event.stopPropagation(); spravovatPratelstvi('${u.id}', 'add')">+ Přidat</button>`;
+                    } else if (u.status === 'pending') {
+                        akceHtml = `<span style="font-size:0.74rem; color:var(--t2);">Žádost odeslána</span>`;
+                    } else if (u.status === 'incoming_request') {
+                        akceHtml = `<button type="button" class="btn bp" style="padding:5px 10px; font-size:0.75rem;" onclick="event.stopPropagation(); spravovatPratelstvi('${u.id}', 'accept')">Potvrdit</button>`;
+                    }
+
+                    return `
+                        <div class="ms-user-row ${jeVybrany ? 'active' : ''}" onclick="${u.status === 'friend' ? `otevritChatSPratelem('${u.id}')` : ''}">
+                            <div style="position:relative;">
+                                <div class="av" style="width:42px; height:42px; font-size:0.82rem;">${escHtml(u.name.slice(0, 2).toUpperCase())}</div>
+                                ${u.online ? '<span class="ms-online-dot"></span>' : ''}
+                            </div>
+                            <div style="flex:1; min-width:0;">
+                                <div style="display:flex; justify-content:space-between; align-items:center;">
+                                    <strong style="font-size:0.9rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escHtml(u.name)}</strong>
+                                    ${posledni ? `<span style="font-size:0.7rem; color:var(--t2);">${formatCasRelativne(posledni.time)}</span>` : ''}
+                                </div>
+                                <div style="font-size:0.78rem; color:var(--t2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                                    ${u.status === 'friend'
+                                        ? escHtml(posledni ? posledni.text : u.bio)
+                                        : escHtml(u.bio)}
+                                </div>
+                            </div>
+                            ${akceHtml}
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        const mainEl = document.getElementById('msChatMain');
+        if (!mainEl) return;
+
+        const partner = state.users.find(u => u.id === vybranyChatUzivatelId);
+        if (!partner) return;
+
+        const konverzace = state.messages[partner.id] || [];
+        const bublinyHtml = konverzace.length === 0
+            ? `<div style="margin:auto; text-align:center; color:var(--t2); font-size:0.88rem;">Napište první zprávu pro <strong>${escHtml(partner.name)}</strong> 👋</div>`
+            : konverzace.map(m => {
+                const moje = m.senderId === 'me';
+                return `
+                    <div class="ms-msg-wrap ${moje ? 'mine' : 'theirs'}">
+                        <div class="ms-bubble ${moje ? 'mine' : 'theirs'}">${escHtml(m.text)}</div>
+                        <span class="ms-msg-time">${formatCasRelativne(m.time)}${moje && m.seen ? ' · Zobrazeno' : ''}</span>
+                    </div>
+                `;
+            }).join('');
+
+        mainEl.innerHTML = `
+            <div class="ms-chat-header">
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <div class="av" style="width:38px; height:38px; font-size:0.8rem;">${escHtml(partner.name.slice(0, 2).toUpperCase())}</div>
+                    <div>
+                        <div style="font-weight:800; font-size:0.95rem;">${escHtml(partner.name)}</div>
+                        <div style="font-size:0.75rem; color:${partner.online ? '#10b981' : 'var(--t2)'};">
+                            ${partner.online ? '● Aktivní nyní' : 'Offline'} · ${escHtml(partner.handle)}
+                        </div>
+                    </div>
+                </div>
+                ${window.curDraft ? `<button type="button" class="btn bg" style="font-size:0.78rem;" onclick="odeslatZpravuVChatu('${partner.id}', '🗺️ Sdílený výlet: ${escHtml(window.curDraft.lokace)}')">Sdílet aktuální výlet</button>` : ''}
+            </div>
+
+            <div class="ms-thread-body" id="msThreadBody">${bublinyHtml}</div>
+
+            <div class="ms-composer">
+                <input type="text" id="msMessageInput" class="f" placeholder="Napište zprávu..." style="margin:0; border-radius:99px;" onkeydown="if(event.key==='Enter') odeslatZpravuVChatu('${partner.id}')">
+                <button type="button" class="btn bp" style="border-radius:99px; padding:10px 20px;" onclick="odeslatZpravuVChatu('${partner.id}')">Odeslat</button>
+            </div>
+        `;
+
+        const thread = document.getElementById('msThreadBody');
+        if (thread) thread.scrollTop = thread.scrollHeight;
+    };
+})();
