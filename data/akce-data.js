@@ -1,11 +1,11 @@
 const akceData = [
     {
-        nazev: "Dinosauria Museum Prague - Celodenní vstupenka",
-        datum: "Otevřeno denně 2026",
-        misto: "POP Airport, Praha",
-        popis: "Cesta do pravěku na ploše 4000 m². Prohlédněte si originální kostry dinosaurů, špičkové modely a zažijte virtuální realitu, která vás přenese miliony let zpět.",
-        logoUrl: "https://images.unsplash.com/photo-1569091791842-7cfb64e04797?q=80&w=400",
-        vstupenkyUrl: "https://www.ticketportal.cz/event/Dinosauria-Celodenni-vstupenka?target=6&imedium=timeline",
+        nazev: "DYK SOU VÁNOCE",
+        datum: "19. - 22. 12. 2026",
+        misto: "Ostrava, Praha",
+        popis: "Dyk sou Vánoce 26, přátelé.",
+        logoUrl: "https://static.ticketportal.cz//images/podujatie/-2147475870/orig_DYK_SOU_VANOCE_21_12_2026_202698134735.jpg?tag=9DD1E54EEA98144DEC0628D011639509&tag=46A53E89CF6A4CC3C3DDA4F5FBC6E733",
+        vstupenkyUrl: "https://www.ticketportal.cz/event/DYK-SOU-VANOCE?imedium=timeline",
         doprava: { typ: "vlak", z: "Ostrava", do: "Praha", datumFormatovane: "15.05.2026" }
     },
     {
