@@ -113,25 +113,147 @@ function vykresliHvezdicky(id, cur=0){
     const ratingEl = document.getElementById('resTopRating');
     if (ratingEl) ratingEl.innerHTML = h;
 }
+window.aktualizujObtiznostUI = function(val) {
+    const lbl = document.getElementById('lblObtiznost');
+    if (!lbl) return;
+    const v = parseInt(val, 10) || 2;
+    const map = {
+        1: { text: '1 — Lehká', cls: 'diff-1' },
+        2: { text: '2 — Střední', cls: 'diff-2' },
+        3: { text: '3 — Náročná', cls: 'diff-3' }
+    };
+    lbl.innerText = map[v].text;
+    lbl.className = `diff-badge ${map[v].cls}`;
+};
+
+async function normalizujNazevMesta(surovyVstup) {
+    let text = surovyVstup.trim()
+        .replace(/^(někde|někam|kdysi|přímo|asi|zhruba|okolo|kolem|poblíž|blízko|v okolí|do okolí|centrum|město|města)\s+/gi, '')
+        .replace(/^(v|ve|do|z|ze|na|u|k|ke|po|o|od|před|za|nad|pod|mezi)\s+/gi, '')
+        .trim();
+
+    if (!text) text = surovyVstup.trim();
+
+    // Vygenerujeme kandidáty pro přesné vyhledání (původní tvar + oříznutý český pád)
+    const kandidati = [text];
+    if (text.length > 4) {
+        kandidati.push(text.replace(/(ách|ech|emi|ami|ovi|ích|ou|ům|ím|em|om|u|i|e|ě|y|a)$/i, ''));
+    }
+
+    for (const dotaz of kandidati) {
+        if (dotaz.length < 2) continue;
+        try {
+            const r = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(dotaz)}&count=1&language=cs&format=json`);
+            const data = await r.json();
+            if (data.results && data.results.length > 0 && data.results[0].name) {
+                return data.results[0].name;
+            }
+        } catch (e) {}
+    }
+
+    return text.charAt(0).toUpperCase() + text.slice(1);
+}
+
+function formatujMinutyNaCas(celkemMinut) {
+    const m = ((celkemMinut % 1440) + 1440) % 1440;
+    const hh = String(Math.floor(m / 60)).padStart(2, '0');
+    const mm = String(m % 60).padStart(2, '0');
+    return `${hh}:${mm}`;
+}
+
+function parsujCasNaMinuty(casStr) {
+    if (!casStr) return null;
+    const match = String(casStr).match(/(\d{1,2})[:.](\d{2})/);
+    if (!match) return null;
+    return parseInt(match[1], 10) * 60 + parseInt(match[2], 10);
+}
+
+function zajistiStartAHarmonogram(etapy, cistyStart, cistyCil, dopravy) {
+    const seznam = Array.isArray(etapy) ? [...etapy] : [];
+    const dopravaPopis = dopravy.length ? dopravy.join(', ') : 'dle zvolené dopravy';
+    const startLower = cistyStart.toLowerCase();
+
+    // 1. První zastávka musí vždy popisovat, odkud se pojede
+    const prvniObsahujeStart = seznam.length > 0 && (
+        (seznam[0].misto || '').toLowerCase().includes(startLower) ||
+        (seznam[0].popis || '').toLowerCase().includes(`z ${startLower}`) ||
+        (seznam[0].popis || '').toLowerCase().includes(`odjezd`)
+    );
+
+    if (!prvniObsahujeStart) {
+        const casPrvniCile = seznam.length > 0 ? parsujCasNaMinuty(seznam[0].cas) : null;
+        const vychoziOdjezdMin = (casPrvniCile !== null && casPrvniCile >= 540) ? casPrvniCile - 75 : 510; // 08:30
+        seznam.unshift({
+            cas: formatujMinutyNaCas(vychoziOdjezdMin),
+            misto: `Odjezd: ${cistyStart}`,
+            popis: `Výchozí bod cesty z města ${cistyStart} směrem do destinace ${cistyCil} (${dopravaPopis}).`
+        });
+    } else if (!seznam[0].misto.toLowerCase().startsWith('odjezd')) {
+        seznam[0].misto = `Odjezd: ${cistyStart} (${seznam[0].misto})`;
+    }
+
+    // 2. Kontrola a srovnání realistického časového harmonogramu
+    let predchoziMin = parsujCasNaMinuty(seznam[0].cas);
+    if (predchoziMin === null) {
+        predchoziMin = 510; // 08:30
+        seznam[0].cas = formatujMinutyNaCas(predchoziMin);
+    }
+
+    for (let i = 1; i < seznam.length; i++) {
+        let aktualniMin = parsujCasNaMinuty(seznam[i].cas);
+        const minimalniRozestup = (i === 1) ? 60 : 50; // 1. přesun mezi městy min. 60 min, další zastávky min. 50 min
+
+        if (aktualniMin === null || aktualniMin < predchoziMin + minimalniRozestup) {
+            aktualniMin = predchoziMin + minimalniRozestup;
+            seznam[i].cas = formatujMinutyNaCas(aktualniMin);
+        }
+        predchoziMin = aktualniMin;
+    }
+
+    return seznam;
+}
+
 async function generovat(){
     if(!prihlaseno)return alert('Pro plánování výletů se prosím přihlaste.');
-    const start=document.getElementById('startIn').value.trim();
-    const cil=document.getElementById('cilIn').value.trim();
-    if(!start || !cil)return alert('Zadejte prosím odkud a kam chcete jet.');
-    const misto = `${start} -> ${cil}`;
+    const startRaw=document.getElementById('startIn').value.trim();
+    const cilRaw=document.getElementById('cilIn').value.trim();
+    if(!startRaw || !cilRaw)return alert('Zadejte prosím odkud a kam chcete jet.');
+
+    const btn=document.getElementById('genBtn');btn.innerHTML='<div class="spin"></div> Zpracov\xE1v\xE1m...';btn.disabled=true;
+
+    // Přesné dohledání názvů měst (např. "někde v plzni" -> "Plzeň", výsledek "Praha - Plzeň")
+    const [cistyStart, cistyCil] = await Promise.all([
+        normalizujNazevMesta(startRaw),
+        normalizujNazevMesta(cilRaw)
+    ]);
+    const misto = `${cistyStart} - ${cistyCil}`;
+
     const filtry=Array.from(document.querySelectorAll('.ai-filter:checked')).map(c=>c.value);
     const posuvnik = document.getElementById('inpLide');
     if(posuvnik) filtry.push(`Počet osob: ${posuvnik.value}`);
     const posuvnikZ = document.getElementById('inpZastavky');
     if(posuvnikZ) filtry.push(`Počet zastávek: ${posuvnikZ.value}`);
-    const btn=document.getElementById('genBtn');btn.innerHTML='<div class="spin"></div> Zpracov\xE1v\xE1m...';btn.disabled=true;
+
+    const obtiznostVal = parseInt(document.getElementById('inpObtiznost')?.value || '2', 10);
+    const obtiznostNazvy = { 1: 'Lehká', 2: 'Střední', 3: 'Náročná' };
+    filtry.push(`Obtížnost cesty: ${obtiznostNazvy[obtiznostVal]}`);
+
+    const uzivatelSpec = document.getElementById('specIn').value.trim();
+    const instrukceProAI = `Pojmenuj výlet přesně "${misto}". První zastávka v harmonogramu musí být odjezd z místa "${cistyStart}" s popisem cesty do "${cistyCil}" a časy všech zastávek musí tvořit realistický chronologický harmonogram včetně doby přesunu.${uzivatelSpec ? ' Další přání: ' + uzivatelSpec : ''}`;
 
     try{
-        const res=await(await fetch('/api/vylet',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({misto,specifikace:document.getElementById('specIn').value,vybraneFiltry:filtry})})).json();
+        const res=await(await fetch('/api/vylet',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({misto,specifikace:instrukceProAI,obtiznost:obtiznostVal,vybraneFiltry:filtry})})).json();
         if(res.uspech){
             curDraft=res.data;curOpenTripId=null;
+            curDraft.lokace = misto;
+            curDraft.obtiznost = obtiznostVal;
+            curDraft.pocetOsobRozpocet = parseInt(posuvnik?.value || '2', 10);
+
+            const vybraneDopravy = Array.from(document.querySelectorAll('#w-doprava .ai-filter:checked')).map(c=>c.value);
+            curDraft.etapy = zajistiStartAHarmonogram(curDraft.etapy, cistyStart, cistyCil, vybraneDopravy);
+
             document.getElementById('resTitle').innerText=curDraft.lokace;
-            document.getElementById('resDiffText').innerText = 'AI Koncept — Náročnost ' + (curDraft.obtiznost || 2);
+            document.getElementById('resDiffText').innerText = `AI Koncept — Náročnost ${obtiznostVal} (${obtiznostNazvy[obtiznostVal]})`;
 
             // Render Widgetu Počasí
             nactiPocasiOpenMeteo(curDraft.lokace);
@@ -140,7 +262,6 @@ async function generovat(){
             document.getElementById('btnSaveAI').style.display='inline-flex';
             
             // Tlačítka okamžitě viditelná po generování
-            if(document.getElementById('btnUploadStrava')) document.getElementById('btnUploadStrava').style.display='inline-flex';
             if(document.getElementById('btnShareIG')) document.getElementById('btnShareIG').style.display='inline-flex';
             if(document.getElementById('btnEditTrip')) document.getElementById('btnEditTrip').style.display='inline-flex';
             if(document.getElementById('btnCalendarAdd')) document.getElementById('btnCalendarAdd').style.display='inline-flex';
@@ -159,8 +280,6 @@ async function generovat(){
             document.getElementById('resBody').innerHTML=h;
             if (typeof vykreslitDopravu === 'function') vykreslitDopravu(curDraft);
             
-            // BEZPEČNÉ SKRYTÍ TLAČÍTKA SDÍLENÍ
-
             const shareBtn = document.getElementById('btnShareTrip');
             if(shareBtn) shareBtn.style.display = 'none';
             
@@ -279,78 +398,109 @@ async function smazatVydaj(id) {
 }
 
 window.smazatVydaj = smazatVydaj;
+window.zmenitPocetOsobRozpocet = function(delta) {
+    if (!curDraft) curDraft = {};
+    const aktualni = curDraft.pocetOsobRozpocet || parseInt(document.getElementById('inpLide')?.value || '2', 10) || 2;
+    curDraft.pocetOsobRozpocet = Math.max(1, Math.min(50, aktualni + delta));
+    vykreslitRozpocet();
+};
+
 function vykreslitRozpocet() {
     const listEl = document.getElementById('budgetList');
     const splitEl = document.getElementById('budgetSplit');
+    const totalEl = document.getElementById('budgetTotalVal');
+    const peopleEl = document.getElementById('budgetPeopleCount');
+    const perPersonEl = document.getElementById('budgetPerPersonVal');
 
-    if (!curDraft || !curDraft.rozpocet || curDraft.rozpocet.length === 0) {
-        listEl.innerHTML = '<p style="color:var(--t2); font-size:0.9rem; text-align:center; padding: 10px;">Zatím žádné výdaje.</p>';
-        if (splitEl) splitEl.innerHTML = '';
-        return;
-    }
-
+    const polozky = (curDraft && Array.isArray(curDraft.rozpocet)) ? curDraft.rozpocet : [];
     let celkem = 0;
     const utratyLidi = {};
 
-    curDraft.rozpocet.forEach(v => {
+    polozky.forEach(v => {
         celkem += v.kolik;
         if (!utratyLidi[v.kdo]) utratyLidi[v.kdo] = 0;
         utratyLidi[v.kdo] += v.kolik;
     });
 
-    let html = `
-    <button onclick="const c = document.getElementById('budgetContentWrapper'); const i = document.getElementById('budgetToggleIcon'); if(c.style.display==='none'){c.style.display='flex'; i.style.transform='rotate(180deg)';}else{c.style.display='none'; i.style.transform='rotate(0deg)';}" style="width:100%; background: linear-gradient(145deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02)); border:1px solid rgba(255,255,255,0.1); color:white; padding:16px; border-radius:16px; font-weight:700; display:flex; justify-content:space-between; align-items:center; cursor:pointer; margin-bottom:16px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
-        <div style="display:flex; align-items:center; gap:10px;">
-            <span style="font-size: 1.2rem;">💰</span>
-            <span style="font-size: 0.95rem;">Rozpočet výletu</span>
-        </div>
-        <div style="display:flex; align-items:center; gap:12px;">
-            <span style="color: #10b981; font-family: var(--fm); font-size: 1.05rem;">${celkem} Kč</span>
-            <svg id="budgetToggleIcon" style="transition: transform 0.3s;" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
-        </div>
-    </button>
-    <div id="budgetContentWrapper" style="display:none; flex-direction:column; gap:8px;">
-    `;
+    const jmenaPlatcu = Object.keys(utratyLidi);
+    const vychoziOsoby = parseInt(document.getElementById('inpLide')?.value || '2', 10) || 2;
+    if (curDraft && !curDraft.pocetOsobRozpocet) {
+        curDraft.pocetOsobRozpocet = Math.max(vychoziOsoby, jmenaPlatcu.length || 1);
+    }
+    const pocetOsob = Math.max((curDraft?.pocetOsobRozpocet || vychoziOsoby), jmenaPlatcu.length || 1);
+    const naOsobu = pocetOsob > 0 ? Math.round(celkem / pocetOsob) : celkem;
 
-    curDraft.rozpocet.forEach(v => {
+    if (totalEl) totalEl.innerText = `${celkem.toLocaleString('cs-CZ')} Kč`;
+    if (peopleEl) peopleEl.innerText = pocetOsob;
+    if (perPersonEl) perPersonEl.innerText = `${naOsobu.toLocaleString('cs-CZ')} Kč`;
+
+    if (polozky.length === 0) {
+        listEl.innerHTML = '<div style="text-align:center; padding:18px; border:1px dashed var(--gbd2); border-radius:14px; color:var(--t2); font-size:0.86rem;">Zatím žádné výdaje. Přidejte první položku výše a celková částka se automaticky rozpočítá na osobu.</div>';
+        if (splitEl) splitEl.innerHTML = '';
+        return;
+    }
+
+    let html = `<p class="ey" style="margin-bottom:10px;">Položky výdajů (${polozky.length})</p><div style="display:flex; flex-direction:column; gap:8px;">`;
+    polozky.forEach(v => {
+        const iniciala = (v.kdo || '?').charAt(0).toUpperCase();
         html += `
-        <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.2); padding:12px 16px; border-radius:12px; border:1px solid rgba(255,255,255,0.05);">
-            <div style="font-size: 0.9rem;">
-                <strong style="color:var(--a1); font-weight: 800;">${v.kdo}</strong> platil(a) za <strong style="color:#f5f5f7;">${v.zaCo}</strong>
+        <div class="budget-item-row">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <div class="av" style="width:34px; height:34px; font-size:0.8rem;">${iniciala}</div>
+                <div>
+                    <div style="font-weight:700; font-size:0.92rem; color:var(--t1);">${v.zaCo}</div>
+                    <div style="font-size:0.75rem; color:var(--t2);">Platil(a): <strong style="color:var(--a1);">${v.kdo}</strong></div>
+                </div>
             </div>
             <div style="display:flex; align-items:center; gap:12px;">
-                <span style="font-weight:bold; font-family: var(--fm); color:#f5f5f7;">${v.kolik} Kč</span>
-                <button class="btn bgh bi" style="padding:6px; background:rgba(239,68,68,0.1); border-radius:8px;" aria-label="Smazat výdaj" onclick="smazatVydaj('${v.id}')"><span style="color: #ef4444; font-weight: bold; font-size: 0.8rem;">✕</span></button>
+                <span style="font-weight:800; font-family:var(--fm); font-size:0.95rem; color:var(--t1);">${v.kolik.toLocaleString('cs-CZ')} Kč</span>
+                <button type="button" class="btn bgh bi" style="width:30px; height:30px; border-radius:8px; border-color:rgba(239,68,68,0.25);" aria-label="Smazat výdaj" onclick="smazatVydaj('${v.id}')">
+                    <span style="color:#ef4444; font-weight:bold; font-size:0.8rem;">✕</span>
+                </button>
             </div>
         </div>`;
     });
     html += '</div>';
     listEl.innerHTML = html;
 
-    const lide = Object.keys(utratyLidi);
-    const pocetLidi = lide.length;
-    if (pocetLidi <= 1) { if(splitEl) splitEl.innerHTML = ''; return; }
-    
-    const prumer = celkem / pocetLidi;
-    const bilance = [];
-    lide.forEach(osoba => { bilance.push({ kdo: osoba, rozdil: utratyLidi[osoba] - prumer }); });
-    const dluznici = bilance.filter(b => b.rozdil < -0.01).sort((a,b) => a.rozdil - b.rozdil);
-    const veritele = bilance.filter(b => b.rozdil > 0.01).sort((a,b) => b.rozdil - a.rozdil);
-    
-    let vyrovnaniHtml = `<ul style="list-style:none; padding:0; margin:0 0 10px 0; display:flex; flex-direction:column; gap:6px;">`;
+    if (!splitEl) return;
+
+    // Rozpočítání mezi všechny účastníky (i když někteří nezadali žádný výdaj)
+    const ucastnici = [...jmenaPlatcu];
+    const chybejiciOsoby = pocetOsob - ucastnici.length;
+    for (let k = 1; k <= chybejiciOsoby; k++) {
+        const oznaceni = chybejiciOsoby === 1 ? 'Další účastník' : `Účastník #${ucastnici.length + 1}`;
+        ucastnici.push(oznaceni);
+        utratyLidi[oznaceni] = 0;
+    }
+
+    if (ucastnici.length <= 1) {
+        splitEl.innerHTML = '';
+        return;
+    }
+
+    const prumer = celkem / ucastnici.length;
+    const bilance = ucastnici.map(osoba => ({ kdo: osoba, rozdil: utratyLidi[osoba] - prumer }));
+    const dluznici = bilance.filter(b => b.rozdil < -0.5).sort((a, b) => a.rozdil - b.rozdil);
+    const veritele = bilance.filter(b => b.rozdil > 0.5).sort((a, b) => b.rozdil - a.rozdil);
+
+    let vyrovnaniHtml = `<p class="ey" style="margin-bottom:10px;">Vyrovnání mezi účastníky (${naOsobu.toLocaleString('cs-CZ')} Kč / osoba)</p><div style="display:flex; flex-direction:column; gap:8px;">`;
     let i = 0, j = 0;
     while (i < dluznici.length && j < veritele.length) {
-        const dl = dluznici[i]; const ve = veritele[j];
+        const dl = dluznici[i];
+        const ve = veritele[j];
         const castka = Math.min(Math.abs(dl.rozdil), ve.rozdil);
-        vyrovnaniHtml += `<li style="font-size:0.9rem; background: rgba(16, 185, 129, 0.1); padding: 8px 12px; border-radius: 8px; border-left: 3px solid #10b981; display:flex; align-items:center; gap:8px;">
-            <span>💸</span><span><strong style="color:#ef4444; font-weight:800;">${dl.kdo}</strong> pošle <strong style="color:#10b981; font-family:var(--fm); font-size:1.05em;">${Math.round(castka)} Kč</strong> pro <strong style="color:var(--t1); font-weight:800;">${ve.kdo}</strong></span>
-        </li>`;
-        dl.rozdil += castka; ve.rozdil -= castka;
-        if (Math.abs(dl.rozdil) < 0.01) i++;
-        if (ve.rozdil < 0.01) j++;
+        vyrovnaniHtml += `
+        <div class="budget-settle-item">
+            <span><strong style="color:#ef4444;">${dl.kdo}</strong> pošle <strong style="color:#10b981; font-family:var(--fm); font-size:1.02rem;">${Math.round(castka).toLocaleString('cs-CZ')} Kč</strong> → <strong style="color:var(--t1);">${ve.kdo}</strong></span>
+        </div>`;
+        dl.rozdil += castka;
+        ve.rozdil -= castka;
+        if (Math.abs(dl.rozdil) < 0.5) i++;
+        if (ve.rozdil < 0.5) j++;
     }
-    vyrovnaniHtml += `</ul>`;
-    if(splitEl) splitEl.innerHTML = vyrovnaniHtml;
+    vyrovnaniHtml += `</div>`;
+    splitEl.innerHTML = vyrovnaniHtml;
 }
 window.vykreslitRozpocet = vykreslitRozpocet;
 async function exportRozpocetJPG() {
@@ -1012,7 +1162,8 @@ window.nactiPocasiOpenMeteo = async function(nazevLokace) {
     if (!nazevLokace) return;
 
     try {
-        const ciloveMisto = nazevLokace.includes('->') ? nazevLokace.split('->').pop().trim() : nazevLokace.trim();
+        const oddelovac = nazevLokace.includes('->') ? '->' : (nazevLokace.includes(' - ') ? ' - ' : null);
+        const ciloveMisto = oddelovac ? nazevLokace.split(oddelovac).pop().trim() : nazevLokace.trim();
         const geoReq = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(ciloveMisto)}&count=1&language=cs&format=json`);
         const geoRes = await geoReq.json();
         
@@ -1076,8 +1227,9 @@ function vykreslitDopravu(draft) {
         let start = 'Praha';
         let cil = draft.lokace || draft.mesto || 'Cíl výletu';
 
-        if (draft.lokace && draft.lokace.includes('->')) {
-            const parts = draft.lokace.split('->');
+        const sep = draft.lokace?.includes('->') ? '->' : (draft.lokace?.includes(' - ') ? ' - ' : null);
+        if (draft.lokace && sep) {
+            const parts = draft.lokace.split(sep);
             start = parts[0].trim();
             cil = parts[1].trim();
         }

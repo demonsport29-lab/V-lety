@@ -703,6 +703,20 @@
                 <h2 style="font-size:1.3rem;font-weight:800;margin-bottom:18px;letter-spacing:-.02em;">Sestavit výlet</h2>
                 <input type="text" id="startIn" class="f" placeholder="Odkud vyjíždíte? (např. Praha)">
                 <input type="text" id="cilIn" class="f" placeholder="Cílová destinace (např. Šumava)">
+
+                <div class="diff-slider-box">
+                    <div class="diff-slider-head">
+                        <span>Obtížnost cesty</span>
+                        <span id="lblObtiznost" class="diff-badge diff-2">2 — Střední</span>
+                    </div>
+                    <input type="range" id="inpObtiznost" min="1" max="3" step="1" value="2" class="range-slider" style="width:100%;" oninput="aktualizujObtiznostUI(this.value)">
+                    <div class="diff-labels">
+                        <span onclick="document.getElementById('inpObtiznost').value=1; aktualizujObtiznostUI(1)">1 · Lehká</span>
+                        <span onclick="document.getElementById('inpObtiznost').value=2; aktualizujObtiznostUI(2)">2 · Střední</span>
+                        <span onclick="document.getElementById('inpObtiznost').value=3; aktualizujObtiznostUI(3)">3 · Náročná</span>
+                    </div>
+                </div>
+
                 <input type="text" id="specIn" class="f" placeholder="Specifická přání (volitelné)">
 
                 <div class="acc" id="w-doprava">
@@ -843,22 +857,48 @@
                                 <button class="btn bp" style="font-size:.8rem;padding:8px 16px; border-radius:10px;" onclick="odeslatKomentar()">Odeslat komentář <svg class="ti ti-send" width="1.2em" height="1.2em" aria-hidden="true"  style="margin-left:4px;"><use href="#ti-send"></use></svg></button>
                             </div>
                         </div>
-                    </div> </div> </div> <div class="rc" id="budgetWidget" style="display:none; width: 340px; flex-shrink: 0; margin-top: 0; margin-bottom: 0; flex-direction: column; background: rgba(255,255,255,0.03); border-radius: 24px;">
-                <div class="rtop" style="display:flex; justify-content:space-between; align-items:center;">
-                    <h2 style="font-size:1.6rem; font-weight:800; letter-spacing:-.02em; margin:0;">Rozpočet</h2>
-                    <button class="btn bp" onclick="exportRozpocetJPG()" id="btnExportJPG">
-                        <i class="ph ph-download-simple"></i> Uložit jako JPG
-                    </button>
+                    </div> </div> </div> <div class="rc budget-redesign" id="budgetWidget" style="display:none; width: 100%; margin-top: 0; margin-bottom: 0; flex-direction: column;">
+                <div class="rtop" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+                    <div>
+                        <p class="ey" style="margin-bottom:4px;">Finance výletu</p>
+                        <h2 style="font-size:1.55rem; font-weight:800; letter-spacing:-.02em; margin:0;">Rozpočet a rozpočítání</h2>
+                    </div>
+                    <div style="display:flex; gap:8px; align-items:center;">
+                        <button class="btn bp" onclick="exportRozpocetJPG()" id="btnExportJPG">
+                            <i class="ph ph-download-simple"></i> Uložit jako JPG
+                        </button>
+                        <button class="btnx" type="button" onclick="toggleBudgetWidget()" aria-label="Zavřít rozpočet">✕</button>
+                    </div>
                 </div>
                 <div class="rbody">
-                    <div id="budgetForm" style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom: 15px;">
-                        <input type="text" id="budgetKdo" class="f" placeholder="Kdo platil (např. Petr)" style="margin:0; flex:1; min-width: 120px; padding:10px; border-radius:12px; border:1px solid rgba(255,255,255,0.1);">
-                        <input type="text" id="budgetZaCo" class="f" placeholder="Za co (např. Benzín)" style="margin:0; flex:1; min-width: 120px; padding:10px; border-radius:12px; border:1px solid rgba(255,255,255,0.1);">
-                        <input type="number" id="budgetKolik" class="f" placeholder="Kolik Kč (např. 500)" style="margin:0; flex:0.6; min-width: 80px; padding:10px; border-radius:12px; border:1px solid rgba(255,255,255,0.1);">
-                        <button class="btn bp bf" onclick="pridatVydaj()" style="flex: 0.5; min-width: 100px;">Přidat výdaj</button>
+                    <div class="budget-stats-grid">
+                        <div class="budget-stat-card">
+                            <span class="sl">Celkové náklady</span>
+                            <div class="budget-stat-val" id="budgetTotalVal">0 Kč</div>
+                        </div>
+                        <div class="budget-stat-card">
+                            <span class="sl">Počet osob</span>
+                            <div class="budget-stepper">
+                                <button type="button" class="budget-step-btn" onclick="zmenitPocetOsobRozpocet(-1)">−</button>
+                                <span id="budgetPeopleCount">2</span>
+                                <button type="button" class="budget-step-btn" onclick="zmenitPocetOsobRozpocet(1)">+</button>
+                            </div>
+                        </div>
+                        <div class="budget-stat-card highlight">
+                            <span class="sl">Podíl na 1 osobu</span>
+                            <div class="budget-stat-val accent" id="budgetPerPersonVal">0 Kč</div>
+                        </div>
                     </div>
-                    <div id="budgetList" style="margin-top: 15px;"></div>
-                    <div id="budgetSplit" style="padding:15px; background:var(--bg-input); border-radius:10px; margin-top:15px; font-weight: 600;"></div>
+
+                    <div id="budgetForm" class="budget-form-grid">
+                        <input type="text" id="budgetKdo" class="f" placeholder="Kdo platil (např. Petr)" style="margin:0;">
+                        <input type="text" id="budgetZaCo" class="f" placeholder="Za co (např. Benzín, oběd)" style="margin:0;">
+                        <input type="number" id="budgetKolik" class="f" placeholder="Částka (Kč)" min="1" style="margin:0;">
+                        <button type="button" class="btn bp" onclick="pridatVydaj()" style="border-radius:var(--rsm); height:44px;">+ Přidat</button>
+                    </div>
+
+                    <div id="budgetList" style="margin-top: 18px;"></div>
+                    <div id="budgetSplit" style="margin-top: 16px;"></div>
                 </div>
             </div>
             </div>
