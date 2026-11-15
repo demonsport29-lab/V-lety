@@ -194,3 +194,93 @@ if (typeof window.toggleAcc !== 'function') {
         body.style.maxHeight = acc.classList.contains('open') ? '380px' : '0px';
     };
 }
+const VZOROVE_TRASY = [
+    {
+        id: 'demo-snezka',
+        lokace: 'Sněžka přes Obří důl (Krkonoše)',
+        doprava: 'Pěšky',
+        vzdalenost: '14,2 km',
+        cas: '5 hod 15 min',
+        popis: 'Klasický horský výstup z Pece pod Sněžkou malebným Obřím dolem až na nejvyšší vrchol ČR (1 603 m n. m.) s návratem přes Růžohorky.',
+        zastavky: [
+            { nazev: 'Pec pod Sněžkou – Kaplička', popis: 'Start trasy, možnost ranní kávy a doplnění vody.', lat: 50.6934, lng: 15.7335 },
+            { nazev: 'Bouda pod Sněžkou & Obří důl', popis: 'Výhledy na ledovcový kar a bývalou kovárnu.', lat: 50.7225, lng: 15.7311 },
+            { nazev: 'Vrchol Sněžky (1 603 m)', popis: 'Poštovna Anežka, panoramatické výhledy do Polska i ČR.', lat: 50.7360, lng: 15.7398 },
+            { nazev: 'Růžohorky', popis: 'Zastávka na oběd v horské boudě cestou dolů.', lat: 50.7138, lng: 15.7485 }
+        ]
+    },
+    {
+        id: 'demo-cesky-raj',
+        lokace: 'Prachovské skály s dětmi (Český ráj)',
+        doprava: 'Pěšky / Rodinný výlet',
+        vzdalenost: '7,0 km',
+        cas: '3 hod 30 min',
+        popis: 'Nenáročný okruh mezi pískovcovými věžemi vhodný pro děti s vyhlídkami Českého ráje a zastávkou na oběd.',
+        zastavky: [
+            { nazev: 'Turistická chata Prachov', popis: 'Výchozí bod okruhu, občerstvení a dětské zázemí.', lat: 50.4675, lng: 15.2856 },
+            { nazev: 'Vyhlídka Českého ráje', popis: 'Nejznámější pohled na skalní věže a Trosky v dálce.', lat: 50.4698, lng: 15.2812 },
+            { nazev: 'Císařská chodba', popis: 'Chladná soutěska mezi vysokými pískovcovými stěnami.', lat: 50.4712, lng: 15.2839 }
+        ]
+    },
+    {
+        id: 'demo-sumava-pes',
+        lokace: 'Povydří a Antýgl se psem (Šumava)',
+        doprava: 'Pěšky se psem',
+        vzdalenost: '11,0 km',
+        cas: '3 hod 45 min',
+        popis: 'Pohodová trasa podél balvanitého řečiště řeky Vydry bez prudkých stoupání, ideální pro výlet se psem.',
+        zastavky: [
+            { nazev: 'Antýgl – bývalý královácký dvorec', popis: 'Start trasy u soutoku Hamerského potoka a Vydry.', lat: 49.0558, lng: 13.5042 },
+            { nazev: 'Turnerova chata', popis: 'Tradiční šumavská chata uprostřed lesů, venkovní posezení se psem.', lat: 49.0681, lng: 13.5015 },
+            { nazev: 'Čeňkova Pila', popis: 'Soutok Vydry a Křemelné, možnost návratu autobusem nebo pěšky.', lat: 49.0928, lng: 13.4956 }
+        ]
+    }
+];
+
+window.nacistVzorovyVylet = function(index) {
+    const trasa = VZOROVE_TRASY[index];
+    if (!trasa) return;
+    window.curDraft = trasa;
+    if (typeof otevritDetailVyletu === 'function') {
+        otevritDetailVyletu(trasa);
+    }
+};
+
+window.spustitGenerovaniSDemem = async function() {
+    const jePrihlasen = Boolean(typeof prihlaseno !== 'undefined' && prihlaseno);
+    if (jePrihlasen) {
+        if (typeof generovat === 'function') return generovat();
+        return;
+    }
+
+    if (localStorage.getItem('verona_free_demo_used') === '1') {
+        alert('Svůj 1 zkušební výlet bez registrace už máte vyčerpaný. Přihlaste se přes Google pro neomezené plánování a ukládání.');
+        if (typeof vyzadujePrihlaseni === 'function') vyzadujePrihlaseni();
+        return;
+    }
+
+    localStorage.setItem('verona_free_demo_used', '1');
+    const hint = document.getElementById('demoQuotaHint');
+    if (hint) hint.innerText = 'Zkušební výlet využit – pro trvalé uložení do deníku se přihlaste';
+
+    if (typeof generovat === 'function') {
+        await generovat(true);
+        if (window.curDraft) {
+            try { localStorage.setItem('verona_demo_trip', JSON.stringify(window.curDraft)); } catch (e) {}
+        }
+    }
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+    const jePrihlasen = Boolean(typeof prihlaseno !== 'undefined' && prihlaseno);
+    if (!jePrihlasen) {
+        try {
+            const savedDemo = localStorage.getItem('verona_demo_trip');
+            if (savedDemo && !window.curDraft) {
+                const trip = JSON.parse(savedDemo);
+                window.curDraft = trip;
+                if (typeof otevritDetailVyletu === 'function') otevritDetailVyletu(trip);
+            }
+        } catch (e) {}
+    }
+});
