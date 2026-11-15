@@ -18,28 +18,28 @@ const akceData = [
         doprava: { typ: "vlak", z: "Brno", do: "Praha", datumFormatovane: "12.11.2026" }
     },
     {
-        nazev: "Eric Clapton Live",
-        datum: "5. Června 2026",
-        misto: "O2 arena, Praha",
-        popis: "Jedna z největších kytarových legend historie, Eric Clapton, se vrací do České republiky, aby fanouškům předvedl průřez svou bohatou kariérou.",
-        logoUrl: "https://images.unsplash.com/photo-1510915361894-db8b60106cb1?q=80&w=400",
-        vstupenkyUrl: "https://www.ticketportal.cz/event/ERIC-CLAPTON?target=6&imedium=timeline"
+        nazev: "SNĚHOVÁ KRÁLOVNA - POHÁDKOVÝ MUZIKÁL NA LEDĚ",
+        datum: "9. 1. - 27. 2. 2027",
+        misto: "České Budějovice, Praha, Brno, Karlovy Vary, Jihlava, Ostrava",
+        popis: "Jeden z nejkrásnějších pohádkových příběhů o síle přátelství, lásky a odvahy ožije v jedinečném provedení poprvé na ledě.",
+        logoUrl: "https://static.ticketportal.cz//images/podujatie/180297/orig_2026819105242_SNAsHOVA__KRA_LOVNA___pohA_dkovA__muzikA_l_na_ledA_.jpg?tag=E8EA2AFCE418ED26694F2ACC1351F44D&tag=CE3ADF138137567235546F25C24B8AB6",
+        vstupenkyUrl: "https://www.ticketportal.cz/event/SNEHOVA-KRALOVNA-pohadkovy-muzikal-na-lede?imedium=timeline"
     },
     {
-        nazev: "Ceny Anděl 2026",
-        datum: "15. Května 2026",
+        nazev: "SÁM DOMA IN CONCERT",
+        datum: "15. 12. 2026",
         misto: "O2 universum, Praha",
-        popis: "Předávání nejprestižnějších hudebních cen České republiky za uplynulý rok s exkluzivními vystoupeními top interpretů.",
-        logoUrl: "https://images.unsplash.com/photo-1514525253361-bee8a18744ad?q=80&w=400",
-        vstupenkyUrl: "https://www.ticketportal.cz/event/ANDELE?target=6&imedium=timeline"
+        popis: "Po mimořádném úspěchu se vrací výjimečný projekt, který propojuje svět filmu a živé symfonické hudby. Ikonický snímek Sám doma, milovaný diváky po celém světě, zazní v doprovodu velkého symfonického orchestru a sboru v O2 universu.",
+        logoUrl: "https://static.ticketportal.cz//images/podujatie/-2147475433/orig_Sam_doma_in_Concert_2026_20264975936.jpg?tag=2124E17D0A3724DB9EE1E3C49BC1396B&tag=2176D4B42AAA5CF4C642C4A5CE55DFB2",
+        vstupenkyUrl: "https://www.ticketportal.cz/event/Sam-doma-in-Concert?imedium=timeline"
     },
     {
-        nazev: "FIM Speedway Grand Prix of Czech Republic",
-        datum: "30. Května 2026",
-        misto: "Stadion Markéta, Praha",
-        popis: "Nejlepší plošináři světa se utkají v Praze! Zažijte adrenalin, vůni metanolu a nekompromisní souboje na legendárním oválu.",
-        logoUrl: "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?q=80&w=400",
-        vstupenkyUrl: "https://www.ticketportal.cz/event/2026-FIM-SPEEDWAY-GRAND-PRIX-OF-CZECH-REPUBLIC?target=6&imedium=timeline"
+        nazev: "TŘI OŘÍŠKY PRO POPELKU KINOKONCERT",
+        datum: "21. 12. 2026",
+        misto: "Obecní dům - Smetanova síň",
+        popis: "Legendární Tři oříšky pro Popelku ožijí na velkém plátně v nádherných prostorách pražského Obecního domu za doprovodu Českého národního symfonického orchestru.",
+        logoUrl: "https://static.ticketportal.cz//images/podujatie/1208788/orig_2026101317234_TLTi_oLTA_L_ky_pro_Popelku_Kinokoncert.jpg?tag=DD749C75413A8A5B9DAC7BE08DA20C7A&tag=7A27B240A5EA2E3FC0F9C43E788BC29B",
+        vstupenkyUrl: "https://www.ticketportal.cz/event/Tri-orisky-pro-Popelku-Kinokoncert?imedium=timeline"
     },
     {
         nazev: "Pražský Hrad - Základní okruh",
