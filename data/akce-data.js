@@ -42,12 +42,12 @@ const akceData = [
         vstupenkyUrl: "https://www.ticketportal.cz/event/Tri-orisky-pro-Popelku-Kinokoncert?imedium=timeline"
     },
     {
-        nazev: "Pražský Hrad - Základní okruh",
-        datum: "Celoroční platnost 2026",
-        misto: "Pražský hrad, Praha",
-        popis: "Prozkoumejte symbol české státnosti. Vstupenka zahrnuje katedrálu sv. Víta, Starý královský palác, baziliku sv. Jiří a Zlatou uličku.",
-        logoUrl: "https://images.unsplash.com/photo-1541849546-216509ae73f9?q=80&w=400",
-        vstupenkyUrl: "https://www.ticketportal.cz/event/PRAZSKY-HRAD-PRAGUE-CASTLE-12004938?target=6&imedium=timeline"
+        nazev: "LOUSKÁČEK - VÁNOČNÍ SEN",
+        datum: "20. 12. 2026",
+        misto: "Městské divadlo, Prostějov",
+        popis: "Srdečně vás zveme do kouzelného světa baletu Louskáček!",
+        logoUrl: "https://static.ticketportal.cz//images/podujatie/1208951/orig_20261110121130_LOUSKA_ASEK___VA_noATnA__sen.jpg?tag=B30C7B70A77A2540E529B6CA0D555912&tag=0F43B5DBD0893F558226197CDEEC29F1",
+        vstupenkyUrl: "https://www.ticketportal.cz/event/LOUSKACEK-Vanocni-sen?imedium=timeline"
     }
 ];
 
